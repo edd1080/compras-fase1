@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "workflows": {
+    "speckit": {
+      "name": "Full SDD Cycle",
+      "version": "1.0.0",
+      "description": "Runs specify \u2192 plan \u2192 tasks \u2192 implement with review gates",
+      "source": "bundled",
+      "installed_at": "2026-08-12T04:35:43.511302+00:00",
+      "updated_at": "2026-08-12T04:35:43.511316+00:00"
+    },
+    "adf-day-zero": {
+      "name": "ADF Day Zero to Implementation Contract",
+      "version": "0.1.0",
+      "description": "Builds project context and a verified feature contract, then stops at G4 before implementation.",
+      "source": ".harness/spec-kit/workflow",
+      "installed_at": "2026-08-12T04:35:56.435626+00:00",
+      "updated_at": "2026-08-12T04:35:56.435848+00:00"
+    }
+  }
+}

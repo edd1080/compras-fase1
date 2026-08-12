@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "presets": {
+    "adf-guardrails": {
+      "version": "0.1.0",
+      "source": "local",
+      "manifest_hash": "sha256:6ee034ddb9ca15b8e024213d02ecfc56ec5dd59390b7cc2bbac4f2e103465b4b",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {},
+      "registered_skills": [],
+      "installed_at": "2026-08-12T04:35:56.158510+00:00"
+    }
+  }
+}

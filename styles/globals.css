@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@theme {
+  /* Paleta institucional BIA (doc 21) */
+  --color-azul-marino: #1c3565;
+  --color-azul-medio: #2e5fc9;
+  --color-azul-claro: #e8eef9;
+  --color-azul-tenue: #f0f4fb;
+  --color-fondo: #f5f7fa;
+  --color-superficie: #ffffff;
+  --color-borde: #d8dfe9;
+  --color-texto-principal: #1a2233;
+  --color-texto-secundario: #5a6880;
+  --color-texto-terciario: #8b96a8;
+
+  /* Semánticos (doc 21) */
+  --color-exito: #1b8a5a;
+  --color-exito-fondo: #e6f4ee;
+  --color-advertencia: #b87514;
+  --color-advertencia-fondo: #fdf4e3;
+  --color-error: #c0392b;
+  --color-error-fondo: #fcedeb;
+  --color-info: #2e5fc9;
+  --color-info-fondo: #e8eef9;
+
+  /* Tipografía (doc 21) */
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Radios (doc 21) */
+  --radius-field: 8px;
+  --radius-card: 12px;
+  --radius-modal: 16px;
+}
+
+:root {
+  --azul-marino: #1c3565;
+  --azul-medio: #2e5fc9;
+  --azul-claro: #e8eef9;
+  --azul-tenue: #f0f4fb;
+  --fondo: #f5f7fa;
+  --superficie: #ffffff;
+  --borde: #d8dfe9;
+  --texto-principal: #1a2233;
+  --texto-secundario: #5a6880;
+  --texto-terciario: #8b96a8;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--fondo);
+  color: var(--texto-principal);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+button {
+  min-height: 44px;
+}

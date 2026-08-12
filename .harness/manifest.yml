@@ -1,0 +1,198 @@
+schemaVersion: 1
+framework:
+  name: adf
+  version: 0.1.0
+  installedAt: 2026-08-12T04:35:53.658Z
+specKit:
+  version: 0.13.3
+  defaultIntegration: opencode
+  installedIntegrations:
+    - opencode
+managedFiles:
+  - path: AGENTS.md
+    strategy: merge-markers
+    installedSha256: 496216a7cd2833fa05bf9afbcacdb7fdac046602f0a28c7fb766fe648a961787
+    scope: managed-block
+  - path: .harness/spec-kit/workflow/workflow.yml
+    strategy: replace-if-unmodified
+    installedSha256: 3bf4ca71d280a0830880441f3258dda48d0f72f0b0f2ad2acb5b66333712f61f
+  - path: .harness/spec-kit/preset/preset.yml
+    strategy: replace-if-unmodified
+    installedSha256: 6ee034ddb9ca15b8e024213d02ecfc56ec5dd59390b7cc2bbac4f2e103465b4b
+  - path: .harness/spec-kit/preset/templates/plan-addendum.md
+    strategy: replace-if-unmodified
+    installedSha256: 3050eb12eeb5084a3a1c6c3cf5db54962387a871cc5c10d9f3e34d8d27716377
+  - path: .harness/spec-kit/steps/adf-validate-gate/step.yml
+    strategy: replace-if-unmodified
+    installedSha256: 9720315f3b8c95f6a1b4c6f4838cc12502e86eae40d4186e86a602286d645e40
+  - path: .harness/spec-kit/bundle/bundle.yml
+    strategy: replace-if-unmodified
+    installedSha256: 67b4561dbfb422a6ef9735fc1f68c379cbf38d0677a8f17097d3898936891408
+  - path: .agents/skills/project-intake/SKILL.md
+    strategy: replace-if-unmodified
+    installedSha256: 89e5ceb46b4c79e2dfa9313b1c259eb906142d2da07505516cd1aec2c04e651b
+  - path: .agents/skills/session-start/SKILL.md
+    strategy: replace-if-unmodified
+    installedSha256: d0f819952080f04540c0f44be159eb94d916364b04c72485f5aa6bf72c9147d7
+  - path: .agents/skills/context-router/SKILL.md
+    strategy: replace-if-unmodified
+    installedSha256: 009dc82779ebc5d687cc9bc5cde4741a35548c89aed0355925818cd178b6d39f
+  - path: .agents/skills/bug-fix/SKILL.md
+    strategy: replace-if-unmodified
+    installedSha256: 6ab612dcd0ca6efa7ca9bd6835a27895c47a14a9b8a7405d1006fbf1841edcce
+  - path: .agents/skills/verify-work/SKILL.md
+    strategy: replace-if-unmodified
+    installedSha256: 61d6f630cd25fdfa358afdd800b3c01c90407fc72373ee7cf9182ececfc42629
+  - path: .agents/skills/feature-close/SKILL.md
+    strategy: replace-if-unmodified
+    installedSha256: 5127d1dd0830113254d9dd313e395b47645219b6b2315758a91fcf557467a2e8
+  - path: .agents/skills/session-end/SKILL.md
+    strategy: replace-if-unmodified
+    installedSha256: cf3c970568ae4ceddc3f0c27d780eb48983905948ade4d815063a4439d2a8ee2
+  - path: .agents/skills/grilling/SKILL.md
+    strategy: replace-if-unmodified
+    installedSha256: 8263d127d11d69d91ef547dce98d463054c337c095e9a232039ecfc1eca1ee30
+  - path: .agents/skills/grill-with-docs/SKILL.md
+    strategy: replace-if-unmodified
+    installedSha256: bc70af2bffb6c73774e641fcf2e230aca5236a5fd629a430f4f6428a48eab86a
+  - path: .agents/skills/domain-modeling/SKILL.md
+    strategy: replace-if-unmodified
+    installedSha256: 8f4029259f85a87637a5db6481838e9a1e3a83577c880e2f59b70269f720402c
+  - path: .agents/skills/domain-modeling/ADR-FORMAT.md
+    strategy: replace-if-unmodified
+    installedSha256: 780707e7e0f182636e9dd675a79d355d4f2d39ae67a1c556f94b35de690705aa
+  - path: .agents/skills/domain-modeling/CONTEXT-FORMAT.md
+    strategy: replace-if-unmodified
+    installedSha256: d7e97b342977edfd030ebffe0f636afbc100e207bea82bb3ced9b686a64a5598
+  - path: .agents/skills/codebase-design/SKILL.md
+    strategy: replace-if-unmodified
+    installedSha256: 5ba657ee8a44f88c4c086c9fe2540232f76fa2575f0f09cfa1910352444581c3
+  - path: .agents/skills/codebase-design/DEEPENING.md
+    strategy: replace-if-unmodified
+    installedSha256: 125e6b77413ad2bc7cf7a772bc74336d580a50f9e797db2178ed133d62333d06
+  - path: .agents/skills/codebase-design/DESIGN-IT-TWICE.md
+    strategy: replace-if-unmodified
+    installedSha256: c7c1a046afe9854526b27787d192fe2a6c23fb05fd8854d55e0cdaeed3e3e03a
+  - path: .agents/skills/tdd/SKILL.md
+    strategy: replace-if-unmodified
+    installedSha256: cf0d45b48cb1142032c6eebc9708e107e802a0f4831f6fceee2c62f686a0ccdc
+  - path: .agents/skills/tdd/mocking.md
+    strategy: replace-if-unmodified
+    installedSha256: 3ceb807fdf4a47d6a93d4d9a891e5ba6d362a6247bd08adc451feebfc17361ef
+  - path: .agents/skills/tdd/tests.md
+    strategy: replace-if-unmodified
+    installedSha256: 859f9e592c188fda4fc7277dd180e4ce9c7a2e13f6efe1f6f29eccc9d28c106a
+  - path: .agents/skills/diagnosing-bugs/SKILL.md
+    strategy: replace-if-unmodified
+    installedSha256: 96234b286e9ec85b4d276b19e6c97e61778802716b890241ed2479be75eb9d6b
+  - path: .agents/skills/diagnosing-bugs/scripts/hitl-loop.template.sh
+    strategy: replace-if-unmodified
+    installedSha256: 18ae07e1cc49b32c71767e241a6e8de4be74ef21d5e3b7e39034d9c7335f2d80
+  - path: .agents/skills/code-review/SKILL.md
+    strategy: replace-if-unmodified
+    installedSha256: ef4e293894cb71ea6c4264acf3011413b811f48b92ecb449bc381c8ae2a32f8e
+  - path: .agents/skills/writing-great-skills/SKILL.md
+    strategy: replace-if-unmodified
+    installedSha256: e8c959429ee12fac68dbecc7afe7ad4c5e38bf17680ff71f4b1d9de1247dc089
+  - path: .agents/skills/writing-great-skills/SKILL-MECHANICS.md
+    strategy: replace-if-unmodified
+    installedSha256: 71e2b89ad41e6f9f496863c9123548d7614b32e51a382b4bf762520a8c396f37
+  - path: .opencode/agents/reviewer.md
+    strategy: replace-if-unmodified
+    installedSha256: 8a2d1b3cba87d1994217cac4d3b7327d9ec1d9f2191388e7c6380e402518674b
+  - path: .opencode/agents/debugger.md
+    strategy: replace-if-unmodified
+    installedSha256: 0f57a172e1dc282864b26fb40d29ef39533911ab47005e856a5bb5b36c880513
+skills:
+  - kind: adf
+    name: project-intake
+    version: 0.1.0
+    sha256: 89e5ceb46b4c79e2dfa9313b1c259eb906142d2da07505516cd1aec2c04e651b
+  - kind: adf
+    name: session-start
+    version: 0.1.0
+    sha256: d0f819952080f04540c0f44be159eb94d916364b04c72485f5aa6bf72c9147d7
+  - kind: adf
+    name: context-router
+    version: 0.1.0
+    sha256: 009dc82779ebc5d687cc9bc5cde4741a35548c89aed0355925818cd178b6d39f
+  - kind: adf
+    name: bug-fix
+    version: 0.1.0
+    sha256: 6ab612dcd0ca6efa7ca9bd6835a27895c47a14a9b8a7405d1006fbf1841edcce
+  - kind: adf
+    name: verify-work
+    version: 0.1.0
+    sha256: 61d6f630cd25fdfa358afdd800b3c01c90407fc72373ee7cf9182ececfc42629
+  - kind: adf
+    name: feature-close
+    version: 0.1.0
+    sha256: 5127d1dd0830113254d9dd313e395b47645219b6b2315758a91fcf557467a2e8
+  - kind: adf
+    name: session-end
+    version: 0.1.0
+    sha256: cf3c970568ae4ceddc3f0c27d780eb48983905948ade4d815063a4439d2a8ee2
+  - kind: vendored
+    name: grilling
+    source: https://github.com/mattpocock/skills.git
+    upstreamCommit: 84fdeffd12f2ee307994d1eb6feb48173b6e0502
+    license: MIT
+    originalSha256: fa5c1e5ee76b1c8f1ae56101f52c9e239de75d5c578adc61227b92d10b7e52ef
+    adaptedSha256: 8263d127d11d69d91ef547dce98d463054c337c095e9a232039ecfc1eca1ee30
+    adaptation: Normalize frontmatter to portable Agent Skills fields and MIT metadata. Require explicit authorization for Git publication and a final file inventory. Add a local fact-finding fallback when subagents are unavailable.
+  - kind: vendored
+    name: grill-with-docs
+    source: https://github.com/mattpocock/skills.git
+    upstreamCommit: 84fdeffd12f2ee307994d1eb6feb48173b6e0502
+    license: MIT
+    originalSha256: 610d091047bcfb9db0f75c057d15538481a721111579fc5ec7f83ad9131a2165
+    adaptedSha256: bc70af2bffb6c73774e641fcf2e230aca5236a5fd629a430f4f6428a48eab86a
+    adaptation: Normalize frontmatter to portable Agent Skills fields and MIT metadata. Require explicit authorization for Git publication and a final file inventory. Make the two skill dependencies explicit. Remove unsupported invocation metadata.
+  - kind: vendored
+    name: domain-modeling
+    source: https://github.com/mattpocock/skills.git
+    upstreamCommit: 84fdeffd12f2ee307994d1eb6feb48173b6e0502
+    license: MIT
+    originalSha256: 152e2c97239affb12a60c5f4a7e74ab546a49ae169688c81f4e2ccc42dafa579
+    adaptedSha256: 8f4029259f85a87637a5db6481838e9a1e3a83577c880e2f59b70269f720402c
+    adaptation: Normalize frontmatter to portable Agent Skills fields and MIT metadata. Require explicit authorization for Git publication and a final file inventory. Redirect the glossary to docs/product/glossary.md. Redirect architectural decisions to docs/decisions/.
+  - kind: vendored
+    name: codebase-design
+    source: https://github.com/mattpocock/skills.git
+    upstreamCommit: 84fdeffd12f2ee307994d1eb6feb48173b6e0502
+    license: MIT
+    originalSha256: a8d50abac5a4018f60e1d911d4b6f4e36454ca14d6c390c0695a578c7de65dad
+    adaptedSha256: 5ba657ee8a44f88c4c086c9fe2540232f76fa2575f0f09cfa1910352444581c3
+    adaptation: Normalize frontmatter to portable Agent Skills fields and MIT metadata. Require explicit authorization for Git publication and a final file inventory. Add a sequential design fallback when subagents are unavailable.
+  - kind: vendored
+    name: tdd
+    source: https://github.com/mattpocock/skills.git
+    upstreamCommit: 84fdeffd12f2ee307994d1eb6feb48173b6e0502
+    license: MIT
+    originalSha256: 5e6b9c16b547113e90afbb946489d1c1384be5c2128f0159bd0bee57251ecf08
+    adaptedSha256: cf0d45b48cb1142032c6eebc9708e107e802a0f4831f6fceee2c62f686a0ccdc
+    adaptation: Normalize frontmatter to portable Agent Skills fields and MIT metadata. Require explicit authorization for Git publication and a final file inventory. Use ADF glossary and decision paths. Preserve the red-before-green vertical-slice loop.
+  - kind: vendored
+    name: diagnosing-bugs
+    source: https://github.com/mattpocock/skills.git
+    upstreamCommit: 84fdeffd12f2ee307994d1eb6feb48173b6e0502
+    license: MIT
+    originalSha256: b9339b09ee3980808d8c5a35c7251b891b8b1e0036ec4ca37812b976ebddf6b6
+    adaptedSha256: 96234b286e9ec85b4d276b19e6c97e61778802716b890241ed2479be75eb9d6b
+    adaptation: Normalize frontmatter to portable Agent Skills fields and MIT metadata. Require explicit authorization for Git publication and a final file inventory. Use ADF glossary and decision paths. Preserve the tight red-capable reproduction gate.
+  - kind: vendored
+    name: code-review
+    source: https://github.com/mattpocock/skills.git
+    upstreamCommit: 84fdeffd12f2ee307994d1eb6feb48173b6e0502
+    license: MIT
+    originalSha256: 9cf46653dd9c710ea1e6c22423caf31a794c88773bc94bdaa23140277f470442
+    adaptedSha256: ef4e293894cb71ea6c4264acf3011413b811f48b92ecb449bc381c8ae2a32f8e
+    adaptation: Normalize frontmatter to portable Agent Skills fields and MIT metadata. Require explicit authorization for Git publication and a final file inventory. Use local specs without assuming a configured issue tracker. Run review axes sequentially when subagents are unavailable. Keep the review read-only and inventory all writes.
+  - kind: vendored
+    name: writing-great-skills
+    source: https://github.com/mattpocock/skills.git
+    upstreamCommit: 84fdeffd12f2ee307994d1eb6feb48173b6e0502
+    license: MIT
+    originalSha256: a842323e664e5af104eac5c97ad22fda929ebeb62d81c501161ac1f6f482db58
+    adaptedSha256: e8c959429ee12fac68dbecc7afe7ad4c5e38bf17680ff71f4b1d9de1247dc089
+    adaptation: Normalize frontmatter to portable Agent Skills fields and MIT metadata. Require explicit authorization for Git publication and a final file inventory. Record upstream rename from writing-for-agents to the stable ADF name writing-great-skills. Remove agent-specific invocation metadata for Codex and OpenCode portability.
