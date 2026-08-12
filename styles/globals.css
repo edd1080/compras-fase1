@@ -5,27 +5,27 @@
   --color-azul-marino: #1c3565;
   --color-azul-medio: #2e5fc9;
   --color-azul-claro: #eaf1fe;
-  --color-azul-soft2: #dce7fd;
+  --color-azul-soft2: #d6e3fc;
   --color-azul-tenue: #f0f4fb;
   --color-fondo: #f5f7fa;
   --color-superficie: #ffffff;
-  --color-borde: #e1e6ee;
-  --color-borde-fuerte: #ced6e3;
+  --color-borde: #e2e7ef;
+  --color-borde-fuerte: #ccd5e3;
   --color-texto-principal: #182338;
-  --color-texto-secundario: #49546a;
-  --color-texto-terciario: #707a8c;
+  --color-texto-secundario: #46516b;
+  --color-texto-terciario: #6d7a92;
   --color-ink: #182338;
-  --color-ink-soft: #49546a;
-  --color-slate: #707a8c;
+  --color-ink-soft: #46516b;
+  --color-slate: #6d7a92;
 
   /* Acentos — prototipo */
   --color-brass: #a9824f;
   --color-brass-dark: #8a6b3d;
-  --color-brass-soft: #f2e8d6;
+  --color-brass-soft: #f4ecdc;
   --color-clay: #b5714a;
-  --color-clay-soft: #f3e4da;
+  --color-clay-soft: #f4e6dc;
   --color-sage: #4f7a57;
-  --color-sage-soft: #e5eee4;
+  --color-sage-soft: #e6efe5;
 
   /* Semánticos (doc 21) */
   --color-exito: #1b8a5a;
@@ -40,29 +40,34 @@
   /* Tipografía (doc 21 + prototipo: DM Mono para datos) */
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "DM Mono", ui-monospace, monospace;
+  --font-mono: "DM Mono", ui-monospace, SFMono-Regular, monospace;
 
   /* Radios (doc 21) */
   --radius-field: 8px;
   --radius-card: 14px;
   --radius-modal: 16px;
 
-  /* Sombras — prototipo */
+  /* Sombras — prototipo, refinadas */
   --shadow-card: 0 1px 2px rgba(27, 33, 48, 0.04), 0 8px 24px -12px rgba(27, 33, 48, 0.12);
-  --shadow-pop: 0 12px 40px -8px rgba(27, 33, 48, 0.22);
+  --shadow-pop: 0 12px 40px -8px rgba(27, 33, 48, 0.24);
+  --shadow-rail: 1px 0 0 0 rgba(27, 33, 48, 0.05);
+
+  /* Espaciado — grid 8px */
+  --spacing-unit: 8px;
 }
 
 :root {
   --azul-marino: #1c3565;
   --azul-medio: #2e5fc9;
-  --azul-claro: #e8eef9;
+  --azul-claro: #eaf1fe;
   --azul-tenue: #f0f4fb;
+  --azul-soft2: #d6e3fc;
   --fondo: #f5f7fa;
   --superficie: #ffffff;
-  --borde: #d8dfe9;
-  --texto-principal: #1a2233;
-  --texto-secundario: #5a6880;
-  --texto-terciario: #8b96a8;
+  --borde: #e2e7ef;
+  --texto-principal: #182338;
+  --texto-secundario: #46516b;
+  --texto-terciario: #6d7a92;
 }
 
 html,
@@ -78,6 +83,7 @@ body {
   font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 button {
@@ -85,16 +91,50 @@ button {
   font-family: inherit;
 }
 
-h1, h2, h3, .font-display {
+h1, h2, h3, h4, .font-display {
   font-family: var(--font-display);
   font-weight: 600;
   letter-spacing: -0.01em;
   margin: 0;
 }
 
-.mono {
+/* Escala tipográfica */
+.display-xl { font-size: 36px; line-height: 1.15; }
+.display-lg  { font-size: 28px; line-height: 1.2; }
+.title-md    { font-size: 20px; line-height: 1.3; }
+.title-sm    { font-size: 16px; line-height: 1.35; font-family: var(--font-display); font-weight: 600; }
+
+.mono, .tabular, code {
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
+
+.text-balance { text-wrap: balance; }
+
+/* Micro-interacciones base */
+@keyframes viewIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes shimmer {
+  0%   { background-position: -468px 0; }
+  100% { background-position: 468px 0; }
+}
+
+.animate-view { animation: viewIn 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.animate-fade { animation: fadeIn 0.25s ease both; }
 
 ::selection {
   background: var(--azul-soft2);
@@ -107,7 +147,9 @@ h1, h2, h3, .font-display {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;

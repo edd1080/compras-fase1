@@ -45,12 +45,15 @@ export function VistaPublica({
         ) : null}
 
         {recomendacion ? (
-          <div className="mb-5 flex gap-3.5 rounded-card bg-azul-claro px-5 py-4">
+          <div className="mb-5 animate-fade flex gap-3.5 rounded-card bg-azul-claro px-5 py-4">
             <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[8px] bg-azul-marino font-display text-[13px] font-bold text-white">
               CM
             </div>
             <div className="text-[13.5px] leading-relaxed text-azul-marino">
-              <b>Recomendación de Compras:</b> {recomendacion}
+              <span className="mb-0.5 block font-display text-[11px] font-bold uppercase tracking-wide text-azul-medio">
+                Recomendación de Compras
+              </span>
+              {recomendacion}
             </div>
           </div>
         ) : null}
@@ -63,8 +66,10 @@ export function VistaPublica({
               <div
                 key={c.id}
                 className={
-                  "rounded-card border-[1.5px] bg-superficie px-4 py-4 " +
-                  (elegidaEsta ? "border-sage" : "border-borde-fuerte")
+                  "rounded-card border-[1.5px] bg-superficie px-4 py-4 transition-[border-color,box-shadow,transform] duration-150 " +
+                  (elegidaEsta
+                    ? "border-sage shadow-[0_2px_10px_rgba(79,122,87,0.2)]"
+                    : "border-borde-fuerte hover:-translate-y-0.5 hover:border-azul-soft2 hover:shadow-pop")
                 }
               >
                 <div className="font-display text-[14.5px] font-semibold">
@@ -76,7 +81,7 @@ export function VistaPublica({
                 {(pc?.contras ?? []).slice(0, 1).map((c2) => (
                   <div key={c2} className="mt-1 text-[12.5px] text-clay">✗ {c2}</div>
                 ))}
-                <div className="mt-2 font-mono text-[16px] font-medium">
+                <div className="mt-2 font-mono text-[16px] font-medium tabular">
                   L {formato(c.valorTotal)}
                 </div>
                 <div className="mt-1 text-[12px] text-slate">{c.plazoEntrega ?? "—"}</div>

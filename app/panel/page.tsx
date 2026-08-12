@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/Badge";
 import { EmptyState } from "@/components/ui-ext/EmptyState";
+import { Skeleton } from "@/components/ui-ext/Skeleton";
 import { obtenerSesionFixture } from "@/lib/session";
 import { api } from "@/lib/api-client";
 import type { Solicitud } from "@/lib/domain/types";
@@ -79,13 +80,21 @@ export default function PanelPage() {
       </div>
 
       {cargando ? (
-        <p className="text-[13.5px] text-texto-secundario">Cargando tu bandeja…</p>
+        <div className="flex flex-col gap-2.5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-[76px]" />
+          ))}
+        </div>
       ) : error ? (
         <EmptyState
           title="No se pudo cargar la bandeja"
           description={error}
           action={
-            <button type="button" className="text-[13px] font-medium text-azul-medio hover:underline" onClick={() => location.reload()}>
+            <button
+              type="button"
+              className="text-[13px] font-medium text-azul-medio hover:underline"
+              onClick={() => location.reload()}
+            >
               Reintentar
             </button>
           }

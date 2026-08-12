@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { MetricCard } from "@/components/ui-ext/MetricCard";
 import { BarChart } from "@/components/ui-ext/BarChart";
 import { EmptyState } from "@/components/ui-ext/EmptyState";
+import { Skeleton } from "@/components/ui-ext/Skeleton";
 import { api } from "@/lib/api-client";
 import type { MetricasDashboard } from "@/lib/domain/metrics";
 import { usuariosFixture } from "@/lib/fixtures";
@@ -27,11 +28,21 @@ export default function AdminDashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let activo = true;
     api
       .metricas()
-      .then((m) => setMetricas(m))
-      .catch((e) => setError(e instanceof Error ? e.message : "Error al cargar métricas"))
-      .finally(() => setCargando(false));
+      .then((m) => {
+        if (activo) setMetricas(m);
+      })
+      .catch((e) => {
+        if (activo) setError(e instanceof Error ? e.message : "Error al cargar métricas");
+      })
+      .finally(() => {
+        if (activo) setCargando(false);
+      });
+    return () => {
+      activo = false;
+    };
   }, [rango, coordinador]);
 
   const nombreCoordinador = (id: string) =>
@@ -46,90 +57,130 @@ export default function AdminDashboardPage() {
     value: v,
   }));
 
+  const hayDatos =
+    metricas.solicitudesActivas > 0 ||
+    metricas.tasaConversion !== null ||
+    Object.keys(metricas.distribucionPorTipo).length > 0;
+
   return (
-    <div className="py-8">
+    <div className="animate-view">
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          hero
-          label="Conversión solicitud → aceptación"
-          value={metricas.tasaConversion === null ? "sin datos" : `${Math.round(metricas.tasaConversion)}%`}
-          note="La métrica que hoy Compras no puede medir de ninguna forma."
-        />
-        <MetricCard
-          label="Tiempo de ciclo promedio"
-          value={metricas.tiempoCicloPromedioDias === null ? "—" : `${metricas.tiempoCicloPromedioDias.toFixed(1)}d`}
-          note="Desde creación hasta cierre"
-        />
-        <MetricCard
-          label="Solicitudes activas"
-          value={String(metricas.solicitudesActivas)}
-          note="En algún punto del ciclo"
-          valueClassName="text-azul-marino"
-        />
-        <MetricCard
-          label="Sin decisión > 5 días"
-          value={String(metricas.solicitudesSinDecision)}
-          note="Requieren seguimiento"
-          valueClassName="text-clay"
-        />
+        {cargando ? (
+          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-[118px]" />)
+        ) : (
+          <>
+            <MetricCard
+              hero
+              label="Conversión solicitud → aceptación"
+              value={
+                metricas.tasaConversion === null
+                  ? "sin datos"
+                  : `${Math.round(metricas.tasaConversion)}%`
+              }
+              note="La métrica que hoy Compras no puede medir de ninguna forma."
+            />
+            <MetricCard
+              label="Tiempo de ciclo promedio"
+              value={
+                metricas.tiempoCicloPromedioDias === null
+                  ? "—"
+                  : `${metricas.tiempoCicloPromedioDias.toFixed(1)}d`
+              }
+              note="Desde creación hasta cierre"
+            />
+            <MetricCard
+              label="Solicitudes activas"
+              value={String(metricas.solicitudesActivas)}
+              note="En algún punto del ciclo"
+              valueClassName="text-azul-marino"
+            />
+            <MetricCard
+              label="Sin decisión > 5 días"
+              value={String(metricas.solicitudesSinDecision)}
+              note="Requieren seguimiento"
+              valueClassName="text-clay"
+            />
+          </>
+        )}
       </div>
 
       <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="rounded-card border border-borde bg-superficie px-6 py-5 shadow-card">
-          <h3 className="mb-4 font-display text-[14px] font-semibold">Volumen por coordinador</h3>
-          {volumenBarras.length ? <BarChart data={volumenBarras} /> : <EmptyText />}
+        <div className="animate-fade rounded-card border border-borde bg-superficie px-6 py-5 shadow-card">
+          <h3 className="title-sm mb-4">Volumen por coordinador</h3>
+          {cargando ? (
+            <Skeleton className="h-[120px]" />
+          ) : volumenBarras.length ? (
+            <BarChart data={volumenBarras} />
+          ) : (
+            <EmptyText />
+          )}
         </div>
-        <div className="rounded-card border border-borde bg-superficie px-6 py-5 shadow-card">
-          <h3 className="mb-4 font-display text-[14px] font-semibold">Distribución por tipo</h3>
-          {tipoBarras.length ? <BarChart data={tipoBarras} /> : <EmptyText />}
+        <div
+          className="animate-fade rounded-card border border-borde bg-superficie px-6 py-5 shadow-card"
+          style={{ animationDelay: "60ms" }}
+        >
+          <h3 className="title-sm mb-4">Distribución por tipo</h3>
+          {cargando ? (
+            <Skeleton className="h-[120px]" />
+          ) : tipoBarras.length ? (
+            <BarChart data={tipoBarras} />
+          ) : (
+            <EmptyText />
+          )}
         </div>
       </div>
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex gap-2">
+        <div className="flex gap-2" role="group" aria-label="Período">
           {(["all", "hoy", "semana", "mes"] as Rango[]).map((r) => (
             <button
               key={r}
               type="button"
+              aria-pressed={rango === r}
               onClick={() => setRango(r)}
               className={
-                "rounded-full border px-3.5 py-2 text-[12.5px] " +
+                "rounded-full border px-3.5 py-2 text-[12.5px] transition-colors " +
                 (rango === r
                   ? "border-azul-marino bg-azul-marino text-white"
-                  : "border-borde-fuerte bg-superficie text-texto-secundario")
+                  : "border-borde-fuerte bg-superficie text-texto-secundario hover:border-azul-medio hover:text-azul-marino")
               }
             >
-              {r === "all" ? "Todo" : r === "hoy" ? "Hoy" : r === "semana" ? "Esta semana" : "Este mes"}
+              {r === "all"
+                ? "Todo"
+                : r === "hoy"
+                  ? "Hoy"
+                  : r === "semana"
+                    ? "Esta semana"
+                    : "Este mes"}
             </button>
           ))}
         </div>
         <select
           value={coordinador}
           onChange={(e) => setCoordinador(e.target.value)}
-          className="rounded-full border border-borde-fuerte bg-superficie px-3.5 py-2 text-[12.5px]"
+          className="rounded-full border border-borde-fuerte bg-superficie px-3.5 py-2 text-[12.5px] focus:border-azul-medio focus:outline-none"
         >
           <option value="all">Todos los coordinadores</option>
           {usuariosFixture
             .filter((u) => u.rol === "coordinador")
             .map((u) => (
-              <option key={u.id} value={u.id}>{u.nombre}</option>
+              <option key={u.id} value={u.id}>
+                {u.nombre}
+              </option>
             ))}
         </select>
       </div>
 
       {cargando ? (
-        <p className="text-[13.5px] text-texto-secundario">Calculando métricas…</p>
+        <Skeleton className="h-[180px]" />
       ) : error ? (
-        <EmptyState
-          title="No se pudieron cargar las métricas"
-          description={error}
-        />
-      ) : (
+        <EmptyState title="No se pudieron cargar las métricas" description={error} />
+      ) : !hayDatos ? (
         <EmptyState
           title="Aún no hay solicitudes suficientes para mostrar métricas"
           description="Los indicadores aparecerán conforme el equipo empiece a usar el portal."
         />
-      )}
+      ) : null}
     </div>
   );
 }

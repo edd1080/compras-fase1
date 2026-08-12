@@ -1,29 +1,29 @@
 ---
 schemaVersion: 1
-lifecycle: closed
-currentGate: G6
-activeFeature: 002-backend-api
+lifecycle: implementation
+currentGate: G4
+activeFeature: 003-design-enterprise
 approvals:
   G1: true
   G2: true
   G3: true
   G4: true
 nextAction:
-  command: feature-selection
-  prompt: "Selecciona la siguiente feature: Sprint 2 (PDF y correos) o Sprint 3 (IA real y auth)."
+  command: feature-implement
+  prompt: Implementa la feature 003-design-enterprise (elevación enterprise del sistema propio de diseño).
 ---
 
 # Project State
 
 ## Current objective
 
-Feature **002-backend-api** cerrada (G5 ✅ verificado, G6 ✅). Backend real conectado: repositorios pg sobre esquema 001–006, API con Zod, `assessment_requerimiento` y frontend sobre la API. Pusheado a origin/main (`3ff9a35`).
+Implementación de **003-design-enterprise** (Redesign-Preserve): refinar el sistema de diseño propio al máximo nivel enterprise, sin migrar a shadcn, sin cambiar URLs, nav, fields, logo ni copy, sin regresión de accesibilidad ni de RN-01. Basado en audit Taste v2 (Sección 11.B) y palancas 11.D (typography, spacing, color, motion, shell/rail, recomposición de secciones).
 
 ## Approvals
 
-- G1: ✅ · 000-sprint0 ✅ · 001-frontend-prototype ✅ (G5/G6).
-- 002-backend-api: G2 ✅, G3 ✅, G4 ✅, G5/G6 ✅ (2026-08-12).
+- G1 ✅ · 000 ✅ · 001 ✅ · 002 ✅ (G6).
+- 003-design-enterprise: audit (G2) ✅, modo+palancas (G3) ✅, implementación (G4) ✅.
 
 ## Blockers
 
-None. Siguiente: feature 003 (PDF + correo transaccional, H2.3/H2.4) o Sprint 3 (IA real + auth).
+None.

@@ -9,7 +9,7 @@ type ButtonProps = {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-azul-marino text-white hover:bg-azul-medio focus-visible:outline-azul-medio",
+    "bg-azul-marino text-white shadow-[0_1px_2px_rgba(27,33,48,0.2)] hover:bg-azul-medio hover:shadow-[0_2px_6px_rgba(46,95,201,0.3)] focus-visible:outline-azul-medio",
   secondary:
     "border border-azul-marino bg-transparent text-azul-marino hover:bg-azul-claro focus-visible:outline-azul-medio",
   tertiary: "bg-transparent text-azul-medio hover:underline focus-visible:outline-azul-medio",
@@ -29,7 +29,7 @@ export function Button({
 }: ButtonProps) {
   const resolvedVariant: ButtonVariant = disabled ? "disabled" : variant;
   const base =
-    "inline-flex min-h-[44px] items-center justify-center rounded-field px-6 text-[15px] font-medium transition-colors focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2";
+    "inline-flex min-h-[44px] items-center justify-center rounded-field px-6 text-[15px] font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 active:scale-[0.98]";
   return (
     <button
       type={type}

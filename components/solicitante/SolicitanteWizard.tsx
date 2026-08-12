@@ -44,10 +44,10 @@ export function SolicitanteWizard() {
     const estadoPaso = (n: number): "done" | "current" | "pending" =>
       estado.paso > n ? "done" : estado.paso === n ? "current" : "pending";
     return [
-      { numero: 3, estado: estadoPaso(3), onNavigate: () => irA(3) },
-      { numero: 4, estado: estadoPaso(4), onNavigate: () => irA(4) },
-      { numero: 5, estado: estadoPaso(5), onNavigate: () => irA(5) },
-      { numero: 6, estado: estadoPaso(6) },
+      { numero: 3, label: "Clasificación", estado: estadoPaso(3), onNavigate: () => irA(3) },
+      { numero: 4, label: "Detalles", estado: estadoPaso(4), onNavigate: () => irA(4) },
+      { numero: 5, label: "Documento", estado: estadoPaso(5), onNavigate: () => irA(5) },
+      { numero: 6, label: "Confirmación", estado: estadoPaso(6) },
     ];
   }, [estado.paso, irA]);
 
