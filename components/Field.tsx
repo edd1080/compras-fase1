@@ -8,7 +8,11 @@ type FieldProps = {
   error?: string;
   id?: string;
   className?: string;
-  children: React.ReactNode;
+  children: (opts: {
+    id: string;
+    "aria-describedby"?: string;
+    "aria-invalid"?: boolean;
+  }) => React.ReactNode;
 };
 
 export function Field({
@@ -24,6 +28,7 @@ export function Field({
   const fieldId = id ?? autoId;
   const helpId = help ? `${fieldId}-help` : undefined;
   const errorId = error ? `${fieldId}-error` : undefined;
+  const describedBy = [helpId, errorId].filter(Boolean).join(" ") || undefined;
 
   return (
     <div className={cn("flex flex-col gap-1", className)}>
@@ -34,7 +39,11 @@ export function Field({
         {label}
         {required ? <span className="text-error"> *</span> : null}
       </label>
-      {children && <div className="flex flex-col">{children}</div>}
+      {children({
+        id: fieldId,
+        "aria-describedby": describedBy,
+        "aria-invalid": error ? true : undefined,
+      })}
       {help && (
         <p id={helpId} className="text-[13px] leading-relaxed text-texto-secundario">
           {help}

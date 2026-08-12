@@ -1,17 +1,31 @@
 @import "tailwindcss";
 
 @theme {
-  /* Paleta institucional BIA (doc 21) */
+  /* Paleta institucional BIA — doc 21 + prototipo */
   --color-azul-marino: #1c3565;
   --color-azul-medio: #2e5fc9;
-  --color-azul-claro: #e8eef9;
+  --color-azul-claro: #eaf1fe;
+  --color-azul-soft2: #dce7fd;
   --color-azul-tenue: #f0f4fb;
   --color-fondo: #f5f7fa;
   --color-superficie: #ffffff;
-  --color-borde: #d8dfe9;
-  --color-texto-principal: #1a2233;
-  --color-texto-secundario: #5a6880;
-  --color-texto-terciario: #8b96a8;
+  --color-borde: #e1e6ee;
+  --color-borde-fuerte: #ced6e3;
+  --color-texto-principal: #182338;
+  --color-texto-secundario: #49546a;
+  --color-texto-terciario: #707a8c;
+  --color-ink: #182338;
+  --color-ink-soft: #49546a;
+  --color-slate: #707a8c;
+
+  /* Acentos — prototipo */
+  --color-brass: #a9824f;
+  --color-brass-dark: #8a6b3d;
+  --color-brass-soft: #f2e8d6;
+  --color-clay: #b5714a;
+  --color-clay-soft: #f3e4da;
+  --color-sage: #4f7a57;
+  --color-sage-soft: #e5eee4;
 
   /* Semánticos (doc 21) */
   --color-exito: #1b8a5a;
@@ -21,16 +35,21 @@
   --color-error: #c0392b;
   --color-error-fondo: #fcedeb;
   --color-info: #2e5fc9;
-  --color-info-fondo: #e8eef9;
+  --color-info-fondo: #eaf1fe;
 
-  /* Tipografía (doc 21) */
+  /* Tipografía (doc 21 + prototipo: DM Mono para datos) */
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
 
   /* Radios (doc 21) */
   --radius-field: 8px;
-  --radius-card: 12px;
+  --radius-card: 14px;
   --radius-modal: 16px;
+
+  /* Sombras — prototipo */
+  --shadow-card: 0 1px 2px rgba(27, 33, 48, 0.04), 0 8px 24px -12px rgba(27, 33, 48, 0.12);
+  --shadow-pop: 0 12px 40px -8px rgba(27, 33, 48, 0.22);
 }
 
 :root {
@@ -57,9 +76,40 @@ body {
   color: var(--texto-principal);
   font-family: var(--font-sans);
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 button {
   min-height: 44px;
+  font-family: inherit;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+::selection {
+  background: var(--azul-soft2);
+}
+
+:focus-visible {
+  outline: 2px solid var(--azul-medio);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

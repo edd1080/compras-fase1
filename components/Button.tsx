@@ -1,6 +1,6 @@
 import { cn } from "@/lib/design/cn";
 
-type ButtonVariant = "primary" | "secondary" | "tertiary" | "destructive" | "disabled";
+type ButtonVariant = "primary" | "secondary" | "tertiary" | "destructive" | "ghost" | "disabled";
 
 type ButtonProps = {
   variant?: ButtonVariant;
@@ -15,6 +15,8 @@ const variantClasses: Record<ButtonVariant, string> = {
   tertiary: "bg-transparent text-azul-medio hover:underline focus-visible:outline-azul-medio",
   destructive:
     "border border-error bg-transparent text-error hover:bg-error-fondo focus-visible:outline-error",
+  ghost:
+    "border-[1.5px] border-borde-fuerte bg-transparent text-texto-secundario hover:border-azul-medio hover:text-azul-marino focus-visible:outline-azul-medio",
   disabled: "cursor-not-allowed border border-borde bg-borde text-texto-terciario",
 };
 

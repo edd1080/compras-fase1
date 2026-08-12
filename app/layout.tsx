@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, DM_Sans } from "next/font/google";
+import { Space_Grotesk, DM_Sans, DM_Mono } from "next/font/google";
 import "../styles/globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -11,6 +11,13 @@ const spaceGrotesk = Space_Grotesk({
 const dmSans = DM_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
+  display: "swap",
+});
+
+const dmMono = DM_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
   display: "swap",
 });
 
@@ -27,7 +34,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es-HN">
-      <body className={`${spaceGrotesk.variable} ${dmSans.variable} antialiased`}>
+      <body
+        className={`${spaceGrotesk.variable} ${dmSans.variable} ${dmMono.variable} antialiased`}
+      >
         {children}
       </body>
     </html>

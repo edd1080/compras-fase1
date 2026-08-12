@@ -1,0 +1,97 @@
+import { describe, it, expect } from "vitest";
+import { construirComparativa, detectarDiscrepancias, generarProsContras } from "./comparativa";
+import type { Cotizacion } from "./types";
+
+function cot(id: string, nombre: string, ofertado: Record<string, string>, precios: {
+  neto?: number; total?: number; montoIsv?: number; desglosado?: boolean; moneda?: string;
+} = {}): Cotizacion {
+  return {
+    id,
+    solicitudId: "s1",
+    proveedorNombre: nombre,
+    formatoOriginal: "pdf",
+    especificacionesOfertadas: ofertado,
+    valorNeto: precios.neto,
+    valorTotal: precios.total,
+    montoIsv: precios.montoIsv,
+    impuestosDesglosados: precios.desglosado,
+    moneda: precios.moneda ?? "HNL",
+    confianzaExtraccion: {},
+    editadaManualmente: false,
+    fechaCarga: "2026-07-21",
+  };
+}
+
+describe("comparativa — caso melamina vs madera", () => {
+  it("detecta discrepancia alta de material", () => {
+    const r = detectarDiscrepancias({
+      especificacionesSolicitadas: { material: "madera maciza" },
+      cotizaciones: [
+        cot("c1", "Muebles A", { material: "melamina" }),
+        cot("c2", "Muebles B", { material: "madera con superficie de aluminio" }),
+      ],
+    });
+    expect(r.discrepancias.some((d) => d.aspecto === "material" && d.severidad === "alta")).toBe(true);
+    expect(r.comparablesEntreSi).toBe(false);
+    expect(r.advertenciaGeneral).toBeTruthy();
+  });
+
+  it("no inventa discrepancias cuando coinciden", () => {
+    const r = detectarDiscrepancias({
+      especificacionesSolicitadas: { material: "madera" },
+      cotizaciones: [
+        cot("c1", "A", { material: "madera" }),
+        cot("c2", "B", { material: "madera" }),
+      ],
+    });
+    expect(r.discrepancias).toEqual([]);
+    expect(r.comparablesEntreSi).toBe(true);
+  });
+});
+
+describe("pros/contras y sugerencia", () => {
+  it("marca falta de desglose fiscal como contra", () => {
+    const { prosContras } = generarProsContras({
+      requerimiento: "Sombrillas",
+      cotizaciones: [cot("c1", "GrafiMax", { material: "poliester" }, { neto: 100, total: 100, desglosado: false })],
+    });
+    expect(prosContras.c1.contras.some((c) => c.includes("impuestos"))).toBe(true);
+  });
+
+  it("sugiere la opción de mejor precio total cuando hay >1", () => {
+    const { sugerencia } = generarProsContras({
+      requerimiento: "Sombrillas",
+      cotizaciones: [
+        cot("c1", "A", { material: "x" }, { total: 100, desglosado: true }),
+        cot("c2", "B", { material: "x" }, { total: 80, desglosado: true }),
+      ],
+    });
+    expect(sugerencia?.cotizacionId).toBe("c2");
+  });
+
+  it("no genera sugerencia con una sola cotización", () => {
+    const { sugerencia } = generarProsContras({
+      requerimiento: "Sombrillas",
+      cotizaciones: [cot("c1", "A", { material: "x" }, { total: 100 })],
+    });
+    expect(sugerencia).toBeNull();
+  });
+});
+
+describe("construirComparativa", () => {
+  it("ensambla la comparativa completa", () => {
+    const cmp = construirComparativa({
+      solicitudId: "s1",
+      especificacionesSolicitadas: { material: "madera" },
+      requerimiento: "Sombrillas",
+      cotizaciones: [
+        cot("c1", "A", { material: "melamina" }, { neto: 100, total: 115, desglosado: true }),
+        cot("c2", "B", { material: "madera" }, { neto: 80, total: 92, desglosado: true }),
+      ],
+      now: "2026-07-22T10:00:00Z",
+    });
+    expect(cmp.id).toContain("cmp-");
+    expect(cmp.cotizacionSugeridaId).toBe("c2");
+    expect(cmp.sugerenciaIA).toBeTruthy();
+  });
+});
