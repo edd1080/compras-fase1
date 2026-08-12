@@ -1,44 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MetricCard } from "@/components/ui-ext/MetricCard";
 import { BarChart } from "@/components/ui-ext/BarChart";
-import { DataTable } from "@/components/ui-ext/DataTable";
 import { EmptyState } from "@/components/ui-ext/EmptyState";
-import { Badge } from "@/components/Badge";
-import { calcularMetricas } from "@/lib/domain/metrics";
-import type { Solicitud } from "@/lib/domain/types";
-import { solicitudesFixture, usuariosFixture } from "@/lib/fixtures";
+import { api } from "@/lib/api-client";
+import type { MetricasDashboard } from "@/lib/domain/metrics";
+import { usuariosFixture } from "@/lib/fixtures";
 
 type Rango = "all" | "hoy" | "semana" | "mes";
+
+const METRICAS_VACIAS: MetricasDashboard = {
+  tasaConversion: null,
+  tiempoCicloPromedioDias: null,
+  solicitudesActivas: 0,
+  solicitudesSinDecision: 0,
+  volumenPorCoordinador: {},
+  distribucionPorTipo: {},
+};
 
 export default function AdminDashboardPage() {
   const [rango, setRango] = useState<Rango>("all");
   const [coordinador, setCoordinador] = useState("all");
-  const hoy = new Date("2026-07-27T00:00:00Z");
+  const [metricas, setMetricas] = useState<MetricasDashboard>(METRICAS_VACIAS);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filtradas = solicitudesFixture.filter((s) => {
-    if (coordinador !== "all" && s.coordinadorId !== coordinador) return false;
-    if (rango === "all") return true;
-    const creada = new Date(s.fechaCreacion).getTime();
-    const dif = hoy.getTime() - creada;
-    const dias = dif / (1000 * 60 * 60 * 24);
-    if (rango === "hoy") return dias < 1;
-    if (rango === "semana") return dias <= 7;
-    if (rango === "mes") return dias <= 31;
-    return true;
-  });
-
-  const metricas = calcularMetricas(filtradas, { hoy: hoy.toISOString() });
+  useEffect(() => {
+    api
+      .metricas()
+      .then((m) => setMetricas(m))
+      .catch((e) => setError(e instanceof Error ? e.message : "Error al cargar métricas"))
+      .finally(() => setCargando(false));
+  }, [rango, coordinador]);
 
   const nombreCoordinador = (id: string) =>
     usuariosFixture.find((u) => u.id === id)?.nombre ?? id;
 
   const volumenBarras = Object.entries(metricas.volumenPorCoordinador).map(
-    ([id, v]) => ({
-      label: nombreCoordinador(id),
-      value: v,
-    })
+    ([id, v]) => ({ label: nombreCoordinador(id), value: v })
   );
 
   const tipoBarras = Object.entries(metricas.distribucionPorTipo).map(([tipo, v]) => ({
@@ -117,16 +117,17 @@ export default function AdminDashboardPage() {
         </select>
       </div>
 
-      {filtradas.length === 0 ? (
+      {cargando ? (
+        <p className="text-[13.5px] text-texto-secundario">Calculando métricas…</p>
+      ) : error ? (
+        <EmptyState
+          title="No se pudieron cargar las métricas"
+          description={error}
+        />
+      ) : (
         <EmptyState
           title="Aún no hay solicitudes suficientes para mostrar métricas"
           description="Los indicadores aparecerán conforme el equipo empiece a usar el portal."
-        />
-      ) : (
-        <DataTable
-          columns={columns}
-          rows={filtradas}
-          rowKey={(s) => s.id}
         />
       )}
     </div>
@@ -135,38 +136,4 @@ export default function AdminDashboardPage() {
 
 function EmptyText() {
   return <p className="py-4 text-[13px] text-texto-terciario">Sin datos en este período.</p>;
-}
-
-const columns = [
-  { key: "ref", header: "Referencia", render: (s: Solicitud) => (
-    <span className="font-mono font-medium">{s.numeroReferencia ?? "—"}</span>
-  ) },
-  { key: "tipo", header: "Tipo", render: (s: Solicitud) => s.tipo ?? "—" },
-  { key: "solicitante", header: "Solicitante", render: (s: Solicitud) => s.solicitanteNombre },
-  { key: "coordinador", header: "Coordinador", render: (s: Solicitud) => s.coordinadorId ?? "—" },
-  { key: "estado", header: "Estado", render: (s: Solicitud) => (
-    <Badge label={estadoLegible(s.estado)} tone={toneDe(s.estado)} />
-  ) },
-  { key: "creada", header: "Creada", render: (s: Solicitud) => new Date(s.fechaCreacion).toLocaleDateString("es-HN") },
-  { key: "cerrada", header: "Cerrada", render: (s: Solicitud) => s.fechaCierre ? new Date(s.fechaCierre).toLocaleDateString("es-HN") : "—" },
-];
-
-function estadoLegible(e: string): string {
-  const m: Record<string, string> = {
-    ENVIADA_A_COMPRAS: "Enviada a Compras",
-    EN_COTIZACION: "En cotización",
-    COMPARATIVA_LISTA: "Comparativa lista",
-    ENVIADA_A_SOLICITANTE: "Esperando decisión",
-    CERRADA_CON_DECISION: "Cerrada con decisión",
-    CERRADA_SIN_DECISION: "Cerrada sin decisión",
-    CANCELADA: "Cancelada",
-  };
-  return m[e] ?? e;
-}
-
-function toneDe(e: string): "blue" | "success" | "warning" | "gray"{
-  if (e === "CERRADA_CON_DECISION") return "success";
-  if (e === "CERRADA_SIN_DECISION" || e === "CANCELADA") return "gray";
-  if (e === "ENVIADA_A_SOLICITANTE") return "warning";
-  return "blue";
 }

@@ -6,17 +6,31 @@ import { Button } from "@/components/Button";
 import { Field } from "@/components/Field";
 import { EmptyState } from "@/components/ui-ext/EmptyState";
 import { Badge } from "@/components/Badge";
-import { solicitudesFixture } from "@/lib/fixtures";
+import { api, type SalidaCorta } from "@/lib/api-client";
 
 export default function MisSolicitudesPage() {
   const [email, setEmail] = useState("");
   const [buscado, setBuscado] = useState<string | null>(null);
+  const [cargando, setCargando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [resultados, setResultados] = useState<SalidaCorta[]>([]);
 
-  const resultados = buscado
-    ? solicitudesFixture.filter(
-        (s) => s.solicitanteEmail.toLowerCase() === buscado.trim().toLowerCase()
-      )
-    : [];
+  async function buscar(e?: React.FormEvent) {
+    e?.preventDefault();
+    if (!email.trim()) return;
+    setBuscado(email);
+    setCargando(true);
+    setError(null);
+    try {
+      const res = await api.misSolicitudes(email);
+      setResultados(res);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al consultar");
+      setResultados([]);
+    } finally {
+      setCargando(false);
+    }
+  }
 
   return (
     <div className="mx-auto max-w-[900px] px-8 py-10">
@@ -30,10 +44,7 @@ export default function MisSolicitudesPage() {
 
       <form
         className="mt-6 flex max-w-[480px] items-end gap-3"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setBuscado(email);
-        }}
+        onSubmit={buscar}
       >
         <Field label="Tu correo" required className="flex-1">
           {({ id, ...aria }) => (
@@ -52,7 +63,15 @@ export default function MisSolicitudesPage() {
       </form>
 
       {buscado !== null ? (
-        resultados.length === 0 ? (
+        cargando ? (
+          <p className="mt-8 text-[13.5px] text-texto-secundario">Consultando…</p>
+        ) : error ? (
+          <EmptyState
+            title="Ocurrió un problema al consultar"
+            description={error}
+            action={<Button variant="secondary" onClick={() => buscar()}>Reintentar</Button>}
+          />
+        ) : resultados.length === 0 ? (
           <div className="mt-8">
             <EmptyState
               title="No encontramos solicitudes con este correo"
@@ -77,7 +96,7 @@ export default function MisSolicitudesPage() {
                 <div className="min-w-0 flex-1">
                   <div className="text-[13.5px] font-semibold">{s.titulo}</div>
                   <div className="mt-0.5 text-[12px] text-slate">
-                    {s.tipo} · {s.areaSolicitante ?? "—"}
+                    Creada: {s.fechaCreacion ? new Date(s.fechaCreacion).toLocaleDateString("es-HN") : "—"}
                   </div>
                 </div>
                 <Badge label={estadoLegible(s.estado)} tone={toneDe(s.estado)} />

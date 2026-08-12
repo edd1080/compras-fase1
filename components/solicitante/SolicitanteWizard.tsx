@@ -32,7 +32,7 @@ export function SolicitanteWizard() {
   const nombreInicial = searchParams.get("nombre") ?? "";
 
   const w = useSolicitudWizard();
-  const { estado, set, siguiente, anterior, irA, pasoValido } = w;
+  const { estado, set, siguiente, anterior, irA, pasoValido, envio, enviarSolicitud } = w;
 
   useEffect(() => {
     if (emailInicial) set("email", emailInicial);
@@ -258,11 +258,25 @@ export function SolicitanteWizard() {
           Atrás
         </Button>
         {estado.paso < 6 ? (
-          <Button onClick={siguiente} disabled={!pasoValido} className="flex-1">
-            Continuar
+          <Button
+            onClick={estado.paso === 5 ? () => enviarSolicitud() : siguiente}
+            disabled={!pasoValido || envio.estado === "enviando"}
+            className="flex-1"
+          >
+            {estado.paso === 5
+              ? envio.estado === "enviando"
+                ? "Enviando…"
+                : "Enviar solicitud"
+              : "Continuar"}
           </Button>
         ) : null}
       </div>
+
+      {envio.estado === "error" ? (
+        <p role="alert" className="mt-4 max-w-[640px] text-[13px] text-error">
+          {envio.mensaje}
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -1,29 +1,29 @@
 ---
 schemaVersion: 1
-lifecycle: closed
-currentGate: G6
-activeFeature: 001-frontend-prototype
+lifecycle: implementation
+currentGate: G4
+activeFeature: 002-backend-api
 approvals:
   G1: true
   G2: true
   G3: true
   G4: true
 nextAction:
-  command: feature-selection
-  prompt: Selecciona la siguiente feature (Sprint 2 — assessment, PDF y correos, o backend/API next).
+  command: feature-implement
+  prompt: Implementa la feature 002-backend-api según tasks.md (T001→T021).
 ---
 
 # Project State
 
 ## Current objective
 
-Feature **001-frontend-prototype** cerrada (G5 ✅ verificado, G6 ✅). Frontend del Portal de Compras BIA portado a React con cerebro (`lib/domain`), portales por rol y elevación enterprise; pusheado a origin/main (`aa312be`).
+Implementación autorizada para **002-backend-api**. Ejecutar las 21 tareas (T001→T021): repositorios `pg` sobre esquema 001–006, API routes con Zod, `assessment_requerimiento` en el cerebro, frontend conectado a la API, verificación final y commit a origin/main, sin detenerme.
 
 ## Approvals
 
-- G1: ✅ · G2: ✅ · G3: ✅ · G4: ✅ (001-frontend-prototype).
-- 000-sprint0: cerrada. 001-frontend-prototype: cerrada.
+- G1: ✅ · 000-sprint0 ✅ · 001-frontend-prototype ✅ (G5/G6).
+- 002-backend-api: G2 ✅, G3 ✅, G4 ✅ (2026-08-12).
 
 ## Blockers
 
-None. Pendientes para sprints siguientes: API next (expondrán `lib/domain`), auth real Supabase, PDF/Excel reales, integración de IA.
+None.

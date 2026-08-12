@@ -1,11 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/Badge";
 import { EmptyState } from "@/components/ui-ext/EmptyState";
-import { solicitudesFixture } from "@/lib/fixtures";
 import { obtenerSesionFixture } from "@/lib/session";
+import { api } from "@/lib/api-client";
+import type { Solicitud } from "@/lib/domain/types";
 
 type FiltroEstado = "all" | "activas" | "esperando-cotizaciones" | "esperando-decision" | "cerradas";
 
@@ -13,10 +14,23 @@ export default function PanelPage() {
   const router = useRouter();
   const sesion = obtenerSesionFixture("coordinador");
   const [filtro, setFiltro] = useState<FiltroEstado>("all");
+  const [cargando, setCargando] = useState(true);
+  const [asignadas, setAsignadas] = useState<Solicitud[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  const asignadas = solicitudesFixture.filter(
-    (s) => s.coordinadorId === sesion.usuario.id
-  );
+  useEffect(() => {
+    api
+      .listarSolicitudes(sesion.usuario.id)
+      .then((data) => {
+        setAsignadas(data);
+        setCargando(false);
+      })
+      .catch((e) => {
+        setError(e instanceof Error ? e.message : "Error al cargar");
+        setCargando(false);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const visibles = asignadas.filter((s) => {
     if (filtro === "all") return true;
@@ -64,7 +78,19 @@ export default function PanelPage() {
         ))}
       </div>
 
-      {visibles.length === 0 ? (
+      {cargando ? (
+        <p className="text-[13.5px] text-texto-secundario">Cargando tu bandeja…</p>
+      ) : error ? (
+        <EmptyState
+          title="No se pudo cargar la bandeja"
+          description={error}
+          action={
+            <button type="button" className="text-[13px] font-medium text-azul-medio hover:underline" onClick={() => location.reload()}>
+              Reintentar
+            </button>
+          }
+        />
+      ) : visibles.length === 0 ? (
         <EmptyState
           title="No tenés solicitudes asignadas"
           description="Cuando alguien solicite una compra de tus categorías, aparecerá acá."
