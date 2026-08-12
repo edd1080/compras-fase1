@@ -10,7 +10,7 @@ approvals:
   G4: true
 nextAction:
   command: feature-selection
-  prompt: Selecciona la siguiente feature (Sprint 2 — feature 003: PDF y correos; o Sprint 3: IA real).
+  prompt: "Selecciona la siguiente feature: Sprint 2 (PDF y correos) o Sprint 3 (IA real y auth)."
 ---
 
 # Project State
