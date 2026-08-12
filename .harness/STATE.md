@@ -1,7 +1,7 @@
 ---
 schemaVersion: 1
-lifecycle: implementation
-currentGate: G4
+lifecycle: closed
+currentGate: G6
 activeFeature: 002-backend-api
 approvals:
   G1: true
@@ -9,21 +9,21 @@ approvals:
   G3: true
   G4: true
 nextAction:
-  command: feature-implement
-  prompt: Implementa la feature 002-backend-api según tasks.md (T001→T021).
+  command: feature-selection
+  prompt: Selecciona la siguiente feature (Sprint 2 — feature 003: PDF y correos; o Sprint 3: IA real).
 ---
 
 # Project State
 
 ## Current objective
 
-Implementación autorizada para **002-backend-api**. Ejecutar las 21 tareas (T001→T021): repositorios `pg` sobre esquema 001–006, API routes con Zod, `assessment_requerimiento` en el cerebro, frontend conectado a la API, verificación final y commit a origin/main, sin detenerme.
+Feature **002-backend-api** cerrada (G5 ✅ verificado, G6 ✅). Backend real conectado: repositorios pg sobre esquema 001–006, API con Zod, `assessment_requerimiento` y frontend sobre la API. Pusheado a origin/main (`3ff9a35`).
 
 ## Approvals
 
 - G1: ✅ · 000-sprint0 ✅ · 001-frontend-prototype ✅ (G5/G6).
-- 002-backend-api: G2 ✅, G3 ✅, G4 ✅ (2026-08-12).
+- 002-backend-api: G2 ✅, G3 ✅, G4 ✅, G5/G6 ✅ (2026-08-12).
 
 ## Blockers
 
-None.
+None. Siguiente: feature 003 (PDF + correo transaccional, H2.3/H2.4) o Sprint 3 (IA real + auth).
