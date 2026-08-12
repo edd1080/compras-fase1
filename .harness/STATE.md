@@ -1,7 +1,7 @@
 ---
 schemaVersion: 1
-lifecycle: implementation
-currentGate: G4
+lifecycle: closed
+currentGate: G6
 activeFeature: 003-design-enterprise
 approvals:
   G1: true
@@ -9,21 +9,20 @@ approvals:
   G3: true
   G4: true
 nextAction:
-  command: feature-implement
-  prompt: Implementa la feature 003-design-enterprise (elevación enterprise del sistema propio de diseño).
+  command: feature-selection
+  prompt: "Selecciona la siguiente feature: Sprint 2 (PDF con pdfme y correos) o Sprint 3 (IA real y auth)."
 ---
 
 # Project State
 
 ## Current objective
 
-Implementación de **003-design-enterprise** (Redesign-Preserve): refinar el sistema de diseño propio al máximo nivel enterprise, sin migrar a shadcn, sin cambiar URLs, nav, fields, logo ni copy, sin regresión de accesibilidad ni de RN-01. Basado en audit Taste v2 (Sección 11.B) y palancas 11.D (typography, spacing, color, motion, shell/rail, recomposición de secciones).
+Feature **003-design-enterprise** cerrada (G5 ✅, G6 ✅). Sistema de diseño elevado a nivel enterprise (AppShell/Sidebar, tokens refinados, micro-interacciones, skeletons, recomposición de dashboard/detalle), preservando rutas, nav, fields, logo y RN-01. Pusheado a origin/main (`0065310`).
 
 ## Approvals
 
-- G1 ✅ · 000 ✅ · 001 ✅ · 002 ✅ (G6).
-- 003-design-enterprise: audit (G2) ✅, modo+palancas (G3) ✅, implementación (G4) ✅.
+- G1 ✅ · 000 ✅ · 001 ✅ · 002 ✅ · 003-design-enterprise G2/G3/G4/G5/G6 ✅ (2026-08-12).
 
 ## Blockers
 
-None.
+None. Siguiente: feature 004 (PDF con pdfme + correos, H2.3/H2.4) o Sprint 3 (IA real + auth).
