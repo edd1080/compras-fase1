@@ -15,8 +15,47 @@ type RecomendacionProps = {
 
 export function Recomendacion({ cotizaciones, prosContras, sugerenciaIA, cotizacionSugeridaId, onEnviar }: RecomendacionProps) {
   const [recomendacion, setRecomendacion] = useState("");
+  const [enviado, setEnviado] = useState(false);
+  const [copiado, setCopiado] = useState(false);
   const sugerida = cotizaciones.find((c) => c.id === cotizacionSugeridaId);
   const bloqueado = bloqueoB3Activo(recomendacion);
+
+  if (enviado) {
+    return (
+      <div className="step-enter bg-white rounded-2xl border border-slate-200/60 p-6 shadow-sm relative overflow-hidden">
+        <div className="absolute -top-16 -left-20 w-72 h-72 rounded-full bg-gradient-to-r from-emerald-200/30 to-sky-500/10 blur-[70px]" />
+        <div className="relative">
+          <div className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-green-700 bg-green-100 px-2.5 py-1.5 rounded-xl">ENVIADA_A_SOLICITANTE</div>
+          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900 mt-2">Comparativa enviada</h2>
+          <p className="text-sm text-slate-500 mt-2 max-w-2xl">La solicitud queda en espera de la decisión del solicitante. El ciclo del coordinador termina aquí.</p>
+
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="bg-slate-50 rounded-2xl border border-slate-200 p-4">
+              <div className="text-xs font-semibold text-slate-900">Enlace público (token)</div>
+              <div className="mt-2 flex items-center gap-2">
+                <input readOnly defaultValue="https://bia.com/solicitud/t/9F2K-1A0C" className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-[11px] font-medium text-slate-700" />
+                <button onClick={() => { navigator.clipboard?.writeText("https://bia.com/solicitud/t/9F2K-1A0C"); setCopiado(true); }} className="text-[11px] font-semibold uppercase tracking-wider text-slate-700 hover:text-slate-900 bg-white px-3 py-2 rounded-xl border border-slate-200">{copiado ? "Copiado" : "Copiar"}</button>
+              </div>
+              <div className="text-[10px] text-slate-500 mt-2">Se incluye en el correo al solicitante.</div>
+            </div>
+            <div className="bg-slate-50 rounded-2xl border border-slate-200 p-4">
+              <div className="text-xs font-semibold text-slate-900">Estado</div>
+              <div className="mt-2 text-[11px] text-slate-600 leading-relaxed">Transición: <span className="font-semibold text-slate-900">COMPARATIVA_LISTA → ENVIADA_A_SOLICITANTE</span></div>
+              <div className="mt-2 text-[11px] text-slate-600">Siguiente: <span className="font-semibold">Decisión del solicitante</span></div>
+            </div>
+            <div className="bg-slate-50 rounded-2xl border border-slate-200 p-4">
+              <div className="text-xs font-semibold text-slate-900">Notificación</div>
+              <div className="mt-2 text-[11px] text-slate-600 leading-relaxed">Correo 3 disparado al solicitante con el enlace público.</div>
+              <div className="mt-2 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                Entregado (simulado)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="step-enter">
@@ -78,7 +117,7 @@ export function Recomendacion({ cotizaciones, prosContras, sugerenciaIA, cotizac
           </div>
         ) : null}
         <div className="mt-4 flex items-center justify-end gap-2">
-          <button type="button" disabled={bloqueado} onClick={() => onEnviar(recomendacion)} className="bg-sky-500 text-white text-xs px-7 py-3 rounded-full font-medium hover:bg-sky-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-lg shadow-sky-500/20">
+          <button type="button" disabled={bloqueado} onClick={() => { onEnviar(recomendacion); setEnviado(true); }} className="bg-sky-500 text-white text-xs px-7 py-3 rounded-full font-medium hover:bg-sky-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-lg shadow-sky-500/20">
             Enviar comparativa al solicitante
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m22 2-7 20-4-9-9-4Z"/></svg>
           </button>

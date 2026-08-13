@@ -1,0 +1,1452 @@
+<html lang="es" class="antialiased"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIA Compras — Panel del Coordinador</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap');
+
+      body {
+          font-family: 'Inter', sans-serif;
+          background-color: #F8F9FA;
+          background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H17.5V20.5H20ZM20 20.5V23H22.5V20.5H20Z' fill='%23E5E7EB' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
+      }
+
+      .font-mono {
+          font-family: 'JetBrains Mono', monospace;
+      }
+
+      @keyframes blob-spin {
+          0% { transform: rotate(0deg) scale(1); }
+          50% { transform: rotate(180deg) scale(1.1); }
+          100% { transform: rotate(360deg) scale(1); }
+      }
+
+      @keyframes blob-morph {
+          0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; background-position: 0% 50%; }
+          50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; background-position: 100% 50%; }
+          100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; background-position: 0% 50%; }
+      }
+
+      .animate-fluid-blob {
+          animation: blob-morph 12s ease-in-out infinite alternate, blob-spin 24s linear infinite;
+      }
+
+      .no-scrollbar::-webkit-scrollbar {
+          display: none;
+      }
+      .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+      }
+
+      .step-enter {
+          animation: fade-in-up 0.4s ease-out forwards;
+      }
+
+      @keyframes fade-in-up {
+          from { opacity: 0; transform: translateY(15px); }
+          to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Select custom arrow removal for cleaner look */
+      select {
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          appearance: none;
+      }
+    </style>
+    <style>
+      html:not(.is-auth) main {
+        background: transparent !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+      }
+      html:not(.is-auth) main > section {
+        background: transparent !important;
+      }
+    </style>
+    <style>
+      html:not(.is-auth) #app-sidebar { display: none !important; }
+      .is-auth #app-sidebar { display: flex !important; }
+    </style>
+  </head>
+  <body class="h-screen w-screen flex text-slate-900 relative overflow-hidden">
+    <!-- Ambient background blobs -->
+    <div class="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-r from-[#BAE6FD]/40 to-[#D1FAE5]/40 mix-blend-multiply blur-[80px] animate-fluid-blob pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-gradient-to-r from-[#0EA5E9]/10 to-[#A7F3D0]/20 mix-blend-multiply blur-[80px] animate-fluid-blob pointer-events-none" style="animation-delay: -4s;"></div>
+
+    <main class="w-full h-full bg-white/70 backdrop-blur-3xl flex flex-col md:flex-row overflow-hidden relative z-10">
+      <!-- Sidebar Panel -->
+
+      <!-- Main Form Area -->
+      <aside id="app-sidebar" class="hidden shrink-0 w-64 border-r border-white/60 bg-white/40 relative z-20 flex-col py-8 px-6">
+        <div class="flex items-center gap-3 mb-10">
+          <div class="w-10 h-10 rounded-2xl bg-sky-600 flex items-center justify-center shadow-sm shadow-sky-600/20">
+            <span class="text-white text-[13px] font-semibold tracking-tight">
+              BIA
+            </span>
+          </div>
+          <div>
+            <div class="text-sm font-semibold tracking-tight text-slate-900">
+              Admin Panel
+            </div>
+            <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
+              Trazabilidad
+            </div>
+          </div>
+        </div>
+        <nav class="flex-1 space-y-1.5">
+          <button class="nav-chip w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900 text-white shadow-sm font-semibold text-xs transition-colors" data-view="bandeja">
+            <iconify-icon icon="solar:pie-chart-2-linear" class="text-lg"></iconify-icon>
+            Dashboard
+          </button>
+          <button class="nav-chip w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-white/60 hover:text-slate-900 font-medium text-xs transition-colors" data-view="procesos">
+            <iconify-icon icon="solar:documents-minimalistic-linear" class="text-lg"></iconify-icon>
+            Procesos
+          </button>
+          <button class="nav-chip w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-white/60 hover:text-slate-900 font-medium text-xs transition-colors" data-view="coordinadores">
+            <iconify-icon icon="solar:users-group-two-rounded-linear" class="text-lg"></iconify-icon>
+            Coordinadores
+          </button>
+          <button class="nav-chip w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-white/60 hover:text-slate-900 font-medium text-xs transition-colors" data-view="configuracion">
+            <iconify-icon icon="solar:settings-linear" class="text-lg"></iconify-icon>
+            Configuración
+          </button>
+        </nav>
+        <div class="mt-auto pt-6 border-t border-white/60">
+          <button id="btn-settings" class="w-full flex items-center gap-3 hover:bg-white/50 p-2 -ml-2 rounded-xl transition-colors">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
+              <iconify-icon icon="solar:user-circle-linear" class="text-lg"></iconify-icon>
+            </div>
+            <div class="text-left">
+              <div class="text-xs font-semibold text-slate-900">
+                Lady (Admin)
+              </div>
+              <div class="text-[10px] text-slate-500">Administración</div>
+            </div>
+          </button>
+        </div>
+      </aside>
+      <section class="flex-1 p-0 relative overflow-hidden bg-white/30 flex flex-col min-h-[640px]">
+        <header id="app-header" class="shrink-0 relative overflow-hidden border-b border-white/60 hidden">
+          <div class="absolute inset-0 bg-gradient-to-r from-sky-100/80 via-white/50 to-emerald-100/50"></div>
+          <div class="relative px-6 md:px-8 py-5 flex items-center justify-between">
+            <div>
+              <h1 class="text-xl font-semibold tracking-tight text-slate-900">
+                Panel de Trazabilidad
+              </h1>
+              <p class="text-xs text-slate-500 mt-1">
+                Control y métricas del ciclo de compras, rendimiento y estado de
+                procesos.
+              </p>
+            </div>
+            <div class="flex items-center gap-3">
+              <button id="btn-logout" class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-sky-600 transition-colors flex items-center gap-1.5 bg-white/70 px-4 py-2 rounded-xl border border-white shadow-sm">
+                Salir
+                <iconify-icon icon="solar:logout-2-linear" style="stroke-width:1.5;"></iconify-icon>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto no-scrollbar px-6 md:px-8 py-10 md:py-14 items-center justify-center flex flex-col" id="coordinator-shell">
+          <section id="view-login" class="view step-enter w-full max-w-[980px] mx-auto">
+            <div class="flex flex-col items-center justify-center w-full">
+              <div class="w-full max-w-[540px]">
+                <div class="bg-white rounded-[2rem] border border-slate-200/60 p-8 sm:p-12 shadow-2xl shadow-slate-200/20 relative overflow-hidden">
+                  <div class="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-gradient-to-r from-[#0EA5E9]/10 to-[#A7F3D0]/15 blur-[50px]"></div>
+                  <div class="relative">
+                    <div class="flex flex-col gap-6 mb-8">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                          <div class="w-11 h-11 rounded-2xl bg-sky-600 flex items-center justify-center shadow-md shadow-sky-600/20">
+                            <span class="text-white text-xs font-semibold tracking-tight">
+                              BIA
+                            </span>
+                          </div>
+                          <span class="text-xl font-bold tracking-tight text-slate-900">
+                            Compras
+                          </span>
+                        </div>
+                        <div class="hidden sm:flex items-center gap-2">
+                          <span class="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">
+                            <iconify-icon icon="solar:verified-check-linear"></iconify-icon>
+                            Trazabilidad
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <h2 class="text-3xl font-semibold tracking-tight text-slate-900">
+                          Acceso Administrador
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1.5 leading-relaxed">
+                          Rol:
+                          <span class="font-semibold text-slate-700">
+                            Admin · Trazabilidad
+                          </span>
+                          . Supervisión general y métricas.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="space-y-4">
+                      <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">
+                          Correo
+                        </label>
+                        <div class="relative">
+                          <iconify-icon icon="solar:letter-linear" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></iconify-icon>
+                          <input id="coord-email" type="email" placeholder="carla@bia.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:bg-white transition-all">
+                        </div>
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">
+                          Contraseña
+                        </label>
+                        <div class="relative">
+                          <iconify-icon icon="solar:lock-password-linear" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></iconify-icon>
+                          <input id="coord-pass" type="password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-10 py-3 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:bg-white transition-all">
+                          <button id="toggle-pass" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors" type="button" aria-label="Mostrar u ocultar contraseña">
+                            <iconify-icon icon="solar:eye-linear" class="text-lg"></iconify-icon>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="flex items-center justify-between gap-3 pt-2">
+                        <label class="inline-flex items-center gap-2 text-sm text-slate-600">
+                          <input id="remember" type="checkbox" class="rounded border-slate-300 text-[#0EA5E9] focus:ring-[#0EA5E9]/30">
+                          Recordarme en este dispositivo
+                        </label>
+                        <button class="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors" type="button">
+                          ¿Olvidaste tu contraseña?
+                        </button>
+                      </div>
+
+                      <div class="pt-1 flex items-center justify-end">
+                        <button id="btn-login" class="bg-sky-600 text-white text-sm px-8 py-3.5 rounded-full font-medium hover:bg-sky-700 shadow-lg shadow-sky-600/20 transition-all flex items-center gap-2">
+                          Entrar al panel
+                          <iconify-icon icon="solar:arrow-right-linear" class="text-sm" style="stroke-width:1.5;"></iconify-icon>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="view-bandeja" class="view hidden">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+              <div class="inline-flex items-center gap-1.5 bg-white/60 border border-white shadow-sm rounded-2xl p-1.5">
+                <button class="px-3 py-2 rounded-xl text-xs font-semibold tracking-tight bg-sky-600 text-white shadow-sm shadow-sky-600/20">
+                  Todo
+                </button>
+                <button class="px-3 py-2 rounded-xl text-xs font-semibold tracking-tight text-slate-700 hover:bg-white/70">
+                  Hoy
+                </button>
+                <button class="px-3 py-2 rounded-xl text-xs font-semibold tracking-tight text-slate-700 hover:bg-white/70">
+                  Esta semana
+                </button>
+                <button class="px-3 py-2 rounded-xl text-xs font-semibold tracking-tight text-slate-700 hover:bg-white/70">
+                  Este mes
+                </button>
+              </div>
+              <div class="flex items-center gap-2">
+                <select class="bg-white/70 border border-white rounded-xl px-4 py-2 text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-sky-500 shadow-sm pr-8">
+                  <option>Todos los coordinadores</option>
+                  <option>Carla Ortega</option>
+                  <option>Mario Gómez</option>
+                </select>
+                <button class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-sky-600 transition-colors flex items-center gap-1.5 bg-white/70 px-4 py-2 rounded-xl border border-white shadow-sm">
+                  Exportar
+                  <iconify-icon icon="solar:download-minimalistic-linear" style="stroke-width:1.5;"></iconify-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div class="bg-white rounded-2xl border border-slate-200/60 p-5 shadow-sm relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 w-16 h-16 bg-emerald-100 rounded-full opacity-50"></div>
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1 relative z-10">
+                  Conversión (Aceptación)
+                </div>
+                <div class="flex items-end justify-between relative z-10">
+                  <div class="text-3xl font-semibold tracking-tight text-emerald-600">
+                    84%
+                  </div>
+                  <div class="text-[11px] text-emerald-600 font-medium flex items-center gap-0.5">
+                    <iconify-icon icon="solar:arrow-up-linear"></iconify-icon>
+                    2.1%
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white rounded-2xl border border-slate-200/60 p-5 shadow-sm">
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+                  Tiempo Promedio
+                </div>
+                <div class="flex items-end justify-between">
+                  <div class="text-3xl font-semibold tracking-tight text-slate-900">
+                    4.2
+                    <span class="text-lg text-slate-400 font-medium">días</span>
+                  </div>
+                  <div class="text-[11px] text-emerald-600 font-medium flex items-center gap-0.5">
+                    <iconify-icon icon="solar:arrow-down-linear"></iconify-icon>
+                    0.3d
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white rounded-2xl border border-slate-200/60 p-5 shadow-sm">
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+                  Procesos Activos
+                </div>
+                <div class="flex items-end justify-between">
+                  <div class="text-3xl font-semibold tracking-tight text-sky-600">
+                    38
+                  </div>
+                  <div class="text-[11px] text-slate-500">en curso</div>
+                </div>
+              </div>
+              <div class="bg-white rounded-2xl border border-slate-200/60 p-5 shadow-sm">
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-rose-500 mb-1 flex items-center gap-1">
+                  <iconify-icon icon="solar:danger-circle-linear"></iconify-icon>
+                  Sin decisión &gt; 5 días
+                </div>
+                <div class="flex items-end justify-between">
+                  <div class="text-3xl font-semibold tracking-tight text-slate-900">
+                    7
+                  </div>
+                  <div class="text-[11px] text-slate-500">alertas</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <div class="bg-white rounded-2xl border border-slate-200/60 p-5 shadow-sm h-64 flex flex-col">
+                <div class="text-xs font-semibold text-slate-700 mb-4">
+                  Volumen por Coordinador
+                </div>
+                <div class="flex-1 flex items-end gap-6 px-4 pb-2">
+                  <div class="flex-1 bg-slate-50 rounded-t-lg relative flex items-end justify-center group h-full">
+                    <div class="w-full bg-sky-200 rounded-t-lg transition-all" style="height: 60%;"></div>
+                    <span class="absolute -bottom-6 text-[10px] text-slate-500 whitespace-nowrap">
+                      Carla O.
+                    </span>
+                    <span class="absolute top-0 -translate-y-6 text-[10px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                      45
+                    </span>
+                  </div>
+                  <div class="flex-1 bg-slate-50 rounded-t-lg relative flex items-end justify-center group h-full">
+                    <div class="w-full bg-sky-400 rounded-t-lg transition-all shadow-[0_-2px_10px_rgba(56,189,248,0.2)]" style="height: 85%;"></div>
+                    <span class="absolute -bottom-6 text-[10px] text-slate-500 whitespace-nowrap">
+                      Mario G.
+                    </span>
+                    <span class="absolute top-0 -translate-y-6 text-[10px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                      64
+                    </span>
+                  </div>
+                  <div class="flex-1 bg-slate-50 rounded-t-lg relative flex items-end justify-center group h-full">
+                    <div class="w-full bg-sky-300 rounded-t-lg transition-all" style="height: 40%;"></div>
+                    <span class="absolute -bottom-6 text-[10px] text-slate-500 whitespace-nowrap">
+                      Luis F.
+                    </span>
+                    <span class="absolute top-0 -translate-y-6 text-[10px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                      30
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white rounded-2xl border border-slate-200/60 p-5 shadow-sm h-64 flex flex-col">
+                <div class="text-xs font-semibold text-slate-700 mb-4">
+                  Distribución por Tipo
+                </div>
+                <div class="flex-1 flex flex-col justify-center gap-4">
+                  <div>
+                    <div class="flex justify-between text-[11px] mb-1">
+                      <span>RFQ (Cotización)</span>
+                      <span class="font-semibold text-slate-900">55%</span>
+                    </div>
+                    <div class="w-full h-2 rounded-full bg-slate-100">
+                      <div class="h-2 rounded-full bg-emerald-400" style="width:55%"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-[11px] mb-1">
+                      <span>RFI (Información)</span>
+                      <span class="font-semibold text-slate-900">30%</span>
+                    </div>
+                    <div class="w-full h-2 rounded-full bg-slate-100">
+                      <div class="h-2 rounded-full bg-sky-400" style="width:30%"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-[11px] mb-1">
+                      <span>RFP (Propuesta)</span>
+                      <span class="font-semibold text-slate-900">15%</span>
+                    </div>
+                    <div class="w-full h-2 rounded-full bg-slate-100">
+                      <div class="h-2 rounded-full bg-sky-200" style="width:15%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <div class="bg-white rounded-2xl border border-slate-200/60 p-8 shadow-sm flex flex-col items-center justify-center text-center min-h-[200px]">
+                <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                  <iconify-icon icon="solar:chart-square-linear" class="text-3xl text-slate-400"></iconify-icon>
+                </div>
+                <h3 class="text-sm font-semibold text-slate-700 mb-1">
+                  Ahorro Generado
+                </h3>
+                <p class="text-xs text-slate-500 max-w-[220px]">
+                  No hay suficientes datos procesados para calcular el ahorro
+                  este mes.
+                </p>
+              </div>
+              <div class="bg-white rounded-2xl border border-slate-200/60 p-8 shadow-sm flex flex-col items-center justify-center text-center min-h-[200px]">
+                <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                  <iconify-icon icon="solar:stopwatch-linear" class="text-3xl text-slate-400"></iconify-icon>
+                </div>
+                <h3 class="text-sm font-semibold text-slate-700 mb-1">
+                  Eficiencia de Proveedores
+                </h3>
+                <p class="text-xs text-slate-500 max-w-[220px]">
+                  Aún no hay evaluaciones registradas para mostrar el
+                  rendimiento.
+                </p>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
+              <div class="px-5 py-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
+                <div class="text-xs font-semibold text-slate-700">
+                  Tabla de Procesos
+                </div>
+                <div class="relative">
+                  <iconify-icon icon="solar:magnifer-linear" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></iconify-icon>
+                  <input placeholder="Buscar solicitud..." class="w-full sm:w-64 bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-medium focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all">
+                </div>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="min-w-full text-left">
+                  <thead class="bg-slate-50/70">
+                    <tr class="text-[10px] uppercase tracking-wider text-slate-500">
+                      <th class="px-5 py-3 font-semibold">Referencia</th>
+                      <th class="px-5 py-3 font-semibold">Solicitante</th>
+                      <th class="px-5 py-3 font-semibold">Coordinador</th>
+                      <th class="px-5 py-3 font-semibold">Estado</th>
+                      <th class="px-5 py-3 font-semibold">Creación</th>
+                      <th class="px-5 py-3 font-semibold text-right">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 text-xs">
+                    <tr class="hover:bg-slate-50/60 transition-colors">
+                      <td class="px-5 py-4">
+                        <span class="font-mono font-semibold text-slate-900">
+                          RFQ-2026-014
+                        </span>
+                        <div class="text-[10px] text-slate-500 mt-0.5">
+                          Empaque/Branding
+                        </div>
+                      </td>
+                      <td class="px-5 py-4">
+                        <div class="font-medium text-slate-900">
+                          María López
+                        </div>
+                        <div class="text-[10px] text-slate-500">Marketing</div>
+                      </td>
+                      <td class="px-5 py-4">
+                        <div class="font-medium text-slate-700">
+                          Carla Ortega
+                        </div>
+                      </td>
+                      <td class="px-5 py-4">
+                        <span class="text-[10px] font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full whitespace-nowrap">
+                          Esperando decisión
+                        </span>
+                      </td>
+                      <td class="px-5 py-4 text-slate-500 whitespace-nowrap">
+                        2026-01-29
+                      </td>
+                      <td class="px-5 py-4 text-right">
+                        <button class="open-detail text-sky-600 hover:text-sky-800 font-semibold px-3 py-1.5 bg-sky-50 rounded-lg transition-colors whitespace-nowrap">
+                          Ver Detalle
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50/60 transition-colors">
+                      <td class="px-5 py-4">
+                        <span class="font-mono font-semibold text-slate-900">
+                          RFI-2026-009
+                        </span>
+                        <div class="text-[10px] text-slate-500 mt-0.5">
+                          Materia Prima
+                        </div>
+                      </td>
+                      <td class="px-5 py-4">
+                        <div class="font-medium text-slate-900">Luis Rojas</div>
+                        <div class="text-[10px] text-slate-500">
+                          Operaciones
+                        </div>
+                      </td>
+                      <td class="px-5 py-4">
+                        <div class="font-medium text-slate-700">
+                          Mario Gómez
+                        </div>
+                      </td>
+                      <td class="px-5 py-4">
+                        <span class="text-[10px] font-semibold text-sky-700 bg-sky-100 px-2.5 py-1 rounded-full">
+                          Activa
+                        </span>
+                      </td>
+                      <td class="px-5 py-4 text-slate-500 whitespace-nowrap">
+                        2026-01-28
+                      </td>
+                      <td class="px-5 py-4 text-right">
+                        <button class="open-detail text-sky-600 hover:text-sky-800 font-semibold px-3 py-1.5 bg-sky-50 rounded-lg transition-colors whitespace-nowrap">
+                          Ver Detalle
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50/60 transition-colors">
+                      <td class="px-5 py-4">
+                        <span class="font-mono font-semibold text-slate-900">
+                          RFQ-2025-221
+                        </span>
+                        <div class="text-[10px] text-slate-500 mt-0.5">
+                          Administrativo
+                        </div>
+                      </td>
+                      <td class="px-5 py-4">
+                        <div class="font-medium text-slate-900">
+                          Jorge Mejía
+                        </div>
+                        <div class="text-[10px] text-slate-500">TI</div>
+                      </td>
+                      <td class="px-5 py-4">
+                        <div class="font-medium text-slate-700">
+                          Carla Ortega
+                        </div>
+                      </td>
+                      <td class="px-5 py-4">
+                        <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full whitespace-nowrap">
+                          Cerrada
+                        </span>
+                      </td>
+                      <td class="px-5 py-4 text-slate-500 whitespace-nowrap">
+                        2026-01-10
+                      </td>
+                      <td class="px-5 py-4 text-right">
+                        <button class="open-detail text-sky-600 hover:text-sky-800 font-semibold px-3 py-1.5 bg-sky-50 rounded-lg transition-colors whitespace-nowrap">
+                          Ver Detalle
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section id="view-detalle" class="view hidden">
+            <div class="flex items-start justify-between gap-4 mb-6">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-mono text-xs font-semibold text-slate-700 bg-white/70 border border-white px-2.5 py-1 rounded-xl">
+                    RFQ-2026-014
+                  </span>
+                  <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-amber-100 text-amber-700">
+                    Esperando decisión
+                  </span>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900 mt-2">
+                  Sombrillas brandeadas — activación playa
+                </h2>
+              </div>
+              <button id="btn-back-bandeja" class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1.5 bg-white/70 px-4 py-2 rounded-xl border border-white shadow-sm">
+                Volver
+                <iconify-icon icon="solar:arrow-left-linear" style="stroke-width:1.5;"></iconify-icon>
+              </button>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div class="lg:col-span-2 space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6">
+                  <h3 class="text-sm font-semibold text-slate-900 mb-6">
+                    Línea de tiempo (Trazabilidad)
+                  </h3>
+                  <div class="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-sky-200 before:via-slate-200 before:to-transparent">
+                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                      <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-sky-100 text-sky-600 shadow-sm shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                        <iconify-icon icon="solar:check-circle-linear"></iconify-icon>
+                      </div>
+                      <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white border border-slate-200 p-4 rounded-xl shadow-sm">
+                        <div class="flex items-center justify-between mb-1">
+                          <span class="font-bold text-slate-900 text-xs">
+                            Creación
+                          </span>
+                          <span class="text-[10px] text-slate-500 font-mono">
+                            2026-01-29 09:30
+                          </span>
+                        </div>
+                        <div class="text-[11px] text-slate-600">
+                          Iniciada por María López.
+                        </div>
+                      </div>
+                    </div>
+                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                      <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-sky-100 text-sky-600 shadow-sm shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                        <iconify-icon icon="solar:user-check-linear"></iconify-icon>
+                      </div>
+                      <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white border border-slate-200 p-4 rounded-xl shadow-sm">
+                        <div class="flex items-center justify-between mb-1">
+                          <span class="font-bold text-slate-900 text-xs">
+                            Asignación
+                          </span>
+                          <span class="text-[10px] text-slate-500 font-mono">
+                            2026-01-29 10:15
+                          </span>
+                        </div>
+                        <div class="text-[11px] text-slate-600">
+                          Asignada a Carla Ortega.
+                        </div>
+                      </div>
+                    </div>
+                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                      <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-amber-100 text-amber-600 shadow-sm shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                        <iconify-icon icon="solar:clock-circle-linear"></iconify-icon>
+                      </div>
+                      <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white border border-slate-200 p-4 rounded-xl shadow-sm">
+                        <div class="flex items-center justify-between mb-1">
+                          <span class="font-bold text-slate-900 text-xs">
+                            En revisión
+                          </span>
+                          <span class="text-[10px] text-slate-500 font-mono">
+                            2026-02-02 14:20
+                          </span>
+                        </div>
+                        <div class="text-[11px] text-slate-600">
+                          Comparativa enviada a solicitante.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <aside class="space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden p-5">
+                  <h3 class="text-xs font-semibold text-slate-700 mb-4">
+                    Contexto
+                  </h3>
+                  <div class="space-y-4 text-[11px]">
+                    <div>
+                      <span class="text-slate-500 uppercase tracking-wider font-semibold block text-[10px] mb-1">
+                        Solicitante
+                      </span>
+                      <span class="font-medium text-slate-900">
+                        María López (Marketing)
+                      </span>
+                    </div>
+                    <div>
+                      <span class="text-slate-500 uppercase tracking-wider font-semibold block text-[10px] mb-1">
+                        Coordinador
+                      </span>
+                      <span class="font-medium text-slate-900">
+                        Carla Ortega
+                      </span>
+                    </div>
+                    <div>
+                      <span class="text-slate-500 uppercase tracking-wider font-semibold block text-[10px] mb-1">
+                        Tipo y Categoría
+                      </span>
+                      <span class="font-medium text-slate-900">
+                        RFQ - Empaque/Branding
+                      </span>
+                    </div>
+                    <div>
+                      <span class="text-slate-500 uppercase tracking-wider font-semibold block text-[10px] mb-1">
+                        Ciclo Actual
+                      </span>
+                      <span class="font-medium text-slate-900">
+                        4 días transcurridos
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </section>
+          <section id="view-ajustes" class="view hidden w-full max-w-3xl mx-auto">
+            <div class="flex items-start justify-between gap-4 mb-6">
+              <div>
+                <h2 class="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900">
+                  Ajustes de Perfil
+                </h2>
+                <p class="text-sm text-slate-500 mt-1">
+                  Configura tus preferencias y datos personales.
+                </p>
+              </div>
+              <button id="btn-back-bandeja-ajustes" class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1.5 bg-white/70 px-4 py-2 rounded-xl border border-white shadow-sm">
+                Volver
+                <iconify-icon icon="solar:arrow-left-linear" style="stroke-width:1.5;"></iconify-icon>
+              </button>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden p-6 md:p-8">
+              <form class="space-y-5">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Nombre Completo
+                  </label>
+                  <input type="text" value="Lady" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Correo Electrónico
+                  </label>
+                  <input type="email" value="admin@bia.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Contraseña
+                  </label>
+                  <input type="password" value="********" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Rol
+                  </label>
+                  <input type="text" value="Administración" disabled="" class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-500 cursor-not-allowed">
+                </div>
+                <div class="pt-4 flex justify-end">
+                  <button type="button" class="bg-sky-600 text-white text-sm px-6 py-2.5 rounded-xl font-medium hover:bg-sky-700 shadow-md shadow-sky-600/20 transition-all">
+                    Guardar Cambios
+                  </button>
+                </div>
+              </form>
+            </div>
+          </section>
+          <section id="view-procesos" class="view hidden w-full">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+              <div>
+                <h2 class="text-xl md:text-2xl font-semibold tracking-tight text-slate-900">
+                  Procesos de Compras
+                </h2>
+                <p class="text-xs text-slate-500 mt-1">
+                  Gestión y estado de todas las solicitudes activas.
+                </p>
+              </div>
+              <button class="bg-sky-600 text-white text-[11px] font-semibold uppercase tracking-wider px-4 py-2 rounded-xl hover:bg-sky-700 shadow-sm shadow-sky-600/20 transition-all flex items-center gap-1.5">
+                <iconify-icon icon="solar:add-circle-linear" class="text-sm"></iconify-icon>
+                Nuevo Proceso
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="flex flex-col h-full bg-slate-50/50 rounded-2xl border border-slate-200/50 p-4">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                    Cotización (RFQ)
+                  </h3>
+                  <span class="text-[10px] font-semibold bg-white text-slate-500 px-2 py-1 rounded-lg border border-slate-200/60 shadow-sm">
+                    3
+                  </span>
+                </div>
+                <div class="space-y-3">
+                  <div class="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm hover:border-sky-300 transition-colors cursor-pointer">
+                    <div class="flex justify-between items-start mb-2">
+                      <span class="font-mono text-xs font-semibold text-slate-900">
+                        RFQ-2026-014
+                      </span>
+                      <span class="text-[10px] font-medium px-2 py-0.5 rounded bg-sky-50 text-sky-600 border border-sky-100">
+                        Alta
+                      </span>
+                    </div>
+                    <p class="text-xs text-slate-600 mb-3 line-clamp-2">
+                      Sombrillas brandeadas — activación playa
+                    </p>
+                    <div class="flex items-center justify-between mt-auto">
+                      <div class="flex -space-x-2">
+                        <div class="w-6 h-6 rounded-full bg-sky-100 flex items-center justify-center border-2 border-white text-[9px] font-semibold text-sky-700">
+                          CO
+                        </div>
+                      </div>
+                      <span class="text-[10px] text-slate-400 font-medium">
+                        Hace 2 d
+                      </span>
+                    </div>
+                  </div>
+                  <div class="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm hover:border-sky-300 transition-colors cursor-pointer">
+                    <div class="flex justify-between items-start mb-2">
+                      <span class="font-mono text-xs font-semibold text-slate-900">
+                        RFQ-2026-015
+                      </span>
+                      <span class="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-50 text-slate-600 border border-slate-200">
+                        Media
+                      </span>
+                    </div>
+                    <p class="text-xs text-slate-600 mb-3 line-clamp-2">
+                      Equipos de cómputo para nuevo ingreso
+                    </p>
+                    <div class="flex items-center justify-between mt-auto">
+                      <div class="flex -space-x-2">
+                        <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center border-2 border-white text-[9px] font-semibold text-emerald-700">
+                          MG
+                        </div>
+                      </div>
+                      <span class="text-[10px] text-slate-400 font-medium">
+                        Hace 4 h
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-col h-full bg-slate-50/50 rounded-2xl border border-slate-200/50 p-4">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+                    Información (RFI)
+                  </h3>
+                  <span class="text-[10px] font-semibold bg-white text-slate-500 px-2 py-1 rounded-lg border border-slate-200/60 shadow-sm">
+                    2
+                  </span>
+                </div>
+                <div class="space-y-3">
+                  <div class="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm hover:border-sky-300 transition-colors cursor-pointer">
+                    <div class="flex justify-between items-start mb-2">
+                      <span class="font-mono text-xs font-semibold text-slate-900">
+                        RFI-2026-009
+                      </span>
+                      <span class="text-[10px] font-medium px-2 py-0.5 rounded bg-rose-50 text-rose-600 border border-rose-100">
+                        Urgente
+                      </span>
+                    </div>
+                    <p class="text-xs text-slate-600 mb-3 line-clamp-2">
+                      Materia Prima - Empaques biodegradables
+                    </p>
+                    <div class="flex items-center justify-between mt-auto">
+                      <div class="flex -space-x-2">
+                        <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center border-2 border-white text-[9px] font-semibold text-emerald-700">
+                          MG
+                        </div>
+                      </div>
+                      <span class="text-[10px] text-slate-400 font-medium">
+                        Hace 1 d
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-col h-full bg-slate-50/50 rounded-2xl border border-slate-200/50 p-4">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    Propuesta (RFP)
+                  </h3>
+                  <span class="text-[10px] font-semibold bg-white text-slate-500 px-2 py-1 rounded-lg border border-slate-200/60 shadow-sm">
+                    1
+                  </span>
+                </div>
+                <div class="space-y-3">
+                  <div class="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm hover:border-sky-300 transition-colors cursor-pointer">
+                    <div class="flex justify-between items-start mb-2">
+                      <span class="font-mono text-xs font-semibold text-slate-900">
+                        RFP-2026-002
+                      </span>
+                      <span class="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-50 text-slate-600 border border-slate-200">
+                        Media
+                      </span>
+                    </div>
+                    <p class="text-xs text-slate-600 mb-3 line-clamp-2">
+                      Agencia de Marketing Anual 2026
+                    </p>
+                    <div class="flex items-center justify-between mt-auto">
+                      <div class="flex -space-x-2">
+                        <div class="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center border-2 border-white text-[9px] font-semibold text-purple-700">
+                          LF
+                        </div>
+                      </div>
+                      <span class="text-[10px] text-slate-400 font-medium">
+                        Hace 5 d
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section id="view-coordinadores" class="view hidden w-full">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+              <div>
+                <h2 class="text-xl md:text-2xl font-semibold tracking-tight text-slate-900">
+                  Equipo de Coordinadores
+                </h2>
+                <p class="text-xs text-slate-500 mt-1">
+                  Rendimiento, carga de trabajo y asignación del equipo.
+                </p>
+              </div>
+              <div class="relative w-full sm:w-auto">
+                <iconify-icon icon="solar:magnifer-linear" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></iconify-icon>
+                <input type="text" placeholder="Buscar coordinador..." class="w-full sm:w-64 bg-white/70 border border-white shadow-sm rounded-xl pl-9 pr-4 py-2 text-xs font-medium focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div class="bg-white rounded-2xl border border-slate-200/60 p-6 shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 block shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
+                </div>
+                <div class="flex items-center gap-4 mb-5">
+                  <div class="w-14 h-14 rounded-full bg-sky-100 flex items-center justify-center border border-sky-200 text-sky-700 text-lg font-semibold">
+                    CO
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-slate-900">
+                      Carla Ortega
+                    </h3>
+                    <p class="text-[11px] text-slate-500 font-medium">
+                      Coord. Senior Compras
+                    </p>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-5">
+                  <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
+                    <div class="text-[10px] text-slate-500 font-medium mb-0.5">
+                      Activos
+                    </div>
+                    <div class="text-lg font-semibold text-slate-900 tracking-tight">
+                      12
+                    </div>
+                  </div>
+                  <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
+                    <div class="text-[10px] text-slate-500 font-medium mb-0.5">
+                      Promedio
+                    </div>
+                    <div class="text-lg font-semibold text-slate-900 tracking-tight">
+                      3.2
+                      <span class="text-[10px] text-slate-400 ml-1 font-medium">
+                        días
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <button class="w-full text-[11px] font-semibold text-sky-600 bg-sky-50 hover:bg-sky-100 py-2.5 rounded-xl transition-colors">
+                  Ver métricas detalladas
+                </button>
+              </div>
+
+              <div class="bg-white rounded-2xl border border-slate-200/60 p-6 shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 block shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
+                </div>
+                <div class="flex items-center gap-4 mb-5">
+                  <div class="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center border border-emerald-200 text-emerald-700 text-lg font-semibold">
+                    MG
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-slate-900">
+                      Mario Gómez
+                    </h3>
+                    <p class="text-[11px] text-slate-500 font-medium">
+                      Especialista RFI
+                    </p>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-5">
+                  <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
+                    <div class="text-[10px] text-slate-500 font-medium mb-0.5">
+                      Activos
+                    </div>
+                    <div class="text-lg font-semibold text-slate-900 tracking-tight">
+                      18
+                    </div>
+                  </div>
+                  <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
+                    <div class="text-[10px] text-slate-500 font-medium mb-0.5">
+                      Promedio
+                    </div>
+                    <div class="text-lg font-semibold text-slate-900 tracking-tight">
+                      4.5
+                      <span class="text-[10px] text-slate-400 ml-1 font-medium">
+                        días
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <button class="w-full text-[11px] font-semibold text-sky-600 bg-sky-50 hover:bg-sky-100 py-2.5 rounded-xl transition-colors">
+                  Ver métricas detalladas
+                </button>
+              </div>
+
+              <div class="bg-white rounded-2xl border border-slate-200/60 p-6 shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-400 block shadow-[0_0_8px_rgba(251,191,36,0.8)]"></span>
+                </div>
+                <div class="flex items-center gap-4 mb-5">
+                  <div class="w-14 h-14 rounded-full bg-purple-100 flex items-center justify-center border border-purple-200 text-purple-700 text-lg font-semibold">
+                    LF
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-slate-900">
+                      Luis Fernández
+                    </h3>
+                    <p class="text-[11px] text-slate-500 font-medium">
+                      Analista Junior
+                    </p>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-5">
+                  <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
+                    <div class="text-[10px] text-slate-500 font-medium mb-0.5">
+                      Activos
+                    </div>
+                    <div class="text-lg font-semibold text-slate-900 tracking-tight">
+                      8
+                    </div>
+                  </div>
+                  <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
+                    <div class="text-[10px] text-slate-500 font-medium mb-0.5">
+                      Promedio
+                    </div>
+                    <div class="text-lg font-semibold text-slate-900 tracking-tight">
+                      5.1
+                      <span class="text-[10px] text-slate-400 ml-1 font-medium">
+                        días
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <button class="w-full text-[11px] font-semibold text-sky-600 bg-sky-50 hover:bg-sky-100 py-2.5 rounded-xl transition-colors">
+                  Ver métricas detalladas
+                </button>
+              </div>
+            </div>
+          </section>
+          <section id="view-configuracion" class="view hidden w-full">
+            <div class="mb-6">
+              <h2 class="text-xl md:text-2xl font-semibold tracking-tight text-slate-900">
+                Configuración
+              </h2>
+              <p class="text-xs text-slate-500 mt-1">
+                Administra las preferencias y reglas del sistema de compras.
+              </p>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-6">
+              <div class="w-full md:w-56 shrink-0 space-y-1.5">
+                <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900 text-white shadow-sm font-semibold text-xs transition-colors text-left">
+                  <iconify-icon icon="solar:settings-linear" class="text-lg"></iconify-icon>
+                  General
+                </button>
+                <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-white/60 hover:text-slate-900 font-medium text-xs transition-colors text-left">
+                  <iconify-icon icon="solar:bell-bing-linear" class="text-lg"></iconify-icon>
+                  Notificaciones
+                </button>
+                <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-white/60 hover:text-slate-900 font-medium text-xs transition-colors text-left">
+                  <iconify-icon icon="solar:shield-check-linear" class="text-lg"></iconify-icon>
+                  Reglas de Aprobación
+                </button>
+                <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-white/60 hover:text-slate-900 font-medium text-xs transition-colors text-left">
+                  <iconify-icon icon="solar:database-linear" class="text-lg"></iconify-icon>
+                  Integraciones
+                </button>
+              </div>
+
+              <div class="flex-1 bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 lg:p-8">
+                <h3 class="text-lg font-semibold text-slate-900 mb-6">
+                  Ajustes Generales
+                </h3>
+
+                <div class="space-y-6">
+                  <div>
+                    <h4 class="text-sm font-semibold text-slate-700 mb-4">
+                      Tiempos de Resolución (SLAs)
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                          Límite de días RFQ
+                        </label>
+                        <input type="number" value="5" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all">
+                      </div>
+                      <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                          Límite de días RFI/RFP
+                        </label>
+                        <input type="number" value="10" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all">
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr class="border-slate-100">
+
+                  <div>
+                    <h4 class="text-sm font-semibold text-slate-700 mb-4">
+                      Opciones del Sistema
+                    </h4>
+                    <div class="space-y-4">
+                      <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" checked="" class="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-600/30">
+                        <span class="text-xs font-medium text-slate-700">
+                          Asignación automática de solicitudes (Round-Robin)
+                        </span>
+                      </label>
+                      <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" checked="" class="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-600/30">
+                        <span class="text-xs font-medium text-slate-700">
+                          Requerir 3 cotizaciones mínimo (Monto &gt; $1000)
+                        </span>
+                      </label>
+                      <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-600/30">
+                        <span class="text-xs font-medium text-slate-700">
+                          Alertar 24h antes del vencimiento del SLA
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="pt-6 flex justify-end">
+                    <button class="bg-sky-600 text-white text-[11px] font-semibold uppercase tracking-wider px-6 py-3 rounded-xl hover:bg-sky-700 shadow-sm shadow-sky-600/20 transition-all">
+                      Guardar Configuración
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <input id="file-input" type="file" class="hidden" accept=".pdf,.doc,.docx,image/*">
+        <!-- STEP 1: Identificación -->
+
+        <!-- STEP 2: Captura Inicial -->
+
+        <!-- STEP 3: Clasificación -->
+
+        <!-- STEP 4: Detalles Técnicos -->
+
+        <!-- STEP 5: Documento -->
+
+        <!-- STEP 6: Confirmación -->
+      </section>
+    </main>
+
+    <!-- Floating Toast for Borrador -->
+
+    <script>
+      // Coordinator dashboard demo (single-file)
+      (function(){
+        const $ = (sel, root=document)=>root.querySelector(sel);
+        const $$ = (sel, root=document)=>Array.from(root.querySelectorAll(sel));
+
+        const views = {
+          login: $('#view-login'),
+          bandeja: $('#view-bandeja'),
+          detalle: $('#view-detalle'),
+          envio: $('#view-envio'),
+          ajustes: $('#view-ajustes'),
+          procesos: $('#view-procesos'),
+          coordinadores: $('#view-coordinadores'),
+          configuracion: $('#view-configuracion')
+        };
+
+        const header = document.getElementById('app-header');
+        const shell = document.getElementById('coordinator-shell');
+
+        function setAuthenticated(isAuthed){
+          document.documentElement.classList.toggle('is-auth', !!isAuthed);
+          if(header) header.classList.toggle('hidden', !isAuthed);
+          if(shell){
+            shell.classList.remove('hidden');
+            if(isAuthed){
+              shell.classList.remove('items-center','justify-center');
+              shell.classList.add('px-6','md:px-8','py-6');
+              shell.classList.remove('py-10','md:py-14');
+            } else {
+              shell.classList.add('items-center','justify-center','flex','flex-col');
+              shell.classList.remove('px-6','md:px-8','py-6');
+              shell.classList.add('py-10','md:py-14');
+            }
+          }
+        }
+
+        function setView(name){
+          Object.entries(views).forEach(([k, el])=>{
+            if(!el) return;
+            if(k===name){ el.classList.remove('hidden'); el.classList.add('step-enter'); }
+            else { el.classList.add('hidden'); el.classList.remove('step-enter'); }
+          });
+
+          const isAuthed = name !== 'login';
+          setAuthenticated(isAuthed);
+
+          $$('.nav-chip').forEach(btn=>{
+            const active = btn.getAttribute('data-view')===name;
+            btn.classList.toggle('bg-slate-900', active);
+            btn.classList.toggle('text-white', active);
+            btn.classList.toggle('shadow-sm', active);
+            btn.classList.toggle('text-slate-700', !active);
+          });
+        }
+
+        $$('.nav-chip').forEach(btn=>{
+          btn.addEventListener('click', ()=>{
+            const v = btn.getAttribute('data-view');
+            setView(v);
+          });
+        });
+
+        const btnSettings = $('#btn-settings');
+        if(btnSettings) {
+          btnSettings.addEventListener('click', () => setView('ajustes'));
+        }
+
+        const btnBandejaAjustes = $('#btn-back-bandeja-ajustes');
+        if(btnBandejaAjustes) {
+          btnBandejaAjustes.addEventListener('click', () => setView('bandeja'));
+        }
+
+        const togglePass = $('#toggle-pass');
+        if(togglePass){
+          togglePass.addEventListener('click', ()=>{
+            const input = $('#coord-pass');
+            if(!input) return;
+            input.type = input.type === 'password' ? 'text' : 'password';
+          });
+        }
+
+        const btnLogin = $('#btn-login');
+        if(btnLogin){
+          btnLogin.addEventListener('click', ()=>{
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = '<iconify-icon icon="solar:spinner-linear" class="animate-spin text-lg"></iconify-icon> Entrando...';
+            setTimeout(()=>{
+              btnLogin.disabled = false;
+              btnLogin.innerHTML = 'Entrar al panel <iconify-icon icon="solar:arrow-right-linear" class="text-sm"></iconify-icon>';
+              setView('bandeja');
+            }, 700);
+          });
+        }
+
+        const btnLogout = $('#btn-logout');
+        if(btnLogout){
+          btnLogout.addEventListener('click', ()=>{
+            setAuthenticated(false);
+            if(views.login) views.login.classList.remove('hidden');
+            Object.entries(views).forEach(([k, el])=>{
+              if(!el) return;
+              if(k!=='login') el.classList.add('hidden');
+            });
+          });
+        }
+
+        const btnRefresh = $('#btn-refresh');
+        function simulateLoading(){
+          const loading = $('#loading-row');
+          const status = $('#list-status');
+          if(loading) loading.classList.remove('hidden');
+          if(status) status.textContent = 'Actualizando…';
+          setTimeout(()=>{
+            if(loading) loading.classList.add('hidden');
+            if(status) status.textContent = 'Listo';
+          }, 650);
+        }
+        if(btnRefresh) btnRefresh.addEventListener('click', simulateLoading);
+
+        function applyFilter(key){
+          const rows = $$('#req-tbody .req-row');
+          rows.forEach(r=>{
+            if(key==='todos') { r.classList.remove('hidden'); return; }
+            r.classList.toggle('hidden', r.getAttribute('data-state')!==key);
+          });
+
+          $$('#filters .filter-chip').forEach(btn=>{
+            const active = btn.getAttribute('data-filter')===key;
+            btn.classList.toggle('bg-slate-900', active);
+            btn.classList.toggle('text-white', active);
+            btn.classList.toggle('text-slate-700', !active);
+          });
+        }
+        $$('#filters .filter-chip').forEach(btn=>{
+          btn.addEventListener('click', ()=> applyFilter(btn.getAttribute('data-filter')));
+        });
+
+        $$('.counter-card').forEach(card=>{
+          card.addEventListener('click', ()=>{
+            const f = card.getAttribute('data-filter');
+            if(f==='activa') applyFilter('activa');
+            if(f==='esperando_cot') applyFilter('esperando_cot');
+            if(f==='esperando_dec') applyFilter('esperando_dec');
+            if(f==='cerrada') applyFilter('cerrada');
+          });
+        });
+
+        const search = $('#search');
+        if(search){
+          search.addEventListener('input', ()=>{
+            const q = search.value.trim().toLowerCase();
+            $$('#req-tbody .req-row').forEach(r=>{
+              const text = r.textContent.toLowerCase();
+              const isMatch = q==='' || text.includes(q);
+              if(!isMatch) r.classList.add('hidden');
+              else {
+                const activeFilterBtn = $('#filters .filter-chip.bg-slate-900');
+                const active = activeFilterBtn ? activeFilterBtn.getAttribute('data-filter') : 'todos';
+                if(active==='todos') r.classList.remove('hidden');
+                else r.classList.toggle('hidden', r.getAttribute('data-state')!==active);
+              }
+            });
+          });
+        }
+
+        $$('.open-detail').forEach(btn=>{
+          btn.addEventListener('click', ()=>{
+            setView('detalle');
+            setStage('07');
+          });
+        });
+        const btnBack = $('#btn-back-bandeja');
+        if(btnBack) btnBack.addEventListener('click', ()=> setView('bandeja'));
+
+        const stages = { '07': $('#stage-07'), '08': $('#stage-08'), '09': $('#stage-09') };
+        function setStage(s){
+          Object.entries(stages).forEach(([k, el])=>{
+            if(!el) return;
+            if(k===s){ el.classList.remove('hidden'); el.classList.add('step-enter'); }
+            else { el.classList.add('hidden'); el.classList.remove('step-enter'); }
+          });
+          $$('#stage-tabs .stage-tab').forEach(btn=>{
+            const active = btn.getAttribute('data-stage')===s;
+            btn.classList.toggle('bg-slate-900', active);
+            btn.classList.toggle('text-white', active);
+            btn.classList.toggle('text-slate-700', !active);
+          });
+        }
+        $$('#stage-tabs .stage-tab').forEach(btn=>{
+          btn.addEventListener('click', ()=> setStage(btn.getAttribute('data-stage')));
+        });
+
+        const fileInput = $('#file-input');
+        let pendingVendor = null;
+        const attached = {A:false, B:false, C:false};
+        function updateGenerateState(){
+          const count = Object.values(attached).filter(Boolean).length;
+          const btn = $('#btn-generate');
+          const note = $('#min-quote-note');
+          if(btn){
+            btn.disabled = count < 2;
+          }
+          if(note){
+            note.classList.toggle('hidden', count >= 2);
+          }
+        }
+
+        $$('.btn-attach').forEach(btn=>{
+          btn.addEventListener('click', ()=>{
+            pendingVendor = btn.getAttribute('data-vendor');
+            if(fileInput) fileInput.click();
+          });
+        });
+
+        if(fileInput){
+          fileInput.addEventListener('change', ()=>{
+            if(!pendingVendor) return;
+            const slot = $(`.btn-attach[data-vendor="${pendingVendor}"]`)?.closest('.vendor-slot');
+            if(slot){
+              const state = $('[data-file-state]', slot);
+              if(state){
+                state.textContent = 'convertido a Markdown ✓';
+                state.classList.remove('text-slate-700');
+                state.classList.add('text-green-700');
+              }
+              const btn = $(`.btn-attach[data-vendor="${pendingVendor}"]`);
+              if(btn){
+                btn.innerHTML = 'Cargado <iconify-icon icon="solar:file-check-linear" style="stroke-width:1.5;"></iconify-icon>';
+                btn.classList.remove('text-slate-700','bg-white','border-slate-200');
+                btn.classList.add('text-green-700','bg-green-50/60','border-green-200');
+              }
+            }
+            attached[pendingVendor] = true;
+            pendingVendor = null;
+            fileInput.value = '';
+            updateGenerateState();
+          });
+        }
+
+        const btnGenerate = $('#btn-generate');
+        if(btnGenerate){
+          btnGenerate.addEventListener('click', ()=>{
+            btnGenerate.disabled = true;
+            const old = btnGenerate.innerHTML;
+            btnGenerate.innerHTML = '<iconify-icon icon="solar:spinner-linear" class="animate-spin text-lg"></iconify-icon> Generando...';
+            setTimeout(()=>{
+              btnGenerate.innerHTML = old;
+              $('#state-pill') && ($('#state-pill').textContent = 'Comparativa lista');
+              $('#state-pill') && ($('#state-pill').className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-sky-100 text-sky-700');
+              setStage('08');
+            }, 850);
+          });
+        }
+
+        const btnTo09 = $('#btn-to-09');
+        if(btnTo09) btnTo09.addEventListener('click', ()=> setStage('09'));
+
+        const reco = $('#coord-reco');
+        const btnSend = $('#btn-send');
+        const hint = $('#reco-hint');
+        function validateReco(){
+          const ok = !!reco && reco.value.trim().length > 0;
+          if(btnSend) btnSend.disabled = !ok;
+          if(hint) hint.classList.toggle('hidden', ok);
+        }
+        if(reco) reco.addEventListener('input', validateReco);
+        validateReco();
+
+        if(btnSend){
+          btnSend.addEventListener('click', ()=>{
+            if(!reco || reco.value.trim().length===0){
+              validateReco();
+              return;
+            }
+            btnSend.disabled = true;
+            btnSend.innerHTML = '<iconify-icon icon="solar:spinner-linear" class="animate-spin text-lg"></iconify-icon> Enviando...';
+            setTimeout(()=>{
+              btnSend.innerHTML = 'Enviar comparativa al solicitante <iconify-icon icon="solar:plain-3-linear" class="text-sm"></iconify-icon>';
+              setView('envio');
+            }, 900);
+          });
+        }
+
+        const btnCopy = $('#btn-copy');
+        if(btnCopy){
+          btnCopy.addEventListener('click', async ()=>{
+            const input = $('#public-link');
+            if(!input) return;
+            try{ await navigator.clipboard.writeText(input.value); }
+            catch(e){ input.select(); document.execCommand('copy'); }
+            const old = btnCopy.textContent;
+            btnCopy.textContent = 'Copiado';
+            setTimeout(()=> btnCopy.textContent = old, 900);
+          });
+        }
+
+        const btnGoB = $('#btn-go-bandeja');
+        if(btnGoB) btnGoB.addEventListener('click', ()=> setView('bandeja'));
+
+        setAuthenticated(false);
+        if(views.login) views.login.classList.remove('hidden');
+        Object.entries(views).forEach(([k, el])=>{
+          if(!el) return;
+          if(k!=='login') el.classList.add('hidden');
+        });
+        applyFilter('todos');
+        updateGenerateState();
+      })();
+    </script>
+  
+</body></html>
