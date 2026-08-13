@@ -2,16 +2,20 @@ import { cn } from "@/lib/design/cn";
 
 type CardProps = {
   className?: string;
+  glass?: boolean;
   interactive?: boolean;
 } & React.HTMLAttributes<HTMLDivElement>;
 
-export function Card({ className, interactive, ...props }: CardProps) {
+export function Card({ className, glass = true, interactive, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-card border border-borde bg-superficie shadow-card",
+        "rounded-2xl border shadow-sm",
+        glass
+          ? "bg-white/70 backdrop-blur-3xl border-white"
+          : "bg-white border-slate-200/60",
         interactive &&
-          "transition-[border-color,box-shadow,transform] duration-150 ease-out hover:-translate-y-0.5 hover:border-azul-soft2 hover:shadow-pop",
+          "transition-all hover:shadow-md cursor-pointer hover:border-slate-300",
         className
       )}
       {...props}

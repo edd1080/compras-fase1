@@ -1,73 +1,52 @@
 @import "tailwindcss";
 
 @theme {
-  /* Paleta institucional BIA — doc 21 + prototipo */
-  --color-azul-marino: #1c3565;
-  --color-azul-medio: #2e5fc9;
-  --color-azul-claro: #eaf1fe;
-  --color-azul-soft2: #d6e3fc;
-  --color-azul-tenue: #f0f4fb;
-  --color-fondo: #f5f7fa;
-  --color-superficie: #ffffff;
-  --color-borde: #e2e7ef;
-  --color-borde-fuerte: #ccd5e3;
-  --color-texto-principal: #182338;
-  --color-texto-secundario: #46516b;
-  --color-texto-terciario: #6d7a92;
-  --color-ink: #182338;
-  --color-ink-soft: #46516b;
-  --color-slate: #6d7a92;
+  /* Paleta — BIA Compras Enterprise (identidad oficial) */
+  --color-slate-50: #f8f9fa;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-900: #0f172a;
 
-  /* Acentos — prototipo */
-  --color-brass: #a9824f;
-  --color-brass-dark: #8a6b3d;
-  --color-brass-soft: #f4ecdc;
-  --color-clay: #b5714a;
-  --color-clay-soft: #f4e6dc;
-  --color-sage: #4f7a57;
-  --color-sage-soft: #e6efe5;
+  /* Brand por rol */
+  --color-brand-solicitante: #fd6703;
+  --color-brand-solicitante-dark: #e55d02;
+  --color-brand-sky: #0ea5e9;
+  --color-brand-sky-dark: #0284c7;
 
-  /* Semánticos (doc 21) */
-  --color-exito: #1b8a5a;
-  --color-exito-fondo: #e6f4ee;
-  --color-advertencia: #b87514;
-  --color-advertencia-fondo: #fdf4e3;
-  --color-error: #c0392b;
-  --color-error-fondo: #fcedeb;
-  --color-info: #2e5fc9;
-  --color-info-fondo: #eaf1fe;
+  /* Funcionales */
+  --color-success: #10b981;
+  --color-success-bg: #ecfdf5;
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fffbeb;
+  --color-error: #ef4444;
+  --color-error-bg: #fff1f2;
+  --color-indigo: #6366f1;
+  --color-indigo-bg: #eef2ff;
 
-  /* Tipografía (doc 21 + prototipo: DM Mono para datos) */
-  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "DM Mono", ui-monospace, SFMono-Regular, monospace;
+  /* Tipografía */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  /* Radios (doc 21) */
-  --radius-field: 8px;
-  --radius-card: 14px;
-  --radius-modal: 16px;
-
-  /* Sombras — prototipo, refinadas */
-  --shadow-card: 0 1px 2px rgba(27, 33, 48, 0.04), 0 8px 24px -12px rgba(27, 33, 48, 0.12);
-  --shadow-pop: 0 12px 40px -8px rgba(27, 33, 48, 0.24);
-  --shadow-rail: 1px 0 0 0 rgba(27, 33, 48, 0.05);
-
-  /* Espaciado — grid 8px */
-  --spacing-unit: 8px;
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 2rem;
+  --radius-full: 9999px;
 }
 
 :root {
-  --azul-marino: #1c3565;
-  --azul-medio: #2e5fc9;
-  --azul-claro: #eaf1fe;
-  --azul-tenue: #f0f4fb;
-  --azul-soft2: #d6e3fc;
-  --fondo: #f5f7fa;
-  --superficie: #ffffff;
-  --borde: #e2e7ef;
-  --texto-principal: #182338;
-  --texto-secundario: #46516b;
-  --texto-terciario: #6d7a92;
+  --bg: #f8f9fa;
+  --surface-glass: rgba(255, 255, 255, 0.7);
+  --ink: #0f172a;
+  --ink-secondary: #64748b;
+  --brand-orange: #fd6703;
+  --brand-sky: #0ea5e9;
 }
 
 html,
@@ -77,81 +56,76 @@ body {
 }
 
 body {
-  background: var(--fondo);
-  color: var(--texto-principal);
   font-family: var(--font-sans);
-  font-size: 15px;
-  line-height: 1.5;
+  background-color: #f8f9fa;
+  color: #0f172a;
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* JetBrains Mono para IDs y referencias */
+.mono,
+code,
+.font-mono {
+  font-family: var(--font-mono);
 }
 
 button {
-  min-height: 44px;
   font-family: inherit;
 }
 
-h1, h2, h3, h4, .font-display {
-  font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  margin: 0;
+/* Select custom arrow removal */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
-/* Escala tipográfica */
-.display-xl { font-size: 36px; line-height: 1.15; }
-.display-lg  { font-size: 28px; line-height: 1.2; }
-.title-md    { font-size: 20px; line-height: 1.3; }
-.title-sm    { font-size: 16px; line-height: 1.35; font-family: var(--font-display); font-weight: 600; }
-
-.mono, .tabular, code {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
+/* Scrollbar oculto (shells con scroll) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-.text-balance { text-wrap: balance; }
-
-/* Micro-interacciones base */
-@keyframes viewIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* Motion — blobs fluidos */
+@keyframes blob-spin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
 }
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+@keyframes blob-morph {
+  0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; background-position: 0% 50%; }
+  50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; background-position: 100% 50%; }
+  100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; background-position: 0% 50%; }
 }
-@keyframes skeletonPulse {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0.45; }
-}
-@keyframes toastIn {
-  from { opacity: 0; transform: translate(-50%, 10px); }
-  to   { opacity: 1; transform: translate(-50%, 0); }
-}
-@keyframes shimmer {
-  0%   { background-position: -468px 0; }
-  100% { background-position: 468px 0; }
+.animate-fluid-blob {
+  animation: blob-morph 12s ease-in-out infinite alternate, blob-spin 24s linear infinite;
 }
 
-.animate-view { animation: viewIn 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-.animate-fade { animation: fadeIn 0.25s ease both; }
-
-::selection {
-  background: var(--azul-soft2);
+/* Transiciones de paso */
+.step-enter {
+  animation: fade-in-up 0.4s ease-out forwards;
+}
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-:focus-visible {
-  outline: 2px solid var(--azul-medio);
-  outline-offset: 2px;
-  border-radius: 4px;
+/* Glassmorphism helpers */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 1);
+  box-shadow: 0 8px 40px rgb(0 0 0 / 0.06);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-  }
+/* Textura de fondo en patrón de puntos (del ref) */
+.bg-grid {
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H17.5V20.5H20ZM20 20.5V23H22.5V20.5H20Z' fill='%23E5E7EB' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
 }

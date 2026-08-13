@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { SolicitanteWizard } from "./SolicitanteWizard";
 
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams("email=maria.reyes@bia.hn&nombre=Maria+Reyes"),
+  useSearchParams: () => new URLSearchParams("email=maria.reyes@bia.hn&nombre=Maria+Reyes&area=Marketing"),
 }));
 
 Object.defineProperty(window, "matchMedia", {
@@ -24,7 +24,7 @@ Object.defineProperty(window, "matchMedia", {
 describe("SolicitanteWizard", () => {
   it("muestra el paso de captura inicial (P2) al inicio", () => {
     render(<SolicitanteWizard />);
-    expect(screen.getByText("Título de la solicitud")).toBeInTheDocument();
+    expect(screen.getByText("¿Qué necesitás?")).toBeInTheDocument();
   });
 
   it("habilita Continuar solo cuando el paso es válido", async () => {
@@ -33,8 +33,16 @@ describe("SolicitanteWizard", () => {
     const continuar = screen.getByRole("button", { name: "Continuar" });
     expect(continuar).toBeDisabled();
     await user.type(screen.getByLabelText(/título de la solicitud/i), "Sombrillas");
-    await user.type(screen.getByLabelText(/área/i), "Trade Marketing");
-    // fecha requerida + tipo de necesidad aún vacíos → sigue deshabilitado
+    // tipo de necesidad + fecha aún vacíos → sigue deshabilitado
     expect(continuar).toBeDisabled();
+  });
+
+  it("muestra la barra de progreso lateral con los 4 pasos", () => {
+    render(<SolicitanteWizard />);
+    expect(screen.getByText("Progreso de la solicitud")).toBeInTheDocument();
+    expect(screen.getByText("Captura Inicial")).toBeInTheDocument();
+    expect(screen.getByText("Clasificación")).toBeInTheDocument();
+    expect(screen.getByText("Detalles técnicos")).toBeInTheDocument();
+    expect(screen.getByText("Documento")).toBeInTheDocument();
   });
 });

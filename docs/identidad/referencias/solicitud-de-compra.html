@@ -1,0 +1,1480 @@
+<html lang="es" class="antialiased"><head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIA Compras - Nueva Solicitud</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap');
+      body {
+      font-family: 'Inter', sans-serif;
+      background-color: #F8F9FA;
+      background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H17.5V20.5H20ZM20 20.5V23H22.5V20.5H20Z' fill='%23E5E7EB' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
+      }
+      .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+      }
+      @keyframes blob-spin {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.1); }
+      100% { transform: rotate(360deg) scale(1); }
+      }
+      @keyframes blob-morph {
+      0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; background-position: 0% 50%; }
+      50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; background-position: 100% 50%; }
+      100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; background-position: 0% 50%; }
+      }
+      .animate-fluid-blob {
+      animation: blob-morph 12s ease-in-out infinite alternate, blob-spin 24s linear infinite;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+      display: none;
+      }
+      .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      }
+      .step-enter {
+      animation: fade-in-up 0.4s ease-out forwards;
+      }
+      @keyframes fade-in-up {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+      }
+      /* Select custom arrow removal for cleaner look */
+      select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex items-center justify-center p-4 md:p-8 text-slate-900 relative overflow-hidden">
+    <!-- Ambient background blobs -->
+    <div class="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-r from-[#BAE6FD]/40 to-[#D1FAE5]/40 mix-blend-multiply blur-[80px] animate-fluid-blob pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-gradient-to-r from-[#0EA5E9]/10 to-[#A7F3D0]/20 mix-blend-multiply blur-[80px] animate-fluid-blob pointer-events-none" style="animation-delay: -4s;"></div>
+
+    <main class="w-full max-w-[1024px] bg-white/70 backdrop-blur-3xl rounded-3xl md:rounded-[2.5rem] border border-white shadow-[0_8px_40px_rgb(0,0,0,0.06)] flex flex-col md:flex-row h-[90vh] md:h-[80vh] min-h-[650px] max-h-[850px] overflow-hidden relative z-10">
+      <!-- Sidebar Panel -->
+      <aside class="md:w-[280px] lg:w-[320px] bg-gradient-to-br from-[#E0F2FE] to-[#F8FAFC] p-6 lg:p-8 flex flex-col relative border-b md:border-b-0 md:border-r border-white/60 shrink-0 overflow-hidden">
+        <div class="absolute -top-20 -left-20 w-64 h-64 bg-gradient-to-r from-[#BAE6FD] to-transparent rounded-full mix-blend-multiply filter blur-[40px] opacity-60 animate-fluid-blob pointer-events-none"></div>
+
+        <div class="relative z-10 flex items-center gap-2 mb-8 md:mb-12">
+          <div class="w-7 h-7 rounded-full bg-slate-900 flex items-center justify-center">
+            <span class="text-white text-[11px] font-bold tracking-tighter">
+              BIA
+            </span>
+          </div>
+          <span class="text-sm font-medium tracking-tight">Compras</span>
+        </div>
+
+        <!-- Intro Content (Hidden after step 1) -->
+        <div id="sidebar-content-1" class="relative z-10 mt-auto md:mt-0 transition-opacity duration-300">
+          <h2 class="text-3xl font-medium tracking-tight leading-tight mb-3">
+            Simplificá tus pedidos.
+          </h2>
+          <p class="text-sm text-slate-500 font-normal">
+            Un proceso ágil, sin contraseñas y directo al punto. Comencemos con
+            tu solicitud.
+          </p>
+        </div>
+
+        <!-- Progress Tracker (Visible step 2+) -->
+        <div id="sidebar-content-2" class="relative z-10 hidden h-full flex-col">
+          <h3 class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-6">
+            Progreso de la solicitud
+          </h3>
+          <ul class="space-y-7 relative before:absolute before:inset-0 before:ml-[11px] before:-translate-x-px before:h-full before:w-[2px] before:bg-slate-200 before:-z-10">
+            <li class="relative flex items-center gap-4">
+              <div id="prog-dot-1" class="absolute left-0 w-6 h-6 rounded-full bg-slate-200 border-[3px] border-white z-10 flex items-center justify-center transition-all duration-300"></div>
+              <span id="prog-text-1" class="ml-10 text-sm text-slate-400 font-medium transition-colors duration-300">
+                Captura Inicial
+              </span>
+            </li>
+            <li class="relative flex items-center gap-4">
+              <div id="prog-dot-2" class="absolute left-0 w-6 h-6 rounded-full bg-slate-200 border-[3px] border-white z-10 flex items-center justify-center transition-all duration-300"></div>
+              <span id="prog-text-2" class="ml-10 text-sm text-slate-400 font-medium transition-colors duration-300">
+                Clasificación
+              </span>
+            </li>
+            <li class="relative flex items-center gap-4">
+              <div id="prog-dot-3" class="absolute left-0 w-6 h-6 rounded-full bg-slate-200 border-[3px] border-white z-10 flex items-center justify-center transition-all duration-300"></div>
+              <span id="prog-text-3" class="ml-10 text-sm text-slate-400 font-medium transition-colors duration-300">
+                Detalles técnicos
+              </span>
+            </li>
+            <li class="relative flex items-center gap-4">
+              <div id="prog-dot-4" class="absolute left-0 w-6 h-6 rounded-full bg-slate-200 border-[3px] border-white z-10 flex items-center justify-center transition-all duration-300"></div>
+              <span id="prog-text-4" class="ml-10 text-sm text-slate-400 font-medium transition-colors duration-300">
+                Documento
+              </span>
+            </li>
+          </ul>
+          <div class="mt-auto bg-white/60 p-4 rounded-xl border border-white flex items-center gap-3 shadow-sm">
+            <div class="w-8 h-8 bg-[#E0F2FE] rounded-full flex items-center justify-center shrink-0">
+              <iconify-icon icon="solar:history-linear" class="text-slate-600"></iconify-icon>
+            </div>
+            <div>
+              <span class="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">
+                Estado actual
+              </span>
+              <span id="status-badge" class="text-xs font-medium text-slate-900 bg-slate-100 px-2 py-0.5 rounded">
+                Iniciando...
+              </span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Form Area -->
+      <section class="flex-1 p-5 md:p-8 relative overflow-y-auto no-scrollbar bg-white/30 flex flex-col">
+        <!-- DECISION FLOW: Public link after Compras response -->
+        <div id="requests-list-flow" class="hidden step-container flex-col h-full w-full step-enter">
+          <div class="flex justify-between items-start mb-8">
+            <div>
+              <h1 class="text-2xl font-medium tracking-tight mb-1">
+                Mis solicitudes
+              </h1>
+              <p class="text-xs text-slate-500">
+                Revisá el estado de tus pedidos y comparativas.
+              </p>
+            </div>
+            <button class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 hover:text-[#0EA5E9] transition-colors flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm" onclick="goToStep(1)">
+              <iconify-icon icon="solar:add-circle-linear" style="stroke-width: 1.5;"></iconify-icon>
+              Nueva Solicitud
+            </button>
+          </div>
+          <div class="space-y-4 overflow-y-auto no-scrollbar pb-8">
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-[#0EA5E9] hover:shadow-md cursor-pointer transition-all group" onclick="openDecisionView('RFQ-2026-014')">
+              <div class="flex justify-between items-start mb-3">
+                <div>
+                  <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                    RFQ-2026-014
+                  </div>
+                  <h3 class="text-base font-medium text-slate-900 group-hover:text-[#0EA5E9] transition-colors">
+                    Sombrillas brandeadas — activación playa
+                  </h3>
+                </div>
+                <span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-wider border border-amber-200">
+                  Requiere Decisión
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 line-clamp-2 mb-3">
+                Cotizaciones listas de Proveedor A y Proveedor B. Recomendación
+                de compras disponible.
+              </p>
+              <div class="flex items-center text-[11px] text-slate-400 gap-4">
+                <span class="flex items-center gap-1">
+                  <iconify-icon icon="solar:calendar-linear"></iconify-icon>
+                  Hace 2 horas
+                </span>
+                <span class="flex items-center gap-1">
+                  <iconify-icon icon="solar:user-linear"></iconify-icon>
+                  Compras BIA
+                </span>
+              </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm opacity-60">
+              <div class="flex justify-between items-start mb-3">
+                <div>
+                  <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                    RFQ-2026-013
+                  </div>
+                  <h3 class="text-base font-medium text-slate-900">
+                    Merchandising evento anual
+                  </h3>
+                </div>
+                <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-wider border border-slate-200">
+                  En Cotización
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 line-clamp-2 mb-3">
+                Buscando proveedores y solicitando presupuestos formales.
+              </p>
+              <div class="flex items-center text-[11px] text-slate-400 gap-4">
+                <span class="flex items-center gap-1">
+                  <iconify-icon icon="solar:calendar-linear"></iconify-icon>
+                  Hace 3 días
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="decision-flow" class="hidden flex-col h-full w-full">
+          <!-- Header / context -->
+          <div class="mb-6">
+            <button class="mb-4 text-[11px] font-semibold uppercase tracking-wider text-slate-500 hover:text-[#0EA5E9] transition-colors flex items-center gap-1.5" onclick="showRequestsList()">
+              <iconify-icon icon="solar:arrow-left-linear" style="stroke-width: 1.5;"></iconify-icon>
+              Volver a mis solicitudes
+            </button>
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <div class="inline-flex items-center gap-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                  <span class="bg-white/80 border border-slate-200 rounded-full px-2 py-1">
+                    Enlace público · sin iniciar sesión
+                  </span>
+                </div>
+                <h1 class="text-2xl font-medium tracking-tight mb-1">
+                  Comparativa lista
+                </h1>
+                <p class="text-xs text-slate-500">
+                  Referencia:
+                  <span id="decision-ref" class="font-mono font-semibold text-slate-700">
+                    RFQ-2026-014
+                  </span>
+                </p>
+              </div>
+              <div id="decision-mode-badge" class="hidden bg-slate-100 text-slate-700 px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-wider border border-slate-200">
+                Solo lectura
+              </div>
+            </div>
+          </div>
+
+          <!-- Invalid/expired token (neutro) -->
+          <div id="token-invalid" class="hidden bg-white rounded-2xl border border-slate-200/60 p-6 shadow-sm">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                <iconify-icon icon="solar:lock-keyhole-linear" class="text-slate-600 text-xl"></iconify-icon>
+              </div>
+              <div>
+                <h2 class="text-lg font-medium tracking-tight text-slate-900 mb-1">
+                  Este enlace ya no está disponible
+                </h2>
+                <p class="text-xs text-slate-500 leading-relaxed max-w-md">
+                  Por seguridad, el acceso público a esta comparativa expiró o
+                  el enlace es inválido. Pedí un nuevo enlace a Compras.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main content (visible only if token ok) -->
+          <div id="decision-content" class="space-y-4">
+            <!-- Discrepancy warning (before any price) -->
+            <div id="discrepancy-warning" class="hidden bg-amber-50/70 border border-amber-200 rounded-2xl p-5 shadow-sm">
+              <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                  <iconify-icon icon="solar:danger-triangle-linear" class="text-amber-700 text-lg"></iconify-icon>
+                </div>
+                <div>
+                  <div class="text-[10px] font-semibold text-amber-700 uppercase tracking-wider mb-1">
+                    Advertencia
+                  </div>
+                  <div id="discrepancy-text" class="text-xs font-medium text-amber-900 leading-relaxed">
+                    Se detectaron discrepancias entre lo solicitado y lo
+                    cotizado. Revisá los detalles antes de decidir.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Human recommendation (above any IA suggestion) -->
+            <div class="bg-gradient-to-br from-white to-[#E0F2FE]/50 rounded-2xl border border-slate-200/60 p-6 shadow-sm relative overflow-hidden">
+              <div class="absolute top-0 right-0 w-32 h-32 bg-[#0EA5E9]/5 rounded-bl-full translate-x-4 -translate-y-4"></div>
+              <div class="flex items-center gap-2 mb-3 relative z-10">
+                <span class="bg-slate-900 text-white text-[9px] font-bold px-2 py-1 rounded uppercase tracking-wider flex items-center gap-1">
+                  <iconify-icon icon="solar:shield-check-linear"></iconify-icon>
+                  Recomendación de Compras
+                </span>
+                <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                  Humana
+                </span>
+              </div>
+              <div id="compras-reco" class="text-sm text-slate-800 font-medium leading-relaxed relative z-10">
+                No especificado
+              </div>
+              <div class="mt-3 text-[11px] text-slate-500 relative z-10">
+                Si necesitás contexto adicional, podés pedirlo abajo antes de
+                decidir.
+              </div>
+            </div>
+
+            <!-- Provider cards -->
+            <div class="bg-white rounded-2xl border border-slate-200/60 p-5 md:p-6 shadow-sm">
+              <div class="flex items-center justify-between gap-3 mb-4">
+                <div>
+                  <h2 class="text-sm font-medium text-slate-900">
+                    Opciones cotizadas
+                  </h2>
+                  <p class="text-[11px] text-slate-500">
+                    Los importes se muestran en su moneda original (sin
+                    conversión).
+                  </p>
+                </div>
+                <span id="decision-status" class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                  Pendiente de decisión
+                </span>
+              </div>
+
+              <div id="providers" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Provider 1 -->
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <div class="flex items-start justify-between gap-3 mb-3">
+                    <div>
+                      <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1">
+                        Proveedor
+                      </div>
+                      <div class="text-base font-medium text-slate-900" data-provider-name="">
+                        Proveedor A
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1">
+                        Total
+                      </div>
+                      <div class="text-base font-semibold text-slate-900" data-provider-total="">
+                        no especificado
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 gap-3 mb-4">
+                    <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                      <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-1">
+                        Pros
+                      </div>
+                      <div class="text-[11px] text-slate-600" data-provider-pros="">
+                        no especificado
+                      </div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                      <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-1">
+                        Contras
+                      </div>
+                      <div class="text-[11px] text-slate-600" data-provider-cons="">
+                        no especificado
+                      </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-3">
+                      <div class="flex-1 bg-slate-50 rounded-xl p-3 border border-slate-100">
+                        <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-1">
+                          Plazo de entrega
+                        </div>
+                        <div class="text-[11px] text-slate-700 font-medium" data-provider-lead="">
+                          no especificado
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button class="w-full bg-slate-900 text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-slate-800 transition-all flex items-center justify-center gap-2" data-choose-btn="" onclick="chooseProvider(this)">
+                    Elegir esta opción
+                    <iconify-icon icon="solar:check-circle-linear" class="text-sm"></iconify-icon>
+                  </button>
+                </div>
+
+                <!-- Provider 2 -->
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <div class="flex items-start justify-between gap-3 mb-3">
+                    <div>
+                      <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1">
+                        Proveedor
+                      </div>
+                      <div class="text-base font-medium text-slate-900" data-provider-name="">
+                        Proveedor B
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1">
+                        Total
+                      </div>
+                      <div class="text-base font-semibold text-slate-900" data-provider-total="">
+                        no especificado
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 gap-3 mb-4">
+                    <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                      <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-1">
+                        Pros
+                      </div>
+                      <div class="text-[11px] text-slate-600" data-provider-pros="">
+                        no especificado
+                      </div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                      <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-1">
+                        Contras
+                      </div>
+                      <div class="text-[11px] text-slate-600" data-provider-cons="">
+                        no especificado
+                      </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-3">
+                      <div class="flex-1 bg-slate-50 rounded-xl p-3 border border-slate-100">
+                        <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-1">
+                          Plazo de entrega
+                        </div>
+                        <div class="text-[11px] text-slate-700 font-medium" data-provider-lead="">
+                          no especificado
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button class="w-full bg-slate-900 text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-slate-800 transition-all flex items-center justify-center gap-2" data-choose-btn="" onclick="chooseProvider(this)">
+                    Elegir esta opción
+                    <iconify-icon icon="solar:check-circle-linear" class="text-sm"></iconify-icon>
+                  </button>
+                </div>
+              </div>
+
+              <button id="btn-none" class="mt-4 w-full bg-white text-slate-700 text-xs px-6 py-3 rounded-full font-medium hover:bg-slate-50 transition-all flex items-center justify-center gap-2 border border-slate-200 shadow-sm" onclick="noneWorks()">
+                Ninguna me sirve, necesito hablar con Compras
+                <iconify-icon icon="solar:chat-round-dots-linear" class="text-sm text-slate-500"></iconify-icon>
+              </button>
+            </div>
+
+            <!-- Confirmation -->
+          </div>
+        </div>
+        <div id="decision-success-flow" class="hidden flex-col items-center justify-center h-full w-full text-center py-10 step-enter">
+          <div class="relative mb-6 group">
+            <div class="absolute inset-0 bg-green-400 blur-xl opacity-20 rounded-full"></div>
+            <div class="relative w-20 h-20 bg-green-50 border border-green-100 text-green-500 rounded-full flex items-center justify-center shadow-sm">
+              <iconify-icon icon="solar:check-read-linear" class="text-4xl"></iconify-icon>
+            </div>
+          </div>
+          <h2 class="text-3xl font-medium tracking-tight mb-3 text-slate-900">
+            Decisión confirmada
+          </h2>
+          <p class="text-sm text-slate-500 mb-8 max-w-sm leading-relaxed">
+            Has seleccionado
+            <span id="success-provider-name" class="font-semibold text-slate-800"></span>
+            . Notificamos a Compras para que avance con la adjudicación.
+          </p>
+          <button class="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1.5" onclick="showRequestsList()">
+            <iconify-icon icon="solar:arrow-left-linear"></iconify-icon>
+            Volver a mis solicitudes
+          </button>
+        </div>
+        <!-- STEP 1: Identificación -->
+        <div id="step-1" class="step-container flex flex-col h-full w-full step-enter">
+          <div class="flex justify-between items-start mb-8">
+            <div>
+              <h1 class="text-2xl font-medium tracking-tight mb-1">
+                Nueva solicitud de compra
+              </h1>
+              <p class="text-xs text-slate-500">
+                Ingresá tus datos básicos para comenzar.
+              </p>
+            </div>
+            <button class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 hover:text-[#0EA5E9] transition-colors flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm" onclick="simulateDecisionFlow()">
+              Mis solicitudes
+              <iconify-icon icon="solar:arrow-right-linear" style="stroke-width: 1.5;"></iconify-icon>
+            </button>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200/60 p-5 md:p-6 mb-6 shadow-sm">
+            <div class="space-y-5">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                  Tu correo institucional
+                </label>
+                <div class="relative">
+                  <iconify-icon icon="solar:letter-linear" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></iconify-icon>
+                  <input type="email" id="email" placeholder="ejemplo@bia.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:bg-white transition-all" oninput="validateEmail()">
+                </div>
+                <p id="email-error" class="text-[11px] text-red-500 mt-1.5 hidden font-medium">
+                  El formato del correo es inválido.
+                </p>
+                <p id="email-warning" class="text-[11px] text-amber-600 mt-1.5 hidden font-medium flex items-start gap-1">
+                  <iconify-icon icon="solar:danger-circle-linear" class="mt-0.5 shrink-0"></iconify-icon>
+                  Este correo no parece institucional. Podés continuar, pero
+                  Compras lo va a revisar.
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                  Tu nombre completo
+                </label>
+                <div class="relative">
+                  <iconify-icon icon="solar:user-linear" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></iconify-icon>
+                  <input type="text" id="name" placeholder="Juan Pérez" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:bg-white transition-all" oninput="validateStep1()">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                  Área / departamento
+                </label>
+                <div class="relative">
+                  <iconify-icon icon="solar:buildings-linear" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></iconify-icon>
+                  <input type="text" id="area" placeholder="Marketing" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:bg-white transition-all" oninput="validateStep1()">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-auto flex justify-end">
+            <button id="btn-step-1" disabled="" class="bg-slate-900 text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-slate-900 disabled:cursor-not-allowed transition-all flex items-center gap-2" onclick="goToStep(2)">
+              Continuar
+              <iconify-icon icon="solar:arrow-right-linear" class="text-sm" style="stroke-width: 1.5;"></iconify-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 2: Captura Inicial -->
+        <div id="step-2" class="step-container hidden flex-col h-full w-full">
+          <div class="mb-6">
+            <h2 class="text-2xl font-medium tracking-tight mb-1">
+              ¿Qué necesitás?
+            </h2>
+            <p class="text-xs text-slate-500">
+              Describí brevemente tu solicitud.
+            </p>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200/60 p-5 md:p-6 mb-6 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div class="md:col-span-2">
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                  Título de la solicitud
+                </label>
+                <input type="text" id="title" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:bg-white transition-all" placeholder="Ej. Sombrillas brandeadas — activación playa" oninput="validateStep2()">
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                  Tipo de necesidad
+                </label>
+                <div class="relative">
+                  <select id="type" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-10 py-2.5 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:bg-white transition-all cursor-pointer" onchange="validateStep2()">
+                    <option value="" disabled="" selected="">
+                      Seleccioná una opción
+                    </option>
+                    <option value="empaque">Empaque y branding</option>
+                    <option value="materia">Materia prima</option>
+                    <option value="logistica">Servicios logísticos</option>
+                    <option value="admin">Administrativo</option>
+                    <option value="capex">Proyecto o CAPEX</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                  <iconify-icon icon="solar:alt-arrow-down-linear" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg"></iconify-icon>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                  ¿Producto o servicio?
+                </label>
+                <div class="grid grid-cols-2 gap-2">
+                  <label class="group cursor-pointer relative">
+                    <input type="radio" name="prod_serv" value="producto" class="sr-only" onchange="validateStep2()">
+                    <div class="py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 text-center transition-all group-has-[:checked]:border-[#0EA5E9] group-has-[:checked]:bg-[#0EA5E9]/5 group-has-[:checked]:ring-1 group-has-[:checked]:ring-[#0EA5E9]/30">
+                      <div class="text-xs font-medium text-slate-600 group-has-[:checked]:text-[#0EA5E9]">
+                        Producto
+                      </div>
+                    </div>
+                  </label>
+                  <label class="group cursor-pointer relative">
+                    <input type="radio" name="prod_serv" value="servicio" class="sr-only" onchange="validateStep2()">
+                    <div class="py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 text-center transition-all group-has-[:checked]:border-[#0EA5E9] group-has-[:checked]:bg-[#0EA5E9]/5 group-has-[:checked]:ring-1 group-has-[:checked]:ring-[#0EA5E9]/30">
+                      <div class="text-xs font-medium text-slate-600 group-has-[:checked]:text-[#0EA5E9]">
+                        Servicio
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                  ¿Para cuándo lo necesitás?
+                </label>
+                <div class="relative">
+                  <input type="date" id="date" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:bg-white transition-all text-slate-600" onchange="validateDate()">
+                </div>
+                <p id="date-warning" class="text-[10px] text-amber-600 mt-1.5 hidden font-medium flex items-start gap-1">
+                  <iconify-icon icon="solar:danger-circle-linear" class="mt-[1px] shrink-0"></iconify-icon>
+                  Este plazo es muy corto para cotizar. ¿Es una urgencia real?
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                  Área / departamento
+                </label>
+                <input type="text" id="area2" class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-500 cursor-not-allowed" readonly="">
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                  Descripción breve
+                </label>
+                <textarea id="desc" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:bg-white transition-all resize-none" placeholder="Añadí un poco más de contexto..." oninput="validateStep2()"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-auto flex justify-between items-center">
+            <button class="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors px-2 py-2" onclick="goToStep(1)">
+              Atrás
+            </button>
+            <button id="btn-step-2" disabled="" class="bg-slate-900 text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2" onclick="goToStep(3)">
+              Continuar
+              <iconify-icon icon="solar:arrow-right-linear" class="text-sm"></iconify-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Clasificación -->
+        <div id="step-3" class="step-container hidden flex-col h-full w-full">
+          <div class="mb-6">
+            <h2 class="text-2xl font-medium tracking-tight mb-1">
+              Clasificación de tu solicitud
+            </h2>
+            <p class="text-xs text-slate-500">
+              Nuestro sistema ha analizado tus datos.
+            </p>
+          </div>
+
+          <div class="bg-gradient-to-br from-white to-[#E0F2FE]/50 rounded-2xl border border-slate-200/60 p-6 mb-6 shadow-sm relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-[#0EA5E9]/5 rounded-bl-full translate-x-4 -translate-y-4"></div>
+
+            <div class="flex items-center gap-2 mb-4 relative z-10">
+              <span class="bg-[#0EA5E9] text-white text-[9px] font-bold px-2 py-1 rounded uppercase tracking-wider flex items-center gap-1">
+                <iconify-icon icon="solar:magic-stick-3-linear"></iconify-icon>
+                Sugerencia IA
+              </span>
+              <span class="text-[10px] font-semibold text-green-600 uppercase tracking-wider">
+                Confianza Alta
+              </span>
+            </div>
+            <h3 class="text-2xl font-medium tracking-tight mb-1 text-slate-900 relative z-10">
+              Esto parece una
+              <span class="font-semibold text-[#0EA5E9]">RFQ</span>
+            </h3>
+            <p class="text-sm text-slate-700 mb-2 font-medium relative z-10">
+              Solicitud de Cotización
+            </p>
+            <p class="text-xs text-slate-500 relative z-10 max-w-sm leading-relaxed">
+              Ya sabés exactamente qué necesitás — solo nos falta cotizar el
+              precio con los proveedores del mercado.
+            </p>
+          </div>
+
+          <p class="text-xs text-slate-600 mb-3 font-medium">
+            ¿No te parece correcto? Podés cambiarlo con un clic:
+          </p>
+          <div class="space-y-3 mb-6">
+            <label class="group flex items-start gap-3 p-4 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 has-[:checked]:border-[#0EA5E9] has-[:checked]:ring-1 has-[:checked]:ring-[#0EA5E9]/30 has-[:checked]:bg-[#0EA5E9]/5 transition-all shadow-sm">
+              <input type="radio" name="classif" value="RFI" class="sr-only">
+              <div class="mt-0.5 w-4 h-4 shrink-0 rounded-full border border-slate-300 group-has-[:checked]:border-[#0EA5E9] group-has-[:checked]:bg-[#0EA5E9] flex items-center justify-center transition-colors">
+                <div class="w-1.5 h-1.5 bg-white rounded-full opacity-0 group-has-[:checked]:opacity-100 transition-opacity"></div>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-slate-900 leading-none mb-1.5">
+                  RFI
+                  <span class="text-xs text-slate-500 font-normal ml-1">
+                    — Solicitud de Información
+                  </span>
+                </div>
+                <div class="text-[11px] text-slate-500">
+                  "Todavía estoy explorando opciones, no sé qué existe en el
+                  mercado."
+                </div>
+              </div>
+            </label>
+            <label class="group flex items-start gap-3 p-4 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 has-[:checked]:border-[#0EA5E9] has-[:checked]:ring-1 has-[:checked]:ring-[#0EA5E9]/30 has-[:checked]:bg-[#0EA5E9]/5 transition-all shadow-sm">
+              <input type="radio" name="classif" value="RFQ" class="sr-only" checked="">
+              <div class="mt-0.5 w-4 h-4 shrink-0 rounded-full border border-slate-300 group-has-[:checked]:border-[#0EA5E9] group-has-[:checked]:bg-[#0EA5E9] flex items-center justify-center transition-colors">
+                <div class="w-1.5 h-1.5 bg-white rounded-full opacity-0 group-has-[:checked]:opacity-100 transition-opacity"></div>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-slate-900 leading-none mb-1.5">
+                  RFQ
+                  <span class="text-xs text-slate-500 font-normal ml-1">
+                    — Solicitud de Cotización
+                  </span>
+                </div>
+                <div class="text-[11px] text-slate-500">
+                  "Ya sé qué necesito, solo me falta comparar precio y tiempos."
+                </div>
+              </div>
+            </label>
+            <label class="group flex items-start gap-3 p-4 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 has-[:checked]:border-[#0EA5E9] has-[:checked]:ring-1 has-[:checked]:ring-[#0EA5E9]/30 has-[:checked]:bg-[#0EA5E9]/5 transition-all shadow-sm">
+              <input type="radio" name="classif" value="RFP" class="sr-only">
+              <div class="mt-0.5 w-4 h-4 shrink-0 rounded-full border border-slate-300 group-has-[:checked]:border-[#0EA5E9] group-has-[:checked]:bg-[#0EA5E9] flex items-center justify-center transition-colors">
+                <div class="w-1.5 h-1.5 bg-white rounded-full opacity-0 group-has-[:checked]:opacity-100 transition-opacity"></div>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-slate-900 leading-none mb-1.5">
+                  RFP
+                  <span class="text-xs text-slate-500 font-normal ml-1">
+                    — Solicitud de Propuesta
+                  </span>
+                </div>
+                <div class="text-[11px] text-slate-500">
+                  "Tengo un problema o proyecto amplio, busco que el proveedor
+                  proponga una solución."
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <div class="mt-auto flex justify-between items-center">
+            <button class="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors px-2 py-2" onclick="goToStep(2)">
+              Atrás
+            </button>
+            <button class="bg-slate-900 text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-slate-800 transition-all flex items-center gap-2" onclick="goToStep(4)">
+              Confirmar clasificación
+              <iconify-icon icon="solar:arrow-right-linear" class="text-sm"></iconify-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 4: Detalles Técnicos -->
+        <div id="step-4" class="step-container hidden flex-col h-full w-full">
+          <!-- Loading State -->
+          <div id="step-4-loading" class="flex flex-col items-center justify-center h-full">
+            <div class="relative w-16 h-16 mb-6">
+              <div class="absolute inset-0 rounded-full border-4 border-slate-100"></div>
+              <div class="absolute inset-0 rounded-full border-4 border-[#0EA5E9] border-t-transparent animate-spin"></div>
+            </div>
+            <h3 class="text-lg font-medium tracking-tight text-slate-900 mb-2">
+              Revisando referencias de mercado...
+            </h3>
+            <p class="text-xs text-slate-500 text-center max-w-xs">
+              Evaluando qué detalles técnicos necesitamos para que los
+              proveedores puedan cotizar correctamente.
+            </p>
+          </div>
+
+          <!-- Form State -->
+          <div id="step-4-form" class="hidden flex-col h-full w-full">
+            <div class="mb-6">
+              <h2 class="text-2xl font-medium tracking-tight mb-1">
+                Detalles para cotizar
+              </h2>
+              <p class="text-xs text-slate-500">
+                Completá la información técnica requerida para tu solicitud.
+              </p>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200/60 p-5 md:p-6 mb-4 shadow-sm">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                <div>
+                  <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                    Dimensiones esperadas
+                  </label>
+                  <input type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-all" placeholder="Ej. 2m x 2m, Talle M, etc.">
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                    Materiales sugeridos
+                  </label>
+                  <input type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-all" placeholder="Ej. Lona impermeable, cartón corrugado...">
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                    Calidad requerida
+                  </label>
+                  <div class="grid grid-cols-2 gap-3">
+                    <label class="group cursor-pointer relative">
+                      <input type="radio" name="quality" value="estandar" class="sr-only" checked="">
+                      <div class="py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 text-center transition-all group-has-[:checked]:border-slate-900 group-has-[:checked]:bg-slate-900">
+                        <div class="text-xs font-medium text-slate-600 group-has-[:checked]:text-white">
+                          Estándar (Funcional)
+                        </div>
+                      </div>
+                    </label>
+                    <label class="group cursor-pointer relative">
+                      <input type="radio" name="quality" value="premium" class="sr-only">
+                      <div class="py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 text-center transition-all group-has-[:checked]:border-slate-900 group-has-[:checked]:bg-slate-900">
+                        <div class="text-xs font-medium text-slate-600 group-has-[:checked]:text-white">
+                          Premium (Alta gama)
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <label class="flex items-center justify-between cursor-pointer p-4 bg-slate-50 border border-slate-200 rounded-xl hover:border-slate-300 transition-colors">
+                <div>
+                  <div class="text-sm font-medium text-slate-900 mb-0.5">
+                    ¿Lleva marca o branding?
+                  </div>
+                  <div class="text-[11px] text-slate-500 leading-tight">
+                    Material POP, uniformes, empaques, etc.
+                  </div>
+                </div>
+                <div class="relative shrink-0 ml-4">
+                  <input type="checkbox" id="branding-toggle" class="sr-only peer" onchange="toggleBranding()">
+                  <div class="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#0EA5E9]"></div>
+                </div>
+              </label>
+            </div>
+
+            <label id="logo-upload-zone" class="hidden flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-xl p-8 bg-white hover:bg-slate-50 transition-colors cursor-pointer mb-6 shadow-sm group">
+              <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                <iconify-icon icon="solar:upload-linear" class="text-2xl text-slate-500"></iconify-icon>
+              </div>
+              <span class="text-sm font-medium text-slate-900 mb-1">
+                Subir arte o logo oficial
+              </span>
+              <span class="text-[11px] text-slate-500 text-center max-w-xs leading-relaxed">
+                Formatos aceptados: PNG, JPG, PDF, SVG, AI, EPS.
+                <br>
+                <span class="font-semibold text-amber-600">Obligatorio</span>
+                para que el proveedor use la versión correcta.
+              </span>
+              <input type="file" id="logo-file" class="hidden" accept=".png,.jpg,.jpeg,.pdf,.svg,.ai,.eps">
+            </label>
+
+            <div class="mt-auto flex justify-between items-center pt-4">
+              <button class="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors px-2 py-2" onclick="goToStep(3)">
+                Atrás
+              </button>
+              <button id="btn-step-4" class="bg-slate-900 text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2" onclick="goToStep(5)">
+                Generar documento
+                <iconify-icon icon="solar:document-text-linear" class="text-sm"></iconify-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 5: Documento -->
+        <div id="step-5" class="step-container hidden flex-col h-full w-full">
+          <div class="mb-8">
+            <h2 class="text-2xl font-medium tracking-tight mb-1">
+              Tu solicitud está lista
+            </h2>
+            <p class="text-xs text-slate-500">
+              Revisá el resumen antes de enviar a Compras.
+            </p>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 relative mx-auto w-full max-w-md overflow-hidden mb-8">
+            <!-- Top accent line -->
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#A7F3D0] to-[#0EA5E9]"></div>
+
+            <div class="flex justify-between items-start mb-8 mt-2 border-b border-slate-100 pb-5">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center">
+                  <span class="text-white text-xs font-bold tracking-tighter">
+                    BIA
+                  </span>
+                </div>
+                <div>
+                  <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">
+                    Referencia Única
+                  </span>
+                  <span class="block text-sm font-mono font-semibold text-slate-900">
+                    RFQ-2026-014
+                  </span>
+                </div>
+              </div>
+              <div class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-wider">
+                Borrador
+              </div>
+            </div>
+
+            <div class="space-y-5">
+              <div>
+                <span class="block text-[10px] text-slate-400 uppercase tracking-wider mb-1 font-semibold">
+                  Título de la Solicitud
+                </span>
+                <span class="text-sm font-medium text-slate-900 leading-snug" id="doc-title-preview">
+                  Cargando...
+                </span>
+              </div>
+              <div class="grid grid-cols-2 gap-5">
+                <div>
+                  <span class="block text-[10px] text-slate-400 uppercase tracking-wider mb-1 font-semibold">
+                    Solicitante
+                  </span>
+                  <span class="text-xs font-medium text-slate-900" id="doc-name-preview">
+                    Cargando...
+                  </span>
+                </div>
+                <div>
+                  <span class="block text-[10px] text-slate-400 uppercase tracking-wider mb-1 font-semibold">
+                    Área
+                  </span>
+                  <span class="text-xs font-medium text-slate-900" id="doc-area-preview">
+                    Cargando...
+                  </span>
+                </div>
+              </div>
+              <div class="bg-slate-50 rounded-lg p-3 border border-slate-100 flex items-start gap-3">
+                <iconify-icon icon="solar:info-circle-linear" class="text-slate-400 mt-0.5"></iconify-icon>
+                <div>
+                  <span class="block text-[10px] text-slate-500 uppercase tracking-wider mb-0.5 font-semibold">
+                    Clasificación Asignada
+                  </span>
+                  <span class="text-xs font-medium text-slate-900">
+                    RFQ — Solicitud de Cotización
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-auto flex justify-between items-center">
+            <button class="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors px-2 py-2" onclick="goToStep(4)">
+              Atrás
+            </button>
+            <button id="btn-submit" class="bg-[#0EA5E9] text-white text-xs px-8 py-3 rounded-full font-medium hover:bg-[#0284C7] transition-all flex items-center gap-2 shadow-lg shadow-[#0EA5E9]/20" onclick="submitRequest()">
+              Enviar solicitud
+              <iconify-icon icon="solar:plain-3-linear" class="text-sm"></iconify-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 6: Confirmación -->
+        <div id="step-6" class="step-container hidden flex-col items-center justify-center h-full w-full text-center py-10">
+          <div class="relative mb-6 group">
+            <div class="absolute inset-0 bg-green-400 blur-xl opacity-20 rounded-full group-hover:scale-110 transition-transform duration-700"></div>
+            <div class="relative w-20 h-20 bg-green-50 border border-green-100 text-green-500 rounded-full flex items-center justify-center shadow-sm">
+              <iconify-icon icon="solar:check-read-linear" class="text-4xl"></iconify-icon>
+            </div>
+          </div>
+
+          <h2 class="text-3xl font-medium tracking-tight mb-3 text-slate-900">
+            Tu solicitud fue enviada
+          </h2>
+          <p class="text-sm text-slate-500 mb-8 max-w-sm leading-relaxed">
+            Todo listo. Te avisaremos a
+            <span class="font-semibold text-slate-800" id="conf-email"></span>
+            en cuanto haya una comparativa lista para que decidas.
+          </p>
+
+          <div class="bg-white border border-slate-200 shadow-sm rounded-2xl p-4 flex items-center gap-4 w-full max-w-xs text-left mb-8">
+            <div class="w-12 h-12 bg-gradient-to-br from-[#E0F2FE] to-[#BAE6FD] rounded-xl flex items-center justify-center shrink-0">
+              <iconify-icon icon="solar:users-group-rounded-linear" class="text-slate-700 text-xl"></iconify-icon>
+            </div>
+            <div>
+              <span class="block text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-0.5">
+                Coordinador asignado
+              </span>
+              <span class="text-sm font-medium text-slate-900">
+                Equipo Compras BIA
+              </span>
+            </div>
+          </div>
+
+          <button class="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1.5" onclick="location.reload()">
+            <iconify-icon icon="solar:home-smile-linear"></iconify-icon>
+            Volver al inicio
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Floating Toast for Borrador -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900/95 backdrop-blur-sm text-white px-5 py-2.5 rounded-full text-xs font-medium flex items-center gap-2.5 shadow-xl transform translate-y-[200%] opacity-0 transition-all duration-500 z-50 border border-white/10">
+      <iconify-icon icon="solar:cloud-check-linear" class="text-green-400 text-sm"></iconify-icon>
+      <span>Borrador guardado automáticamente</span>
+    </div>
+
+    <script>
+      // Set date min
+      const dateInput = document.getElementById('date');
+      dateInput.min = new Date().toISOString().split('T')[0];
+
+      // --- Decision Flow (Public link) ---
+      const decisionState = {
+          tokenValid: true,
+          alreadyDecided: false,
+          decidedProvider: null,
+          discrepancy: false,
+          discrepancyText: '',
+          comprasRecommendation: 'No especificado',
+          reference: 'RFQ-2026-014',
+          providers: [
+              {
+                  name: 'Proveedor A',
+                  pros: 'no especificado',
+                  cons: 'no especificado',
+                  total: 'no especificado',
+                  lead: 'no especificado'
+              },
+              {
+                  name: 'Proveedor B',
+                  pros: 'no especificado',
+                  cons: 'no especificado',
+                  total: 'no especificado',
+                  lead: 'no especificado'
+              }
+          ]
+      };
+
+      function applyDecisionState() {
+          const flow = document.getElementById('decision-flow');
+          if (!flow) return;
+
+          document.getElementById('decision-ref').textContent = decisionState.reference || 'no especificado';
+
+          const invalid = document.getElementById('token-invalid');
+          const content = document.getElementById('decision-content');
+
+          if (!decisionState.tokenValid) {
+              invalid.classList.remove('hidden');
+              content.classList.add('hidden');
+              return;
+          } else {
+              invalid.classList.add('hidden');
+              content.classList.remove('hidden');
+          }
+
+          // Discrepancy warning must be before any price (it's already placed above cards)
+          const dw = document.getElementById('discrepancy-warning');
+          if (decisionState.discrepancy) {
+              document.getElementById('discrepancy-text').textContent = decisionState.discrepancyText || 'Se detectaron discrepancias entre lo solicitado y lo cotizado. Revisá los detalles antes de decidir.';
+              dw.classList.remove('hidden');
+          } else {
+              dw.classList.add('hidden');
+          }
+
+          // Human recommendation above IA (no IA block here by default)
+          document.getElementById('compras-reco').textContent = decisionState.comprasRecommendation || 'No especificado';
+
+          // Fill provider cards (2 demo cards)
+          const cards = document.querySelectorAll('#providers > div');
+          cards.forEach((card, idx) => {
+              const p = decisionState.providers[idx] || {};
+              const nameEl = card.querySelector('[data-provider-name]');
+              const prosEl = card.querySelector('[data-provider-pros]');
+              const consEl = card.querySelector('[data-provider-cons]');
+              const totalEl = card.querySelector('[data-provider-total]');
+              const leadEl = card.querySelector('[data-provider-lead]');
+
+              if (nameEl) nameEl.textContent = p.name || 'no especificado';
+              if (prosEl) prosEl.textContent = p.pros || 'no especificado';
+              if (consEl) consEl.textContent = p.cons || 'no especificado';
+              if (totalEl) totalEl.textContent = p.total || 'no especificado';
+              if (leadEl) leadEl.textContent = p.lead || 'no especificado';
+
+              const btn = card.querySelector('[data-choose-btn]');
+              if (btn) {
+                  btn.disabled = decisionState.alreadyDecided;
+                  btn.classList.toggle('opacity-40', decisionState.alreadyDecided);
+                  btn.classList.toggle('cursor-not-allowed', decisionState.alreadyDecided);
+              }
+          });
+
+          const noneBtn = document.getElementById('btn-none');
+          if (noneBtn) {
+              noneBtn.disabled = decisionState.alreadyDecided;
+              noneBtn.classList.toggle('opacity-40', decisionState.alreadyDecided);
+              noneBtn.classList.toggle('cursor-not-allowed', decisionState.alreadyDecided);
+          }
+
+          // Read-only badge
+          const badge = document.getElementById('decision-mode-badge');
+          if (decisionState.alreadyDecided) {
+              badge.classList.remove('hidden');
+              document.getElementById('decision-status').textContent = 'Decidida';
+              showDecisionConfirmation(true);
+          } else {
+              badge.classList.add('hidden');
+              document.getElementById('decision-status').textContent = 'Pendiente de decisión';
+              document.getElementById('decision-confirm').classList.add('hidden');
+          }
+      }
+
+      function showDecisionConfirmation(isReadOnly) {
+          const box = document.getElementById('decision-confirm');
+          if (!box) return;
+          const prov = decisionState.decidedProvider || 'no especificado';
+          document.getElementById('decision-confirm-title').textContent = isReadOnly ? 'Decisión registrada' : '¡Listo!';
+          document.getElementById('decision-confirm-text').textContent = `Seleccionaste la opción de ${prov}.`;
+          box.classList.remove('hidden');
+      }
+
+      function chooseProvider(btn) {
+          if (decisionState.alreadyDecided) return;
+          const card = btn.closest('div');
+          const providerName = card ? (card.querySelector('[data-provider-name]')?.textContent || 'no especificado') : 'no especificado';
+
+          // Register decision with timestamp (mock)
+          decisionState.alreadyDecided = true;
+          decisionState.decidedProvider = providerName;
+          decisionState.decidedAt = new Date().toISOString();
+
+          // In real impl: notify Compras and set status to CERRADA_CON_DECISION
+          applyDecisionState();
+      }
+
+      function noneWorks() {
+          if (decisionState.alreadyDecided) return;
+          const box = document.getElementById('decision-confirm');
+          document.getElementById('decision-confirm-title').textContent = 'Recibido';
+          document.getElementById('decision-confirm-text').textContent = 'Avisamos a Compras para revisar nuevas opciones. La solicitud vuelve a cotización.';
+          box.classList.remove('hidden');
+          // In real impl: notify Compras and set status to EN_COTIZACION
+      }
+
+      function initPublicDecisionFlowFromUrl() {
+          const params = new URLSearchParams(window.location.search);
+          const view = params.get('view');
+          const token = params.get('token');
+
+          if (view !== 'comparativa') return;
+
+          // Show decision flow and hide original wizard
+          document.getElementById('decision-flow').classList.remove('hidden');
+          document.getElementById('decision-flow').classList.add('flex', 'step-enter');
+
+          // Hide existing step containers
+          document.querySelectorAll('.step-container').forEach(el => el.classList.add('hidden'));
+
+          // Sidebar: keep hidden to avoid leaking info; show intro only
+          const sc1 = document.getElementById('sidebar-content-1');
+          const sc2 = document.getElementById('sidebar-content-2');
+          if (sc1) sc1.classList.remove('hidden');
+          if (sc2) {
+              sc2.classList.add('hidden');
+              sc2.classList.remove('flex');
+          }
+
+          // Token rules (mock): if missing/too short -> invalid
+          decisionState.tokenValid = !!token && token.length >= 8;
+
+          // Optional flags for demo/testing
+          decisionState.alreadyDecided = params.get('readonly') === '1';
+          decisionState.decidedProvider = params.get('provider') || null;
+          decisionState.discrepancy = params.get('disc') === '1';
+          decisionState.discrepancyText = params.get('discText') || '';
+          decisionState.reference = params.get('ref') || decisionState.reference;
+          decisionState.comprasRecommendation = params.get('reco') || decisionState.comprasRecommendation;
+
+          applyDecisionState();
+      }
+
+      // Boot decision flow if public link
+      initPublicDecisionFlowFromUrl();
+
+      function goToStep(step) {
+          // Transitions
+          document.querySelectorAll('.step-container').forEach(el => {
+              el.classList.add('hidden');
+              el.classList.remove('step-enter');
+          });
+
+          const target = document.getElementById(`step-${step}`);
+          target.classList.remove('hidden');
+          // Small timeout to allow display:block to apply before animation
+          setTimeout(() => target.classList.add('step-enter'), 10);
+
+          // Update Sidebar logic
+          if(step > 1) {
+              document.getElementById('sidebar-content-1').classList.add('hidden');
+              document.getElementById('sidebar-content-2').classList.remove('hidden');
+              document.getElementById('sidebar-content-2').classList.add('flex');
+              updateProgress(step);
+          } else {
+              document.getElementById('sidebar-content-1').classList.remove('hidden');
+              document.getElementById('sidebar-content-2').classList.add('hidden');
+              document.getElementById('sidebar-content-2').classList.remove('flex');
+          }
+
+          // specific logic entering step 2
+          if(step === 2) {
+              document.getElementById('area2').value = document.getElementById('area').value;
+              showToast();
+          }
+
+          // specific logic entering step 4
+          if(step === 4) {
+              document.getElementById('step-4-loading').classList.remove('hidden');
+              document.getElementById('step-4-form').classList.add('hidden');
+              setTimeout(() => {
+                  document.getElementById('step-4-loading').classList.add('hidden');
+                  document.getElementById('step-4-form').classList.remove('hidden');
+                  document.getElementById('step-4-form').classList.add('flex', 'step-enter');
+                  validateStep4();
+              }, 1800);
+          }
+
+          // specific logic entering step 5
+          if(step === 5) {
+              document.getElementById('doc-name-preview').textContent = document.getElementById('name').value;
+              document.getElementById('doc-area-preview').textContent = document.getElementById('area').value;
+              document.getElementById('doc-title-preview').textContent = document.getElementById('title').value;
+          }
+
+          // specific logic entering step 6
+          if(step === 6) {
+              document.getElementById('conf-email').textContent = document.getElementById('email').value;
+              document.getElementById('status-badge').textContent = 'Enviada';
+              document.getElementById('status-badge').className = 'text-xs font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded';
+          }
+      }
+
+      function updateProgress(step) {
+          const mappings = { 2: 1, 3: 2, 4: 3, 5: 4, 6: 5 };
+          let activeDot = mappings[step];
+
+          for(let i=1; i<=4; i++) {
+              const dot = document.getElementById(`prog-dot-${i}`);
+              const text = document.getElementById(`prog-text-${i}`);
+              if(i < activeDot) {
+                  dot.className = "absolute left-0 w-6 h-6 rounded-full bg-[#0EA5E9] border-[3px] border-white z-10 flex items-center justify-center transition-all duration-300 shadow-sm";
+                  dot.innerHTML = `<iconify-icon icon="solar:check-linear" class="text-white text-[10px]" style="stroke-width:2;"></iconify-icon>`;
+                  text.className = "ml-10 text-sm font-medium text-slate-900 transition-colors duration-300";
+              } else if(i === activeDot) {
+                  dot.className = "absolute left-0 w-6 h-6 rounded-full bg-white border-[3px] border-[#0EA5E9] z-10 flex items-center justify-center transition-all duration-300 ring-4 ring-[#0EA5E9]/20";
+                  dot.innerHTML = `<div class="w-1.5 h-1.5 bg-[#0EA5E9] rounded-full"></div>`;
+                  text.className = "ml-10 text-sm font-semibold text-[#0EA5E9] transition-colors duration-300";
+              } else {
+                  dot.className = "absolute left-0 w-6 h-6 rounded-full bg-slate-200 border-[3px] border-white z-10 flex items-center justify-center transition-all duration-300";
+                  dot.innerHTML = '';
+                  text.className = "ml-10 text-sm font-medium text-slate-400 transition-colors duration-300";
+              }
+          }
+
+          const status = document.getElementById('status-badge');
+          if(step === 2 || step === 3 || step === 4) status.textContent = 'Borrador activo';
+          if(step === 5) status.textContent = 'Lista para envío';
+      }
+
+      function validateEmail() {
+          const email = document.getElementById('email').value;
+          const error = document.getElementById('email-error');
+          const warning = document.getElementById('email-warning');
+
+          if (email.length > 0) {
+              if (email.includes('@') && email.includes('.')) {
+                  error.classList.add('hidden');
+                  const domain = email.split('@')[1];
+                  if (domain && !domain.includes('bia.com') && !domain.includes('institucional')) {
+                      warning.classList.remove('hidden');
+                  } else {
+                      warning.classList.add('hidden');
+                  }
+              } else {
+                  error.classList.remove('hidden');
+                  warning.classList.add('hidden');
+              }
+          } else {
+              error.classList.add('hidden');
+              warning.classList.add('hidden');
+          }
+          validateStep1();
+      }
+
+      function validateStep1() {
+          const email = document.getElementById('email').value;
+          const name = document.getElementById('name').value;
+          const area = document.getElementById('area').value;
+
+          const isValid = email.includes('@') && email.includes('.') && name.trim() !== '' && area.trim() !== '';
+          document.getElementById('btn-step-1').disabled = !isValid;
+
+          // Auto-complete mock simulation
+          if (email === 'juan@bia.com' && name === '') {
+              document.getElementById('name').value = 'Juan Pérez';
+              document.getElementById('area').value = 'Marketing y Eventos';
+              validateStep1();
+          }
+      }
+
+      function validateStep2() {
+          const title = document.getElementById('title').value;
+          const type = document.getElementById('type').value;
+          const prodServ = document.querySelector('input[name="prod_serv"]:checked');
+          const date = document.getElementById('date').value;
+
+          const isValid = title.trim() !== '' && type !== '' && prodServ && date !== '';
+          document.getElementById('btn-step-2').disabled = !isValid;
+      }
+
+      function validateDate() {
+          const val = new Date(dateInput.value);
+          const today = new Date();
+          const diffTime = Math.abs(val - today);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+          if (diffDays < 5) {
+              document.getElementById('date-warning').classList.remove('hidden');
+          } else {
+              document.getElementById('date-warning').classList.add('hidden');
+          }
+          validateStep2();
+      }
+
+      function toggleBranding() {
+          const isBranded = document.getElementById('branding-toggle').checked;
+          const uploadZone = document.getElementById('logo-upload-zone');
+          if(isBranded) {
+              uploadZone.classList.remove('hidden');
+              uploadZone.classList.add('flex');
+          } else {
+              uploadZone.classList.add('hidden');
+              uploadZone.classList.remove('flex');
+          }
+          validateStep4();
+      }
+
+      function validateStep4() {
+          const isBranded = document.getElementById('branding-toggle').checked;
+          const file = document.getElementById('logo-file').files.length > 0;
+          const btn = document.getElementById('btn-step-4');
+
+          if(isBranded && !file) {
+              btn.disabled = true;
+          } else {
+              btn.disabled = false;
+          }
+      }
+
+      document.getElementById('logo-file').addEventListener('change', function() {
+          if(this.files.length > 0) {
+              const name = this.files[0].name;
+              const zone = document.getElementById('logo-upload-zone');
+              zone.innerHTML = `
+                  <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                      <iconify-icon icon="solar:file-check-linear" class="text-2xl text-green-600"></iconify-icon>
+                  </div>
+                  <span class="text-sm font-medium text-slate-900 mb-1">${name}</span>
+                  <span class="text-[11px] text-slate-500">Archivo oficial adjunto listo. Clic para cambiar.</span>
+                  <input type="file" id="logo-file" class="hidden" accept=".png,.jpg,.jpeg,.pdf,.svg,.ai,.eps">
+              `;
+              zone.classList.replace('border-dashed', 'border-solid');
+              zone.classList.replace('border-slate-300', 'border-green-300');
+              zone.classList.replace('bg-white', 'bg-green-50/50');
+
+              // Re-bind event
+              zone.querySelector('input').addEventListener('change', arguments.callee);
+          }
+          validateStep4();
+      });
+
+      function submitRequest() {
+          const btn = document.getElementById('btn-submit');
+          btn.innerHTML = `<iconify-icon icon="solar:spinner-linear" class="animate-spin text-lg"></iconify-icon> Enviando...`;
+          btn.disabled = true;
+          setTimeout(() => {
+              goToStep(6);
+          }, 1800);
+      }
+
+      function showToast() {
+          const toast = document.getElementById('toast');
+          toast.classList.remove('translate-y-[200%]', 'opacity-0');
+          setTimeout(() => {
+              toast.classList.add('translate-y-[200%]', 'opacity-0');
+          }, 3500);
+      }
+    </script>
+
+    <script>
+      let selectedProviderBtn = null;
+      function chooseProvider(btn) {
+        if (decisionState.alreadyDecided) return;
+        selectedProviderBtn = btn;
+        const card = btn.closest('div');
+        const providerName = card ? (card.querySelector('[data-provider-name]')?.textContent || 'no especificado') : 'no especificado';
+        document.getElementById('modal-provider-name').textContent = providerName;
+        document.getElementById('decision-modal').classList.remove('hidden');
+      }
+      function closeDecisionModal() {
+        document.getElementById('decision-modal').classList.add('hidden');
+        selectedProviderBtn = null;
+      }
+      function confirmDecision() {
+        if(!selectedProviderBtn) return;
+        const card = selectedProviderBtn.closest('div');
+        const providerName = card ? (card.querySelector('[data-provider-name]')?.textContent || 'no especificado') : 'no especificado';
+        decisionState.alreadyDecided = true;
+        decisionState.decidedProvider = providerName;
+        decisionState.decidedAt = new Date().toISOString();
+        closeDecisionModal();
+        document.getElementById('decision-flow').classList.add('hidden');
+        document.getElementById('decision-flow').classList.remove('flex');
+        document.getElementById('success-provider-name').textContent = providerName;
+        const successFlow = document.getElementById('decision-success-flow');
+        successFlow.classList.remove('hidden');
+        successFlow.classList.add('flex');
+      }
+      function noneWorks() {
+        if (decisionState.alreadyDecided) return;
+        decisionState.alreadyDecided = true;
+        document.getElementById('decision-flow').classList.add('hidden');
+        document.getElementById('decision-flow').classList.remove('flex');
+        document.getElementById('success-provider-name').textContent = "rechazar todas las opciones";
+        const successFlow = document.getElementById('decision-success-flow');
+        successFlow.classList.remove('hidden');
+        successFlow.classList.add('flex');
+      }
+      function showRequestsList() {
+        document.querySelectorAll('.step-container, #decision-flow, #decision-success-flow').forEach(el => {
+          el.classList.add('hidden');
+          el.classList.remove('flex', 'step-enter');
+        });
+        const sidebar = document.querySelector('aside');
+        if (sidebar) {
+          sidebar.classList.remove('hidden');
+          sidebar.classList.add('flex');
+        }
+        const sc1 = document.getElementById('sidebar-content-1');
+        const sc2 = document.getElementById('sidebar-content-2');
+        if (sc1) sc1.classList.remove('hidden');
+        if (sc2) {
+          sc2.classList.add('hidden');
+          sc2.classList.remove('flex');
+        }
+        const reqList = document.getElementById('requests-list-flow');
+        if(reqList) {
+          reqList.classList.remove('hidden');
+          reqList.classList.add('flex', 'step-enter');
+        }
+      }
+      function openDecisionView(ref) {
+        document.querySelectorAll('.step-container, #decision-flow, #decision-success-flow').forEach(el => {
+          el.classList.add('hidden');
+          el.classList.remove('flex', 'step-enter');
+        });
+        const sidebar = document.querySelector('aside');
+        if (sidebar) {
+          sidebar.classList.add('hidden');
+          sidebar.classList.remove('flex');
+        }
+        const flow = document.getElementById('decision-flow');
+        flow.classList.remove('hidden');
+        flow.classList.add('flex', 'step-enter');
+        decisionState.tokenValid = true;
+        decisionState.alreadyDecided = false;
+        decisionState.discrepancy = true;
+        decisionState.discrepancyText = "El proveedor B cotizó 50 unidades en lugar de las 100 solicitadas.";
+        decisionState.comprasRecommendation = "Sugerimos avanzar con el Proveedor A por mejor relación precio-calidad y por cumplir con el volumen requerido.";
+        applyDecisionState();
+      }
+      function simulateDecisionFlow() {
+        showRequestsList();
+      }
+    </script>
+
+    <div id="decision-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeDecisionModal()"></div>
+      <div class="bg-white rounded-2xl md:rounded-[2.5rem] border border-slate-200 shadow-2xl w-full max-w-md relative z-10 p-6 md:p-8 step-enter">
+        <div class="w-12 h-12 rounded-full bg-[#0EA5E9]/10 border border-[#0EA5E9]/20 flex items-center justify-center mb-5">
+          <iconify-icon icon="solar:question-circle-linear" class="text-[#0EA5E9] text-2xl"></iconify-icon>
+        </div>
+        <h3 class="text-xl font-medium tracking-tight text-slate-900 mb-2">
+          Confirmar selección
+        </h3>
+        <p class="text-sm text-slate-500 mb-6">
+          Estás por elegir
+          <span id="modal-provider-name" class="font-semibold text-slate-900"></span>
+          . Esta acción registrará tu decisión y notificará a Compras para
+          avanzar.
+        </p>
+        <div class="flex gap-3">
+          <button class="flex-1 bg-white text-slate-700 text-xs px-4 py-3 rounded-full font-medium border border-slate-200 hover:bg-slate-50 transition-all" onclick="closeDecisionModal()">
+            Cancelar
+          </button>
+          <button class="flex-1 bg-slate-900 text-white text-xs px-4 py-3 rounded-full font-medium hover:bg-slate-800 transition-all" onclick="confirmDecision()">
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+  
+</body></html>

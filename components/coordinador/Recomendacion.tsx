@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/Button";
 import type { Cotizacion, ProsContras } from "@/lib/domain/types";
 import { bloqueoB3Activo } from "@/lib/domain/rules";
 import { formato } from "@/lib/domain/comparativa";
@@ -14,39 +13,30 @@ type RecomendacionProps = {
   onEnviar: (recomendacion: string) => void;
 };
 
-export function Recomendacion({
-  cotizaciones,
-  prosContras,
-  sugerenciaIA,
-  cotizacionSugeridaId,
-  onEnviar,
-}: RecomendacionProps) {
+export function Recomendacion({ cotizaciones, prosContras, sugerenciaIA, cotizacionSugeridaId, onEnviar }: RecomendacionProps) {
   const [recomendacion, setRecomendacion] = useState("");
   const sugerida = cotizaciones.find((c) => c.id === cotizacionSugeridaId);
   const bloqueado = bloqueoB3Activo(recomendacion);
 
   return (
-    <div className="py-4">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <div className="step-enter">
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold tracking-tight text-slate-900">09 · Recomendación</h3>
+        <p className="text-[11px] text-slate-500 mt-1">Punto de control humano (RN-01). Podés contradecir la sugerencia de la IA sin fricción.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
         {cotizaciones.map((c) => {
           const pc = prosContras[c.id];
           return (
-            <div
-              key={c.id}
-              className={
-                "rounded-card border-[1.5px] bg-superficie px-4 py-4 " +
-                (c.id === cotizacionSugeridaId ? "border-brass bg-brass-soft" : "border-borde-fuerte")
-              }
-            >
-              <h3 className="font-display text-[14.5px] font-semibold">{c.proveedorNombre}</h3>
-              {(pc?.pros ?? []).map((p) => (
-                <div key={p} className="mt-1.5 text-[12.5px] text-sage">✓ {p}</div>
-              ))}
-              {(pc?.contras ?? []).map((c2) => (
-                <div key={c2} className="mt-1 text-[12.5px] text-clay">✗ {c2}</div>
-              ))}
-              <div className="mt-2 font-mono text-[16px] font-medium">
-                L {formato(c.valorTotal)}
+            <div key={c.id} className={"bg-white rounded-2xl border p-4 shadow-sm " + (c.id === cotizacionSugeridaId ? "border-sky-200 ring-1 ring-sky-500/20" : "border-slate-200/60")}>
+              <div className="text-xs font-semibold text-slate-900">{c.proveedorNombre}</div>
+              <div className="text-[11px] text-slate-500 mt-1">Total: <span className="font-semibold text-slate-900">{c.moneda ?? "L"} {formato(c.valorTotal)}</span></div>
+              <div className="mt-3 text-[11px]">
+                <div className="text-green-700 font-semibold">✓ Pros</div>
+                <ul className="mt-1 space-y-1 text-slate-600">{(pc?.pros ?? []).map((p) => <li key={p}>{p}</li>)}</ul>
+                <div className="mt-2 text-rose-700 font-semibold">✗ Contras</div>
+                <ul className="mt-1 space-y-1 text-slate-600">{(pc?.contras ?? []).map((c2) => <li key={c2}>{c2}</li>)}</ul>
               </div>
             </div>
           );
@@ -54,49 +44,46 @@ export function Recomendacion({
       </div>
 
       {sugerenciaIA ? (
-        <div className="mt-5 flex gap-3.5 rounded-card bg-azul-claro px-5 py-4">
-          <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[8px] bg-azul-marino font-display text-[13px] font-bold text-white">
-            IA
-          </div>
-          <div className="text-[13.5px] leading-relaxed text-azul-marino">
-            <b>Sugerencia del asistente:</b>{" "}
-            {sugerenciaIA}
-            {sugerida ? `. Proveedor sugerido: ${sugerida.proveedorNombre}.` : ""}
+        <div className="bg-gradient-to-br from-white to-sky-50/40 rounded-2xl border border-slate-200/60 p-5 shadow-sm mb-4 relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-sky-500/10 blur-[45px]" />
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="bg-sky-500 text-white text-[9px] font-bold px-2 py-1 rounded uppercase tracking-wider flex items-center gap-1">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 3 3 5 6 1-4 4 1 6-6-2-6 2 1-6-4-4 6-1z"/></svg>
+                Sugerencia del asistente (IA)
+              </span>
+              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Solo un insumo</span>
+            </div>
+            <div className="text-sm font-semibold text-slate-900">Proveedor sugerido: {sugerida?.proveedorNombre ?? "—"}</div>
+            <div className="text-[11px] text-slate-600 mt-1 leading-relaxed">{sugerenciaIA}</div>
           </div>
         </div>
       ) : null}
 
-      <div className="mt-4 rounded-card border border-borde bg-superficie p-6 shadow-card">
-        <label className="mb-2 block text-[12.5px] font-semibold text-texto-secundario">
-          Recomendación del coordinador{" "}
-          <span className="font-normal text-clay">— obligatorio</span>
+      <div className="bg-white rounded-2xl border border-slate-200/60 p-5 shadow-sm">
+        <label className="block text-xs font-semibold text-slate-900 mb-2">
+          Recomendación del coordinador <span className="text-rose-600">*</span>
         </label>
         <textarea
           value={recomendacion}
           onChange={(e) => setRecomendacion(e.target.value)}
-          placeholder="Ej. Recomiendo Impresos del Valle: buen precio, calidad conocida y ya hemos trabajado con ellos antes."
-          className="min-h-[90px] w-full resize-y rounded-field border-[1.5px] border-borde-fuerte bg-fondo px-3.5 py-3 text-[14.5px] focus:border-azul-medio focus:bg-superficie focus:outline-none"
+          rows={4}
+          placeholder="Escribí tu criterio para el solicitante: qué conviene, riesgos, qué falta confirmar, etc."
+          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:bg-white transition-all resize-none"
         />
-        <p className="mt-1.5 text-[12px] text-texto-terciario">
-          La IA sugiere, pero la palabra final siempre es del coordinador — este campo no puede
-          quedar vacío.
-        </p>
-        <Button
-          className="mt-4"
-          disabled={bloqueado}
-          onClick={() => onEnviar(recomendacion)}
-        >
-          Enviar comparativa al solicitante
-        </Button>
         {bloqueado ? (
-          <p
-            className="mt-2 rounded-field border-l-4 border-advertencia bg-advertencia-fondo px-3 py-2 text-[13px]"
-            role="alert"
-          >
-            Escribí tu recomendación antes de enviar. El solicitante decide, pero tu criterio es
-            lo que más le sirve para decidir.
-          </p>
+          <div className="mt-2 text-[11px] text-amber-700 flex items-start gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mt-[1px]"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            Escribí tu recomendación antes de enviar. El solicitante decide, pero tu criterio es lo que más le sirve para decidir.
+          </div>
         ) : null}
+        <div className="mt-4 flex items-center justify-end gap-2">
+          <button type="button" disabled={bloqueado} onClick={() => onEnviar(recomendacion)} className="bg-sky-500 text-white text-xs px-7 py-3 rounded-full font-medium hover:bg-sky-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-lg shadow-sky-500/20">
+            Enviar comparativa al solicitante
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m22 2-7 20-4-9-9-4Z"/></svg>
+          </button>
+        </div>
+        <div className="mt-2 text-[10px] text-slate-500">Bloqueo duro B3: se valida también en el servidor.</div>
       </div>
     </div>
   );

@@ -1,22 +1,16 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, DM_Sans, DM_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "../styles/globals.css";
 
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-});
-
-const dmSans = DM_Sans({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
 });
 
-const dmMono = DM_Mono({
+const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "600"],
   variable: "--font-mono",
   display: "swap",
 });
@@ -34,9 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es-HN">
-      <body
-        className={`${spaceGrotesk.variable} ${dmSans.variable} ${dmMono.variable} antialiased`}
-      >
+      <body className={`${inter.variable} ${jetbrains.variable} bg-grid antialiased`}>
         {children}
       </body>
     </html>

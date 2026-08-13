@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/Button";
 import type { Comparativa } from "@/lib/domain/types";
 import { formato } from "@/lib/domain/comparativa";
 
@@ -11,87 +10,75 @@ type ComparativaViewProps = {
 };
 
 export function ComparativaView({ comparativa, cotizaciones, onContinuar }: ComparativaViewProps) {
-  const hayDiscrepancias = comparativa.discrepanciasDetectadas.length > 0;
+  const hayDiscrepancia = comparativa.discrepanciasDetectadas.length > 0;
 
   return (
-    <div className="py-4">
-      {hayDiscrepancias ? (
-        <div className="mb-4 rounded-field border-l-4 border-advertencia bg-advertencia-fondo px-4 py-3 text-[13px] text-texto-principal">
-          <b>Discrepancia de especificación:</b>{" "}
-          {comparativa.discrepanciasDetectadas
-            .map((d) => d.explicacion)
-            .join(". ")}{" "}
-          — se muestran antes que los precios.
+    <div className="step-enter">
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <h3 className="text-lg font-semibold tracking-tight text-slate-900">08 · Comparativa generada</h3>
+          <p className="text-[11px] text-slate-500 mt-1">Moneda original por proveedor. Si no desglosa impuestos: «⚠ no especifica» (RN-06).</p>
+        </div>
+        <button type="button" onClick={onContinuar} className="bg-sky-500 text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-sky-600 transition-all flex items-center gap-2 shadow-lg shadow-sky-500/20">
+          Ver recomendación →
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+
+      {hayDiscrepancia ? (
+        <div className="bg-amber-50 border border-amber-200/70 rounded-2xl p-4 mb-4">
+          <div className="text-xs font-semibold text-amber-900 flex items-center gap-2">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 20V9M10 20V4M16 20v-9M22 20H2"/></svg>
+            Observación de especificación
+          </div>
+          <div className="text-[11px] text-amber-800 mt-1">{comparativa.discrepanciasDetectadas[0]?.explicacion}</div>
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-card border border-borde bg-superficie shadow-card">
-        <table className="w-full border-collapse text-left text-[13.5px]">
-          <thead>
-            <tr className="bg-fondo">
-              <th className="w-[150px] border-b border-borde px-4 py-3.5 font-display text-[13px] font-semibold">
-                Requerimiento
-              </th>
+      <div className="overflow-x-auto bg-white rounded-2xl border border-slate-200/60 shadow-sm">
+        <table className="min-w-full text-left">
+          <thead className="bg-slate-50/70">
+            <tr className="text-[10px] uppercase tracking-wider text-slate-500">
+              <th className="px-5 py-3 font-semibold">Concepto</th>
               {cotizaciones.map((c) => (
-                <th
-                  key={c.id}
-                  className="border-b border-borde px-4 py-3.5 font-display text-[13px] font-semibold"
-                >
-                  {c.proveedorNombre}
-                </th>
+                <th key={c.id} className="px-5 py-3 font-semibold">{c.proveedorNombre}</th>
               ))}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-slate-100 text-xs">
             <tr>
-              <td className="px-4 py-3.5 font-medium text-slate">Valor neto</td>
+              <td className="px-5 py-4 font-semibold text-slate-900">Valor neto</td>
               {cotizaciones.map((c) => (
-                <td key={c.id} className="px-4 py-3.5 font-mono">
-                  {c.valorNeto !== undefined ? `L ${formato(c.valorNeto)}` : "no especificado"}
-                </td>
+                <td key={c.id} className="px-5 py-4">{c.valorNeto !== undefined ? `${c.moneda ?? "L"} ${formato(c.valorNeto)}` : "no especificado"}</td>
               ))}
             </tr>
             <tr>
-              <td className="px-4 py-3.5 font-medium text-slate">Impuestos (ISV)</td>
+              <td className="px-5 py-4 font-semibold text-slate-900">Impuestos (ISV)</td>
               {cotizaciones.map((c) => (
-                <td key={c.id} className="px-4 py-3.5 font-mono">
+                <td key={c.id} className="px-5 py-4">
                   {c.impuestosDesglosados === true && c.montoIsv !== undefined ? (
-                    `L ${formato(c.montoIsv)}`
+                    `${c.moneda ?? "L"} ${formato(c.montoIsv)}`
                   ) : (
-                    <span className="inline-flex rounded-full bg-clay-soft px-2 py-1 text-[11px] font-semibold text-clay">
-                      ⚠ no especifica
-                    </span>
+                    <span className="text-amber-700 font-semibold">⚠ no especifica</span>
                   )}
                 </td>
               ))}
             </tr>
             <tr>
-              <td className="px-4 py-3.5 font-medium text-slate">Total</td>
+              <td className="px-5 py-4 font-semibold text-slate-900">Total</td>
               {cotizaciones.map((c) => (
-                <td key={c.id} className="px-4 py-3.5 font-mono font-semibold">
-                  {c.valorTotal !== undefined ? `L ${formato(c.valorTotal)}` : "no especificado"}
-                </td>
+                <td key={c.id} className="px-5 py-4 font-semibold">{c.valorTotal !== undefined ? `${c.moneda ?? "L"} ${formato(c.valorTotal)}` : "no especificado"}</td>
               ))}
             </tr>
             <tr>
-              <td className="px-4 py-3.5 font-medium text-slate">Entrega</td>
+              <td className="px-5 py-4 font-semibold text-slate-900">Entrega</td>
               {cotizaciones.map((c) => (
-                <td key={c.id} className="px-4 py-3.5">{c.plazoEntrega ?? "—"}</td>
+                <td key={c.id} className="px-5 py-4">{c.plazoEntrega ?? "—"}</td>
               ))}
             </tr>
           </tbody>
         </table>
       </div>
-
-      {comparativa.discrepanciasDetectadas.length > 0 ? (
-        <div className="mt-4 rounded-field border-l-4 border-clay bg-clay-soft px-4 py-3 text-[13px] text-[#7A4A2E]">
-          <b>Observación fiscal:</b> {comparativa.discrepanciasDetectadas[0].explicacion}
-        </div>
-      ) : null}
-
-      <Button className="mt-5" onClick={onContinuar}>
-        Ver recomendación →
-      </Button>
     </div>
   );
 }

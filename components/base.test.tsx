@@ -9,7 +9,7 @@ describe("Button", () => {
   it("renderiza con variante primaria por defecto", () => {
     render(<Button>Continuar</Button>);
     const button = screen.getByRole("button", { name: "Continuar" });
-    expect(button).toHaveClass("bg-azul-marino");
+    expect(button).toHaveClass("bg-slate-900");
   });
 
   it("se deshabilita y usa la variante disabled", () => {

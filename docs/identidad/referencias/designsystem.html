@@ -1,0 +1,1504 @@
+<html lang="es" class="antialiased"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIA Compras — Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap');
+
+      body {
+          font-family: 'Inter', sans-serif;
+          background-color: #F8F9FA;
+          background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H17.5V20.5H20ZM20 20.5V23H22.5V20.5H20Z' fill='%23E5E7EB' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
+      }
+
+      .font-mono {
+          font-family: 'JetBrains Mono', monospace;
+      }
+
+      @keyframes blob-spin {
+          0% { transform: rotate(0deg) scale(1); }
+          50% { transform: rotate(180deg) scale(1.1); }
+          100% { transform: rotate(360deg) scale(1); }
+      }
+
+      @keyframes blob-morph {
+          0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; background-position: 0% 50%; }
+          50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; background-position: 100% 50%; }
+          100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; background-position: 0% 50%; }
+      }
+
+      .animate-fluid-blob {
+          animation: blob-morph 12s ease-in-out infinite alternate, blob-spin 24s linear infinite;
+      }
+
+      .no-scrollbar::-webkit-scrollbar {
+          display: none;
+      }
+      .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+      }
+
+      .step-enter {
+          animation: fade-in-up 0.4s ease-out forwards;
+      }
+
+      @keyframes fade-in-up {
+          from { opacity: 0; transform: translateY(15px); }
+          to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Select custom arrow removal for cleaner look */
+      select {
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          appearance: none;
+      }
+    </style>
+    <style>
+      html:not(.is-auth) main {
+        background: transparent !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+      }
+      html:not(.is-auth) main > section {
+        background: transparent !important;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen p-4 md:p-8 text-slate-900 relative overflow-hidden">
+    <!-- Ambient background blobs -->
+    <div class="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-r from-[#BAE6FD]/40 to-[#D1FAE5]/40 mix-blend-multiply blur-[80px] animate-fluid-blob pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-gradient-to-r from-[#0EA5E9]/10 to-[#A7F3D0]/20 mix-blend-multiply blur-[80px] animate-fluid-blob pointer-events-none" style="animation-delay: -4s;"></div>
+
+    <main class="w-full max-w-[1180px] mx-auto bg-white/70 backdrop-blur-3xl rounded-3xl md:rounded-[2.5rem] border border-white shadow-[0_8px_40px_rgb(0,0,0,0.06)] flex flex-col h-[calc(100vh-2rem)] md:h-[calc(100vh-4rem)] overflow-hidden relative z-10">
+      <!-- Sidebar Panel -->
+
+      <!-- Main Form Area -->
+      <section class="flex-1 p-0 relative overflow-hidden bg-white/30 flex flex-col">
+        <div class="flex-1 overflow-y-auto no-scrollbar px-6 md:px-8 py-10 md:py-14 flex flex-col" id="coordinator-shell">
+          <section id="view-design-system" class="view w-full max-w-[1080px] mx-auto pb-20 step-enter">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+              <div>
+                <h2 class="text-3xl font-semibold tracking-tight text-slate-900">
+                  Design System
+                </h2>
+                <p class="text-sm text-slate-500 mt-2">
+                  BIA Compras · Catálogo completo de componentes (Compras, Admin
+                  y Aprobaciones)
+                </p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-slate-600 bg-white/70 border border-white shadow-sm rounded-2xl px-3 py-2">
+                  <iconify-icon icon="solar:layers-linear" class="text-slate-500 text-base"></iconify-icon>
+                  Solo Design System · Scroll
+                </span>
+                <a href="#ds-compras" class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition-colors bg-white/70 px-4 py-2 rounded-2xl border border-white shadow-sm">
+                  Compras
+                </a>
+                <a href="#ds-admin" class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition-colors bg-white/70 px-4 py-2 rounded-2xl border border-white shadow-sm">
+                  Admin
+                </a>
+                <a href="#ds-aprobaciones" class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition-colors bg-white/70 px-4 py-2 rounded-2xl border border-white shadow-sm">
+                  Aprobaciones
+                </a>
+              </div>
+            </div>
+
+            <div class="space-y-12">
+              <div class="bg-white/70 border border-white rounded-2xl p-5 shadow-sm mb-10" id="ds-scope">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="min-w-0">
+                    <div class="text-xs font-semibold text-slate-900">
+                      Alcance
+                    </div>
+                    <div class="text-[11px] text-slate-600 mt-1 leading-relaxed">
+                      Este documento es una única pantalla de
+                      <span class="font-semibold text-slate-700">
+                        Design System
+                      </span>
+                      . Incluye componentes y patrones de las pantallas
+                      trabajadas (solicitudes de compra, bandeja, detalle,
+                      comparativa, envío) y añade variantes para
+                      <span class="font-semibold text-slate-700">Admin</span>
+                      y
+                      <span class="font-semibold text-slate-700">
+                        Aprobaciones
+                      </span>
+                      para completar el catálogo.
+                    </div>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                      <span class="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9] border border-[#0EA5E9]/20">
+                        <iconify-icon icon="solar:verified-check-linear"></iconify-icon>
+                        Componentes
+                      </span>
+                      <span class="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-full bg-white/70 border border-white text-slate-600">
+                        <iconify-icon icon="solar:shield-user-linear" class="text-slate-500"></iconify-icon>
+                        Roles
+                      </span>
+                      <span class="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-full bg-slate-50 border border-slate-200 text-slate-600">
+                        <iconify-icon icon="solar:document-text-linear" class="text-slate-500"></iconify-icon>
+                        Flujos
+                      </span>
+                    </div>
+                  </div>
+                  <div class="shrink-0 text-right">
+                    <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                      Secciones
+                    </div>
+                    <div class="mt-2 grid grid-cols-1 gap-2">
+                      <a class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition-colors bg-white px-3 py-2 rounded-xl border border-slate-200" href="#ds-foundations">
+                        Foundations
+                      </a>
+                      <a class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition-colors bg-white px-3 py-2 rounded-xl border border-slate-200" href="#ds-compras">
+                        Compras
+                      </a>
+                      <a class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition-colors bg-white px-3 py-2 rounded-xl border border-slate-200" href="#ds-admin">
+                        Admin
+                      </a>
+                      <a class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition-colors bg-white px-3 py-2 rounded-xl border border-slate-200" href="#ds-aprobaciones">
+                        Aprobaciones
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="ds-foundations"></div>
+              <!-- 1. Colores -->
+              <div>
+                <h3 class="text-lg font-semibold tracking-tight text-slate-900 mb-4 pb-2 border-b border-slate-200/60">
+                  1. Colores
+                </h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                  <div class="bg-white p-3 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col gap-2">
+                    <div class="h-12 w-full bg-[#0EA5E9] rounded-xl"></div>
+                    <div>
+                      <div class="text-[11px] font-bold text-slate-900">
+                        Sky 500
+                      </div>
+                      <div class="text-[10px] text-slate-500 font-mono">
+                        bg-sky-500 / Brand
+                      </div>
+                    </div>
+                  </div>
+                  <div class="bg-white p-3 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col gap-2">
+                    <div class="h-12 w-full bg-slate-900 rounded-xl"></div>
+                    <div>
+                      <div class="text-[11px] font-bold text-slate-900">
+                        Slate 900
+                      </div>
+                      <div class="text-[10px] text-slate-500 font-mono">
+                        bg-slate-900 / Dark
+                      </div>
+                    </div>
+                  </div>
+                  <div class="bg-white p-3 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col gap-2">
+                    <div class="h-12 w-full bg-slate-50 border border-slate-200 rounded-xl"></div>
+                    <div>
+                      <div class="text-[11px] font-bold text-slate-900">
+                        Slate 50
+                      </div>
+                      <div class="text-[10px] text-slate-500 font-mono">
+                        bg-slate-50 / Surface
+                      </div>
+                    </div>
+                  </div>
+                  <div class="bg-white p-3 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col gap-2">
+                    <div class="h-12 w-full bg-amber-100 rounded-xl"></div>
+                    <div>
+                      <div class="text-[11px] font-bold text-slate-900">
+                        Amber 100
+                      </div>
+                      <div class="text-[10px] text-slate-500 font-mono">
+                        bg-amber-100 / Wait
+                      </div>
+                    </div>
+                  </div>
+                  <div class="bg-white p-3 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col gap-2">
+                    <div class="h-12 w-full bg-green-100 rounded-xl"></div>
+                    <div>
+                      <div class="text-[11px] font-bold text-slate-900">
+                        Green 100
+                      </div>
+                      <div class="text-[10px] text-slate-500 font-mono">
+                        bg-green-100 / Success
+                      </div>
+                    </div>
+                  </div>
+                  <div class="bg-white p-3 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col gap-2">
+                    <div class="h-12 w-full bg-rose-100 rounded-xl"></div>
+                    <div>
+                      <div class="text-[11px] font-bold text-slate-900">
+                        Rose 100
+                      </div>
+                      <div class="text-[10px] text-slate-500 font-mono">
+                        bg-rose-100 / Danger
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Tipografía -->
+              <div>
+                <h3 class="text-lg font-semibold tracking-tight text-slate-900 mb-4 pb-2 border-b border-slate-200/60">
+                  2. Tipografía
+                </h3>
+                <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-6">
+                  <div>
+                    <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                      Título Principal (H1/H2)
+                    </div>
+                    <h2 class="text-3xl font-semibold tracking-tight text-slate-900">
+                      Sombrillas brandeadas — activación
+                    </h2>
+                    <div class="text-[10px] text-slate-500 font-mono mt-1">
+                      text-3xl font-semibold tracking-tight text-slate-900
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                      Título Sección (H3)
+                    </div>
+                    <h3 class="text-lg font-semibold tracking-tight text-slate-900">
+                      07 · Carga cotizaciones
+                    </h3>
+                    <div class="text-[10px] text-slate-500 font-mono mt-1">
+                      text-lg font-semibold tracking-tight text-slate-900
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                      Texto Base / Descripción
+                    </div>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                      Solo ves solicitudes de tus categorías. Usá filtros y
+                      contadores para priorizar. El ciclo del coordinador
+                      termina aquí.
+                    </p>
+                    <div class="text-[10px] text-slate-500 font-mono mt-1">
+                      text-sm text-slate-500 leading-relaxed
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                      Texto Monospace / Referencias
+                    </div>
+                    <span class="font-mono text-xs font-semibold text-slate-900">
+                      RFQ-2026-014
+                    </span>
+                    <div class="text-[10px] text-slate-500 font-mono mt-1">
+                      font-mono text-xs font-semibold text-slate-900
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                      Microcopy / Labels
+                    </div>
+                    <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                      Esperando Cotizaciones
+                    </div>
+                    <div class="text-[10px] text-slate-500 font-mono mt-1">
+                      text-[11px] font-semibold uppercase tracking-wider
+                      text-slate-500
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. Botones -->
+              <div>
+                <h3 class="text-lg font-semibold tracking-tight text-slate-900 mb-4 pb-2 border-b border-slate-200/60">
+                  3. Botones y Acciones
+                </h3>
+                <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="space-y-4">
+                    <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      Primarios
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                      <button class="bg-slate-900 text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-slate-800 transition-all flex items-center gap-2">
+                        Acción Principal
+                        <iconify-icon icon="solar:arrow-right-linear" class="text-sm"></iconify-icon>
+                      </button>
+                      <button class="bg-[#0EA5E9] text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-[#0284C7] transition-all flex items-center gap-2 shadow-lg shadow-[#0EA5E9]/20">
+                        Énfasis (Brand)
+                        <iconify-icon icon="solar:plain-3-linear" class="text-sm"></iconify-icon>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="space-y-4">
+                    <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      Secundarios &amp; Terciarios
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 bg-slate-50 p-4 rounded-xl">
+                      <button class="bg-white text-slate-700 text-[11px] px-4 py-2 rounded-full font-medium hover:bg-slate-50 transition-all inline-flex items-center gap-2 border border-slate-200">
+                        Abrir
+                        <iconify-icon icon="solar:arrow-right-linear" class="text-sm"></iconify-icon>
+                      </button>
+                      <button class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1.5 bg-white/70 px-3 py-2 rounded-2xl border border-white shadow-sm">
+                        Actualizar
+                        <iconify-icon icon="solar:refresh-linear" style="stroke-width:1.5;"></iconify-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. Badges & Pills -->
+              <div>
+                <h3 class="text-lg font-semibold tracking-tight text-slate-900 mb-4 pb-2 border-b border-slate-200/60">
+                  4. Etiquetas (Badges &amp; Pills)
+                </h3>
+                <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="space-y-4">
+                    <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      Estados de Flujo
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                      <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9] border border-[#0EA5E9]/20">
+                        Nueva
+                      </span>
+                      <span class="text-[11px] font-semibold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full">
+                        Activa
+                      </span>
+                      <span class="text-[11px] font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
+                        Esperando cotizaciones
+                      </span>
+                      <span class="text-[11px] font-semibold text-indigo-700 bg-indigo-100 px-2.5 py-1 rounded-full">
+                        Esperando decisión
+                      </span>
+                      <span class="text-[11px] font-semibold text-green-700 bg-green-100 px-2.5 py-1 rounded-full">
+                        Cerrada
+                      </span>
+                    </div>
+                  </div>
+                  <div class="space-y-4">
+                    <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      Tags y Roles
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                      <span class="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 shadow-sm">
+                        <iconify-icon icon="solar:shield-user-linear" class="text-slate-500"></iconify-icon>
+                        Coordinador
+                      </span>
+                      <span class="text-[11px] font-medium text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full">
+                        Empaque y branding
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5. Forms -->
+              <div>
+                <h3 class="text-lg font-semibold tracking-tight text-slate-900 mb-4 pb-2 border-b border-slate-200/60">
+                  5. Elementos de Formulario
+                </h3>
+                <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label class="block text-sm font-medium text-slate-700 mb-1.5">
+                        Input Estándar con Ícono
+                      </label>
+                      <div class="relative">
+                        <iconify-icon icon="solar:letter-linear" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></iconify-icon>
+                        <input type="text" placeholder="carla@bia.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:bg-white transition-all">
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-slate-700 mb-1.5">
+                        Barra de Búsqueda (Filtro)
+                      </label>
+                      <div class="relative">
+                        <iconify-icon icon="solar:magnifer-linear" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></iconify-icon>
+                        <input placeholder="Buscar por ref, título..." class="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-2 text-xs font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-all shadow-sm">
+                      </div>
+                    </div>
+                    <div class="md:col-span-2">
+                      <label class="block text-xs font-semibold text-slate-900 mb-2">
+                        Área de Texto (Textarea)
+                        <span class="text-rose-600">*</span>
+                      </label>
+                      <textarea rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:bg-white transition-all resize-none" placeholder="Escribí tu criterio..."></textarea>
+                      <div class="mt-2 text-[11px] text-amber-700 flex items-start gap-2">
+                        <iconify-icon icon="solar:danger-circle-linear" class="mt-[1px]"></iconify-icon>
+                        Ejemplo de mensaje contextual de validación u
+                        obligatoriedad.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 6. UI Components -->
+              <div>
+                <h3 class="text-lg font-semibold tracking-tight text-slate-900 mb-4 pb-2 border-b border-slate-200/60">
+                  6. Tarjetas de Contenido (Cards)
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <!-- Contadores -->
+                  <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200/60">
+                    <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-3">
+                      Tarjeta de Contadores (Filtro)
+                    </div>
+                    <div class="w-full text-left bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm hover:shadow transition-all cursor-pointer">
+                      <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                        Esperando cotizaciones
+                      </div>
+                      <div class="mt-1 flex items-end justify-between">
+                        <div class="text-2xl font-semibold tracking-tight text-slate-900">
+                          3
+                        </div>
+                        <div class="text-[11px] text-slate-500">pendientes</div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Perfil -->
+                  <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200/60">
+                    <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-3">
+                      Tarjeta de Perfil / Solicitante
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col justify-center p-4">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E0F2FE] to-[#BAE6FD] flex items-center justify-center shrink-0">
+                          <iconify-icon icon="solar:user-circle-linear" class="text-slate-700 text-xl"></iconify-icon>
+                        </div>
+                        <div>
+                          <div class="text-sm font-semibold text-slate-900">
+                            María López
+                          </div>
+                          <div class="text-[11px] text-slate-500">
+                            Marketing y Eventos
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- AI Sugerencia -->
+                  <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200/60 md:col-span-2">
+                    <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-3">
+                      Tarjeta de Sugerencia del Asistente (IA)
+                    </div>
+                    <div class="bg-gradient-to-br from-white to-[#E0F2FE]/40 rounded-2xl border border-slate-200/60 p-5 shadow-sm relative overflow-hidden">
+                      <div class="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-[#0EA5E9]/10 blur-[45px]"></div>
+                      <div class="relative">
+                        <div class="flex items-center gap-2 mb-2">
+                          <span class="bg-[#0EA5E9] text-white text-[9px] font-bold px-2 py-1 rounded uppercase tracking-wider flex items-center gap-1">
+                            <iconify-icon icon="solar:magic-stick-3-linear"></iconify-icon>
+                            Sugerencia del asistente (IA)
+                          </span>
+                          <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                            Metadato extra
+                          </span>
+                        </div>
+                        <div class="text-sm font-semibold text-slate-900">
+                          Proveedor sugerido: PlayaPromo
+                        </div>
+                        <div class="text-[11px] text-slate-600 mt-1 leading-relaxed">
+                          Justificación textual del modelo detallando por qué
+                          esta es la mejor opción basándose en costo y tiempos.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="pt-2" id="ds-compras"></div>
+              <div class="space-y-12">
+                <div>
+                  <h3 class="text-lg font-semibold tracking-tight text-slate-900 mb-4 pb-2 border-b border-slate-200/60">
+                    7. Compras · Bandeja y Solicitudes
+                  </h3>
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6">
+                      <div class="flex items-start justify-between gap-4">
+                        <div>
+                          <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                            Header / Título
+                          </div>
+                          <div class="text-2xl font-semibold tracking-tight text-slate-900 mt-2">
+                            Bandeja · Solicitudes asignadas
+                          </div>
+                          <div class="text-xs text-slate-500 mt-1">
+                            Acciones: actualizar, crear nota
+                          </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <button class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1.5 bg-white/70 px-3 py-2 rounded-2xl border border-white shadow-sm">
+                            Actualizar
+                            <iconify-icon icon="solar:refresh-linear" style="stroke-width:1.5;"></iconify-icon>
+                          </button>
+                          <button class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-[#0EA5E9] transition-colors flex items-center gap-1.5 bg-white/70 px-3 py-2 rounded-2xl border border-white shadow-sm">
+                            Crear nota
+                            <iconify-icon icon="solar:pen-new-square-linear" style="stroke-width:1.5;"></iconify-icon>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6">
+                      <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                        Búsqueda + Chips
+                      </div>
+                      <div class="mt-3 flex flex-wrap items-center gap-2">
+                        <div class="inline-flex items-center gap-1.5 bg-white/60 border border-white shadow-sm rounded-2xl p-1.5">
+                          <button class="px-3 py-2 rounded-xl text-xs font-semibold tracking-tight bg-slate-900 text-white">
+                            Todos
+                          </button>
+                          <button class="px-3 py-2 rounded-xl text-xs font-semibold tracking-tight text-slate-700 hover:bg-white/70">
+                            Activas
+                          </button>
+                          <button class="px-3 py-2 rounded-xl text-xs font-semibold tracking-tight text-slate-700 hover:bg-white/70">
+                            Esperando cotizaciones
+                          </button>
+                          <button class="px-3 py-2 rounded-xl text-xs font-semibold tracking-tight text-slate-700 hover:bg-white/70">
+                            Esperando decisión
+                          </button>
+                          <button class="px-3 py-2 rounded-xl text-xs font-semibold tracking-tight text-slate-700 hover:bg-white/70">
+                            Cerradas
+                          </button>
+                        </div>
+                        <div class="relative ml-auto">
+                          <iconify-icon icon="solar:magnifer-linear" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></iconify-icon>
+                          <input placeholder="Buscar por ref, título o solicitante..." class="w-[280px] max-w-[75vw] bg-white/70 border border-white rounded-2xl pl-10 pr-4 py-2 text-xs font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-all">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="text-left bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm">
+                      <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                        Activas
+                      </div>
+                      <div class="mt-1 flex items-end justify-between">
+                        <div class="text-2xl font-semibold tracking-tight text-slate-900">
+                          6
+                        </div>
+                        <div class="text-[11px] text-slate-500">hoy</div>
+                      </div>
+                    </div>
+                    <div class="text-left bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm">
+                      <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                        Esperando cotizaciones
+                      </div>
+                      <div class="mt-1 flex items-end justify-between">
+                        <div class="text-2xl font-semibold tracking-tight text-slate-900">
+                          3
+                        </div>
+                        <div class="text-[11px] text-slate-500">pend.</div>
+                      </div>
+                    </div>
+                    <div class="text-left bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm">
+                      <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                        Esperando decisión
+                      </div>
+                      <div class="mt-1 flex items-end justify-between">
+                        <div class="text-2xl font-semibold tracking-tight text-slate-900">
+                          2
+                        </div>
+                        <div class="text-[11px] text-slate-500">solic.</div>
+                      </div>
+                    </div>
+                    <div class="text-left bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm">
+                      <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                        Cerradas
+                      </div>
+                      <div class="mt-1 flex items-end justify-between">
+                        <div class="text-2xl font-semibold tracking-tight text-slate-900">
+                          14
+                        </div>
+                        <div class="text-[11px] text-slate-500">mes</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
+                    <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+                      <div class="text-xs font-semibold text-slate-700">
+                        Tabla · Solicitudes
+                      </div>
+                      <div class="text-[11px] text-slate-500">Listo</div>
+                    </div>
+                    <div class="overflow-x-auto">
+                      <table class="min-w-full text-left">
+                        <thead class="bg-slate-50/70">
+                          <tr class="text-[10px] uppercase tracking-wider text-slate-500">
+                            <th class="px-5 py-3 font-semibold">Referencia</th>
+                            <th class="px-5 py-3 font-semibold">Solicitante</th>
+                            <th class="px-5 py-3 font-semibold">Necesidad</th>
+                            <th class="px-5 py-3 font-semibold">Categoría</th>
+                            <th class="px-5 py-3 font-semibold">Estado</th>
+                            <th class="px-5 py-3 font-semibold text-right">
+                              Acción
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-xs">
+                          <tr class="hover:bg-slate-50/60 transition-colors">
+                            <td class="px-5 py-4">
+                              <div class="flex items-center gap-2">
+                                <span class="font-mono text-xs font-semibold text-slate-900">
+                                  RFQ-2026-014
+                                </span>
+                                <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9] border border-[#0EA5E9]/20">
+                                  Nueva
+                                </span>
+                              </div>
+                            </td>
+                            <td class="px-5 py-4">
+                              <div class="text-xs font-medium text-slate-900">
+                                María López
+                                <span class="text-[11px] text-slate-500 font-normal">
+                                  · RFQ
+                                </span>
+                              </div>
+                              <div class="text-[11px] text-slate-500">
+                                Marketing y Eventos
+                              </div>
+                            </td>
+                            <td class="px-5 py-4">
+                              <div class="text-xs font-medium text-slate-900">
+                                Sombrillas brandeadas — activación playa
+                              </div>
+                              <div class="text-[11px] text-slate-500">
+                                Entrega requerida: 2026-02-12
+                              </div>
+                            </td>
+                            <td class="px-5 py-4">
+                              <span class="text-[11px] font-medium text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full">
+                                Empaque y branding
+                              </span>
+                            </td>
+                            <td class="px-5 py-4">
+                              <span class="text-[11px] font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
+                                Esperando cotizaciones
+                              </span>
+                            </td>
+                            <td class="px-5 py-4 text-right">
+                              <button class="bg-slate-900 text-white text-[11px] px-4 py-2 rounded-full font-medium hover:bg-slate-800 transition-all inline-flex items-center gap-2">
+                                Abrir
+                                <iconify-icon icon="solar:arrow-right-linear" class="text-sm"></iconify-icon>
+                              </button>
+                            </td>
+                          </tr>
+                          <tr class="hover:bg-slate-50/60 transition-colors">
+                            <td class="px-5 py-4">
+                              <span class="font-mono text-xs font-semibold text-slate-900">
+                                RFI-2026-009
+                              </span>
+                            </td>
+                            <td class="px-5 py-4">
+                              <div class="text-xs font-medium text-slate-900">
+                                Luis Rojas
+                                <span class="text-[11px] text-slate-500 font-normal">
+                                  · RFI
+                                </span>
+                              </div>
+                              <div class="text-[11px] text-slate-500">
+                                Operaciones
+                              </div>
+                            </td>
+                            <td class="px-5 py-4">
+                              <div class="text-xs font-medium text-slate-900">
+                                Búsqueda de proveedor para pallets retornables
+                              </div>
+                              <div class="text-[11px] text-slate-500">
+                                Entrega requerida: 2026-02-28
+                              </div>
+                            </td>
+                            <td class="px-5 py-4">
+                              <span class="text-[11px] font-medium text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full">
+                                Materia prima
+                              </span>
+                            </td>
+                            <td class="px-5 py-4">
+                              <span class="text-[11px] font-semibold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full">
+                                Activa
+                              </span>
+                            </td>
+                            <td class="px-5 py-4 text-right">
+                              <button class="bg-white text-slate-700 text-[11px] px-4 py-2 rounded-full font-medium hover:bg-slate-50 transition-all inline-flex items-center gap-2 border border-slate-200">
+                                Abrir
+                                <iconify-icon icon="solar:arrow-right-linear" class="text-sm"></iconify-icon>
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold tracking-tight text-slate-900 mb-4 pb-2 border-b border-slate-200/60">
+                  8. Compras · Detalle, Etapas y Comparativa
+                </h3>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  <div class="lg:col-span-8">
+                    <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
+                      <div class="p-5">
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                          <div>
+                            <div class="flex items-center gap-2">
+                              <span class="font-mono text-xs font-semibold text-slate-700 bg-white/70 border border-white px-2.5 py-1 rounded-xl">
+                                RFQ-2026-014
+                              </span>
+                              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-amber-100 text-amber-700">
+                                Esperando cotizaciones
+                              </span>
+                            </div>
+                            <div class="text-2xl font-semibold tracking-tight text-slate-900 mt-2">
+                              Sombrillas brandeadas — activación playa
+                            </div>
+                            <div class="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-600">
+                              <span class="inline-flex items-center gap-1.5">
+                                <iconify-icon icon="solar:user-linear" class="text-slate-500"></iconify-icon>
+                                María López
+                              </span>
+                              <span class="text-slate-300">•</span>
+                              <span class="inline-flex items-center gap-1.5">
+                                <iconify-icon icon="solar:calendar-linear" class="text-slate-500"></iconify-icon>
+                                Requerida: 2026-02-12
+                              </span>
+                            </div>
+                          </div>
+                          <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-500 bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-xl">
+                            RN: min 2 cotizaciones
+                          </div>
+                        </div>
+                        <div class="space-y-3">
+                          <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4">
+                            <div class="flex items-start justify-between gap-4">
+                              <div class="min-w-0">
+                                <div class="flex items-center gap-2">
+                                  <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                                    PDF / Word / Imagen
+                                  </span>
+                                  <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                    ·
+                                  </span>
+                                  <span class="text-xs font-semibold text-slate-900">
+                                    Proveedor A · CostaPrint
+                                  </span>
+                                </div>
+                                <div class="mt-1 text-[11px] text-slate-600">
+                                  Estado:
+                                  <span class="font-semibold text-slate-700">
+                                    Sin archivo aún
+                                  </span>
+                                </div>
+                              </div>
+                              <button class="text-[11px] font-semibold uppercase tracking-wider text-slate-700 hover:text-slate-900 transition-colors flex items-center gap-1.5 bg-white px-3 py-2 rounded-full border border-slate-200 shadow-sm">
+                                Adjuntar
+                                <iconify-icon icon="solar:paperclip-linear" style="stroke-width:1.5;"></iconify-icon>
+                              </button>
+                            </div>
+                          </div>
+                          <div class="bg-white rounded-2xl border border-slate-200/60 p-4">
+                            <div class="flex items-start justify-between gap-4">
+                              <div>
+                                <div class="text-xs font-semibold text-slate-900">
+                                  Generar comparativa
+                                </div>
+                                <div class="text-[11px] text-amber-700 mt-1 flex items-start gap-2">
+                                  <iconify-icon icon="solar:danger-circle-linear" class="mt-[1px]"></iconify-icon>
+                                  Se necesitan al menos 2 cotizaciones para
+                                  generar una comparativa.
+                                </div>
+                              </div>
+                              <button disabled="" class="bg-slate-900 text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2">
+                                Generar comparativa
+                                <iconify-icon icon="solar:table-linear" class="text-sm"></iconify-icon>
+                              </button>
+                            </div>
+                          </div>
+                          <div class="bg-amber-50 border border-amber-200/70 rounded-2xl p-4">
+                            <div class="text-xs font-semibold text-amber-900 flex items-center gap-2">
+                              <iconify-icon icon="solar:notes-linear"></iconify-icon>
+                              Observación de especificación
+                            </div>
+                            <div class="text-[11px] text-amber-800 mt-1">
+                              Variantes de alcance/material entre proveedores.
+                              Revisar antes de decidir.
+                            </div>
+                          </div>
+                          <div class="overflow-x-auto bg-white rounded-2xl border border-slate-200/60 shadow-sm">
+                            <table class="min-w-full text-left">
+                              <thead class="bg-slate-50/70">
+                                <tr class="text-[10px] uppercase tracking-wider text-slate-500">
+                                  <th class="px-5 py-3 font-semibold">
+                                    Concepto
+                                  </th>
+                                  <th class="px-5 py-3 font-semibold">
+                                    Proveedor A
+                                  </th>
+                                  <th class="px-5 py-3 font-semibold">
+                                    Proveedor B
+                                  </th>
+                                  <th class="px-5 py-3 font-semibold">
+                                    Proveedor C
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody class="divide-y divide-slate-100 text-xs">
+                                <tr>
+                                  <td class="px-5 py-4 font-semibold text-slate-900">
+                                    Total
+                                  </td>
+                                  <td class="px-5 py-4 font-semibold">
+                                    L 98,900
+                                  </td>
+                                  <td class="px-5 py-4 font-semibold">
+                                    USD 3,150
+                                  </td>
+                                  <td class="px-5 py-4 font-semibold">
+                                    L 106,375
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td class="px-5 py-4 font-semibold text-slate-900">
+                                    Impuestos
+                                  </td>
+                                  <td class="px-5 py-4">L 12,900</td>
+                                  <td class="px-5 py-4">
+                                    <span class="text-amber-700 font-semibold">
+                                      ⚠ no especifica
+                                    </span>
+                                  </td>
+                                  <td class="px-5 py-4">L 13,875</td>
+                                </tr>
+                                <tr>
+                                  <td class="px-5 py-4 font-semibold text-slate-900">
+                                    Entrega
+                                  </td>
+                                  <td class="px-5 py-4">12 días</td>
+                                  <td class="px-5 py-4">10 días</td>
+                                  <td class="px-5 py-4">15 días</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                          <div class="bg-gradient-to-br from-white to-[#E0F2FE]/40 rounded-2xl border border-slate-200/60 p-5 shadow-sm relative overflow-hidden">
+                            <div class="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-[#0EA5E9]/10 blur-[45px]"></div>
+                            <div class="relative">
+                              <div class="flex items-center gap-2 mb-2">
+                                <span class="bg-[#0EA5E9] text-white text-[9px] font-bold px-2 py-1 rounded uppercase tracking-wider flex items-center gap-1">
+                                  <iconify-icon icon="solar:magic-stick-3-linear"></iconify-icon>
+                                  Sugerencia del asistente (IA)
+                                </span>
+                                <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                                  Control humano
+                                </span>
+                              </div>
+                              <div class="text-sm font-semibold text-slate-900">
+                                Proveedor sugerido: PlayaPromo
+                              </div>
+                              <div class="text-[11px] text-slate-600 mt-1 leading-relaxed">
+                                Justificación + advertencias (ej. impuestos no
+                                desglosados). Siempre requiere validación.
+                              </div>
+                            </div>
+                          </div>
+                          <div class="bg-white rounded-2xl border border-slate-200/60 p-5 shadow-sm">
+                            <label class="block text-xs font-semibold text-slate-900 mb-2">
+                              Recomendación del coordinador
+                              <span class="text-rose-600">*</span>
+                            </label>
+                            <textarea rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:bg-white transition-all resize-none" placeholder="Criterio para el solicitante..."></textarea>
+                            <div class="mt-4 flex items-center justify-end gap-2">
+                              <button class="bg-[#0EA5E9] text-white text-xs px-7 py-3 rounded-full font-medium hover:bg-[#0284C7] transition-all flex items-center gap-2 shadow-lg shadow-[#0EA5E9]/20">
+                                Enviar comparativa
+                                <iconify-icon icon="solar:plain-3-linear" class="text-sm"></iconify-icon>
+                              </button>
+                            </div>
+                            <div class="mt-2 text-[10px] text-slate-500">
+                              Validación server-side (bloqueos duros).
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="lg:col-span-4">
+                      <div class="space-y-4">
+                        <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
+                          <div class="p-4 flex items-center gap-3 border-b border-slate-100">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E0F2FE] to-[#BAE6FD] flex items-center justify-center shrink-0">
+                              <iconify-icon icon="solar:user-circle-linear" class="text-slate-700 text-xl"></iconify-icon>
+                            </div>
+                            <div>
+                              <div class="text-sm font-semibold text-slate-900">
+                                María López
+                              </div>
+                              <div class="text-[11px] text-slate-500">
+                                Marketing y Eventos
+                              </div>
+                            </div>
+                          </div>
+                          <div class="p-4 bg-slate-50/50">
+                            <div class="text-[11px] text-slate-600 leading-relaxed">
+                              Resumen del solicitante + contexto de la
+                              necesidad.
+                            </div>
+                            <div class="mt-3 flex items-center gap-2 text-slate-500">
+                              <iconify-icon icon="solar:letter-linear" class="text-sm"></iconify-icon>
+                              <span class="text-[11px] font-medium text-slate-700">
+                                maria.lopez@bia.com
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
+                          <div class="text-xs font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                            <iconify-icon icon="solar:document-text-linear" class="text-slate-400 text-sm"></iconify-icon>
+                            Detalles de la solicitud
+                          </div>
+                          <div class="space-y-3 text-[11px]">
+                            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                              <span class="text-slate-500">Tipo</span>
+                              <span class="font-semibold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">
+                                RFQ
+                              </span>
+                            </div>
+                            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                              <span class="text-slate-500">Subtipo</span>
+                              <span class="font-semibold text-slate-900 text-right">
+                                Empaque y Branding
+                              </span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                              <span class="text-slate-500">
+                                Fecha requerida
+                              </span>
+                              <span class="font-semibold text-amber-700 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded">
+                                2026-02-12
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
+                          <div class="text-xs font-semibold text-slate-900 flex items-center gap-2 mb-4">
+                            <iconify-icon icon="solar:history-linear" class="text-slate-400 text-sm"></iconify-icon>
+                            Registro de eventos
+                          </div>
+                          <div class="relative pl-3 border-l-2 border-slate-100 space-y-4">
+                            <div class="relative">
+                              <div class="absolute -left-[17px] top-1 w-2.5 h-2.5 rounded-full bg-[#0EA5E9] border-2 border-white"></div>
+                              <div class="text-[10px] font-semibold text-slate-900">
+                                2026-01-29
+                              </div>
+                              <div class="text-[11px] text-slate-500 mt-0.5">
+                                Resumen agregado
+                              </div>
+                            </div>
+                            <div class="relative">
+                              <div class="absolute -left-[17px] top-1 w-2.5 h-2.5 rounded-full bg-slate-300 border-2 border-white"></div>
+                              <div class="text-[10px] font-semibold text-slate-500">
+                                2026-01-28
+                              </div>
+                              <div class="text-[11px] text-slate-400 mt-0.5">
+                                Solicitud creada
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="pt-2" id="ds-admin"></div>
+                <div class="space-y-12">
+                  <div>
+                    <h3 class="text-lg font-semibold tracking-tight text-slate-900 mb-4 pb-2 border-b border-slate-200/60">
+                      9. Admin · Gestión (Catálogos, Usuarios, Reglas)
+                    </h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6">
+                        <div class="flex items-start justify-between gap-4">
+                          <div>
+                            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                              Tarjeta / Resumen
+                            </div>
+                            <div class="text-lg font-semibold tracking-tight text-slate-900 mt-2">
+                              Usuarios
+                            </div>
+                            <div class="text-[11px] text-slate-500 mt-1">
+                              Alta/baja, roles, equipos
+                            </div>
+                          </div>
+                          <button class="bg-slate-900 text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-slate-800 transition-all flex items-center gap-2">
+                            Crear
+                            <iconify-icon icon="solar:add-circle-linear" class="text-sm"></iconify-icon>
+                          </button>
+                        </div>
+                        <div class="mt-5 grid grid-cols-2 gap-3">
+                          <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4">
+                            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                              Activos
+                            </div>
+                            <div class="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
+                              128
+                            </div>
+                          </div>
+                          <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4">
+                            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                              Pendientes
+                            </div>
+                            <div class="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
+                              7
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
+                        <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+                          <div class="text-xs font-semibold text-slate-700">
+                            Tabla · Usuarios
+                          </div>
+                          <div class="text-[11px] text-slate-500">Admin</div>
+                        </div>
+                        <div class="overflow-x-auto">
+                          <table class="min-w-full text-left">
+                            <thead class="bg-slate-50/70">
+                              <tr class="text-[10px] uppercase tracking-wider text-slate-500">
+                                <th class="px-5 py-3 font-semibold">Nombre</th>
+                                <th class="px-5 py-3 font-semibold">Correo</th>
+                                <th class="px-5 py-3 font-semibold">Rol</th>
+                                <th class="px-5 py-3 font-semibold">Estado</th>
+                                <th class="px-5 py-3 font-semibold text-right">
+                                  Acción
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-xs">
+                              <tr class="hover:bg-slate-50/60 transition-colors">
+                                <td class="px-5 py-4">
+                                  <div class="text-xs font-medium text-slate-900">
+                                    Carla Ortega
+                                  </div>
+                                  <div class="text-[11px] text-slate-500">
+                                    Equipo de Compras
+                                  </div>
+                                </td>
+                                <td class="px-5 py-4">
+                                  <span class="text-[11px] font-medium text-slate-700">
+                                    carla@bia.com
+                                  </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                  <span class="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 shadow-sm">
+                                    <iconify-icon icon="solar:shield-user-linear" class="text-slate-500"></iconify-icon>
+                                    Coordinador
+                                  </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                  <span class="text-[11px] font-semibold text-green-700 bg-green-100 px-2.5 py-1 rounded-full">
+                                    Activo
+                                  </span>
+                                </td>
+                                <td class="px-5 py-4 text-right">
+                                  <button class="bg-white text-slate-700 text-[11px] px-4 py-2 rounded-full font-medium hover:bg-slate-50 transition-all inline-flex items-center gap-2 border border-slate-200">
+                                    Editar
+                                    <iconify-icon icon="solar:pen-linear" class="text-sm"></iconify-icon>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr class="hover:bg-slate-50/60 transition-colors">
+                                <td class="px-5 py-4">
+                                  <div class="text-xs font-medium text-slate-900">
+                                    Sofía Pérez
+                                  </div>
+                                  <div class="text-[11px] text-slate-500">
+                                    Finanzas
+                                  </div>
+                                </td>
+                                <td class="px-5 py-4">
+                                  <span class="text-[11px] font-medium text-slate-700">
+                                    sofia@bia.com
+                                  </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                  <span class="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-600 shadow-sm">
+                                    <iconify-icon icon="solar:shield-user-linear" class="text-slate-500"></iconify-icon>
+                                    Aprobador
+                                  </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                  <span class="text-[11px] font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
+                                    Pendiente
+                                  </span>
+                                </td>
+                                <td class="px-5 py-4 text-right">
+                                  <button class="bg-slate-900 text-white text-[11px] px-4 py-2 rounded-full font-medium hover:bg-slate-800 transition-all inline-flex items-center gap-2">
+                                    Invitar
+                                    <iconify-icon icon="solar:letter-linear" class="text-sm"></iconify-icon>
+                                  </button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6">
+                      <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                        Formulario / Reglas de negocio
+                      </div>
+                      <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label class="block text-sm font-medium text-slate-700 mb-1.5">
+                            Categoría
+                          </label>
+                          <div class="relative">
+                            <iconify-icon icon="solar:tag-linear" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></iconify-icon>
+                            <select class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-10 py-3 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:bg-white transition-all">
+                              <option>Empaque y branding</option>
+                              <option>Materia prima</option>
+                              <option>Administrativo</option>
+                            </select>
+                            <iconify-icon icon="solar:alt-arrow-down-linear" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></iconify-icon>
+                          </div>
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-slate-700 mb-1.5">
+                            Monto límite para aprobación automática
+                          </label>
+                          <div class="relative">
+                            <iconify-icon icon="solar:wallet-linear" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></iconify-icon>
+                            <input type="number" placeholder="5000" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:bg-white transition-all">
+                          </div>
+                          <div class="text-[11px] text-slate-500 mt-1">
+                            Se aplica según tipo (RFQ/RFI/RFP) y categoría.
+                          </div>
+                        </div>
+                        <div class="md:col-span-2">
+                          <label class="block text-xs font-semibold text-slate-900 mb-2">
+                            Descripción de regla
+                            <span class="text-rose-600">*</span>
+                          </label>
+                          <textarea rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:bg-white transition-all resize-none" placeholder="Ej.: Para compras de Marketing &gt; 5,000 requiere doble aprobación."></textarea>
+                          <div class="mt-2 text-[11px] text-amber-700 flex items-start gap-2">
+                            <iconify-icon icon="solar:danger-circle-linear" class="mt-[1px]"></iconify-icon>
+                            Validaciones y bloqueos deben reflejarse también en
+                            servidor.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="mt-5 flex items-center justify-end gap-2">
+                        <button class="bg-white text-slate-700 text-[11px] px-4 py-2 rounded-full font-medium hover:bg-slate-50 transition-all inline-flex items-center gap-2 border border-slate-200">
+                          Cancelar
+                        </button>
+                        <button class="bg-[#0EA5E9] text-white text-xs px-7 py-3 rounded-full font-medium hover:bg-[#0284C7] transition-all flex items-center gap-2 shadow-lg shadow-[#0EA5E9]/20">
+                          Guardar regla
+                          <iconify-icon icon="solar:diskette-linear" class="text-sm"></iconify-icon>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="pt-2" id="ds-aprobaciones"></div>
+                <div class="space-y-12">
+                  <div>
+                    <h3 class="text-lg font-semibold tracking-tight text-slate-900 mb-4 pb-2 border-b border-slate-200/60">
+                      10. Aprobaciones · Bandeja, Decisión y Evidencias
+                    </h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6">
+                        <div class="flex items-start justify-between gap-4">
+                          <div>
+                            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                              Bandeja de aprobaciones
+                            </div>
+                            <div class="text-2xl font-semibold tracking-tight text-slate-900 mt-2">
+                              Aprobaciones pendientes
+                            </div>
+                            <div class="text-xs text-slate-500 mt-1">
+                              Prioriza por monto, fecha requerida y riesgo
+                            </div>
+                          </div>
+                          <div class="flex items-center gap-2">
+                            <button class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1.5 bg-white/70 px-3 py-2 rounded-2xl border border-white shadow-sm">
+                              Actualizar
+                              <iconify-icon icon="solar:refresh-linear" style="stroke-width:1.5;"></iconify-icon>
+                            </button>
+                          </div>
+                        </div>
+                        <div class="mt-5 grid grid-cols-2 md:grid-cols-3 gap-3">
+                          <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4">
+                            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                              Pendientes
+                            </div>
+                            <div class="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
+                              5
+                            </div>
+                          </div>
+                          <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4">
+                            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                              Hoy
+                            </div>
+                            <div class="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
+                              2
+                            </div>
+                          </div>
+                          <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 md:col-span-1 col-span-2">
+                            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                              Bloqueos
+                            </div>
+                            <div class="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
+                              1
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
+                        <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+                          <div class="text-xs font-semibold text-slate-700">
+                            Tabla · Aprobaciones
+                          </div>
+                          <div class="text-[11px] text-slate-500">Workflow</div>
+                        </div>
+                        <div class="overflow-x-auto">
+                          <table class="min-w-full text-left">
+                            <thead class="bg-slate-50/70">
+                              <tr class="text-[10px] uppercase tracking-wider text-slate-500">
+                                <th class="px-5 py-3 font-semibold">
+                                  Referencia
+                                </th>
+                                <th class="px-5 py-3 font-semibold">
+                                  Solicitante
+                                </th>
+                                <th class="px-5 py-3 font-semibold">Monto</th>
+                                <th class="px-5 py-3 font-semibold">Estado</th>
+                                <th class="px-5 py-3 font-semibold">Riesgo</th>
+                                <th class="px-5 py-3 font-semibold text-right">
+                                  Acción
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-xs">
+                              <tr class="hover:bg-slate-50/60 transition-colors">
+                                <td class="px-5 py-4">
+                                  <span class="font-mono text-xs font-semibold text-slate-900">
+                                    AP-2026-021
+                                  </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                  <div class="text-xs font-medium text-slate-900">
+                                    María López
+                                  </div>
+                                  <div class="text-[11px] text-slate-500">
+                                    Marketing y Eventos
+                                  </div>
+                                </td>
+                                <td class="px-5 py-4">
+                                  <span class="text-[11px] font-semibold text-slate-900">
+                                    USD 3,150
+                                  </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                  <span class="text-[11px] font-semibold text-indigo-700 bg-indigo-100 px-2.5 py-1 rounded-full">
+                                    Esperando decisión
+                                  </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                  <span class="text-[11px] font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
+                                    Medio
+                                  </span>
+                                </td>
+                                <td class="px-5 py-4 text-right">
+                                  <button class="bg-slate-900 text-white text-[11px] px-4 py-2 rounded-full font-medium hover:bg-slate-800 transition-all inline-flex items-center gap-2">
+                                    Revisar
+                                    <iconify-icon icon="solar:arrow-right-linear" class="text-sm"></iconify-icon>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr class="hover:bg-slate-50/60 transition-colors">
+                                <td class="px-5 py-4">
+                                  <span class="font-mono text-xs font-semibold text-slate-900">
+                                    AP-2026-019
+                                  </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                  <div class="text-xs font-medium text-slate-900">
+                                    Luis Rojas
+                                  </div>
+                                  <div class="text-[11px] text-slate-500">
+                                    Operaciones
+                                  </div>
+                                </td>
+                                <td class="px-5 py-4">
+                                  <span class="text-[11px] font-semibold text-slate-900">
+                                    L 98,900
+                                  </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                  <span class="text-[11px] font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
+                                    Pendiente
+                                  </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                  <span class="text-[11px] font-semibold text-rose-700 bg-rose-100 px-2.5 py-1 rounded-full">
+                                    Alto
+                                  </span>
+                                </td>
+                                <td class="px-5 py-4 text-right">
+                                  <button class="bg-white text-slate-700 text-[11px] px-4 py-2 rounded-full font-medium hover:bg-slate-50 transition-all inline-flex items-center gap-2 border border-slate-200">
+                                    Revisar
+                                    <iconify-icon icon="solar:arrow-right-linear" class="text-sm"></iconify-icon>
+                                  </button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-7">
+                      <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6">
+                        <div class="flex items-start justify-between gap-4">
+                          <div>
+                            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                              Panel de decisión
+                            </div>
+                            <div class="text-lg font-semibold tracking-tight text-slate-900 mt-2">
+                              Decidir solicitud
+                            </div>
+                            <div class="text-[11px] text-slate-500 mt-1">
+                              Aprobar / Rechazar / Pedir ajustes
+                            </div>
+                          </div>
+                          <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500 bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-xl">
+                            Audit trail
+                          </span>
+                        </div>
+                        <div class="mt-5 grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <button class="bg-[#0EA5E9] text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-[#0284C7] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#0EA5E9]/20">
+                            Aprobar
+                            <iconify-icon icon="solar:check-circle-linear" class="text-sm"></iconify-icon>
+                          </button>
+                          <button class="bg-white text-slate-700 text-xs px-6 py-3 rounded-full font-medium hover:bg-slate-50 transition-all flex items-center justify-center gap-2 border border-slate-200">
+                            Pedir ajustes
+                            <iconify-icon icon="solar:chat-round-line-linear" class="text-sm"></iconify-icon>
+                          </button>
+                          <button class="bg-rose-600 text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-rose-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-rose-600/20">
+                            Rechazar
+                            <iconify-icon icon="solar:close-circle-linear" class="text-sm"></iconify-icon>
+                          </button>
+                        </div>
+                        <div class="mt-6">
+                          <label class="block text-xs font-semibold text-slate-900 mb-2">
+                            Comentario del aprobador
+                            <span class="text-rose-600">*</span>
+                          </label>
+                          <textarea rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:bg-white transition-all resize-none" placeholder="Dejá evidencia de la decisión (por qué, qué se pide, condiciones, etc.)"></textarea>
+                          <div class="mt-2 text-[10px] text-slate-500">
+                            Se adjunta al registro de eventos y se notifica al
+                            solicitante/coordinador.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="lg:col-span-5">
+                      <div class="space-y-4">
+                        <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
+                          <div class="text-xs font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                            <iconify-icon icon="solar:paperclip-linear" class="text-slate-400 text-sm"></iconify-icon>
+                            Evidencias
+                          </div>
+                          <div class="space-y-3">
+                            <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4">
+                              <div class="flex items-start justify-between gap-4">
+                                <div>
+                                  <div class="text-xs font-semibold text-slate-900">
+                                    Comparativa (PDF)
+                                  </div>
+                                  <div class="text-[11px] text-slate-500 mt-1">
+                                    Generada por coordinador · 2+ cotizaciones
+                                  </div>
+                                </div>
+                                <button class="bg-white text-slate-700 text-[11px] px-4 py-2 rounded-full font-medium hover:bg-slate-50 transition-all inline-flex items-center gap-2 border border-slate-200">
+                                  Ver
+                                  <iconify-icon icon="solar:arrow-right-linear" class="text-sm"></iconify-icon>
+                                </button>
+                              </div>
+                            </div>
+                            <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4">
+                              <div class="flex items-start justify-between gap-4">
+                                <div>
+                                  <div class="text-xs font-semibold text-slate-900">
+                                    Cotización Proveedor B
+                                  </div>
+                                  <div class="text-[11px] text-slate-500 mt-1">
+                                    Word · convertido a Markdown ✓
+                                  </div>
+                                </div>
+                                <span class="text-[11px] font-semibold text-green-700 bg-green-100 px-2.5 py-1 rounded-full">
+                                  OK
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
+                          <div class="text-xs font-semibold text-slate-900 flex items-center gap-2 mb-4">
+                            <iconify-icon icon="solar:history-linear" class="text-slate-400 text-sm"></iconify-icon>
+                            Registro de eventos
+                          </div>
+                          <div class="relative pl-3 border-l-2 border-slate-100 space-y-4">
+                            <div class="relative">
+                              <div class="absolute -left-[17px] top-1 w-2.5 h-2.5 rounded-full bg-[#0EA5E9] border-2 border-white"></div>
+                              <div class="text-[10px] font-semibold text-slate-900">
+                                2026-02-01
+                              </div>
+                              <div class="text-[11px] text-slate-500 mt-0.5">
+                                Comparativa enviada a aprobaciones
+                              </div>
+                            </div>
+                            <div class="relative">
+                              <div class="absolute -left-[17px] top-1 w-2.5 h-2.5 rounded-full bg-slate-300 border-2 border-white"></div>
+                              <div class="text-[10px] font-semibold text-slate-500">
+                                2026-01-31
+                              </div>
+                              <div class="text-[11px] text-slate-400 mt-0.5">
+                                Comparativa generada
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- STEP 1: Identificación -->
+
+        <!-- STEP 2: Captura Inicial -->
+
+        <!-- STEP 3: Clasificación -->
+
+        <!-- STEP 4: Detalles Técnicos -->
+
+        <!-- STEP 5: Documento -->
+
+        <!-- STEP 6: Confirmación -->
+      </section>
+    </main>
+
+    <!-- Floating Toast for Borrador -->
+  
+</body></html>
