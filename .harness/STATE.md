@@ -1,7 +1,7 @@
 ---
 schemaVersion: 1
-lifecycle: implementation
-currentGate: G4
+lifecycle: closed
+currentGate: G6
 activeFeature: 003-design-enterprise
 approvals:
   G1: true
@@ -9,21 +9,20 @@ approvals:
   G3: true
   G4: true
 nextAction:
-  command: feature-implement
-  prompt: "Rediseño a la identidad oficial (glass/slate/naranja/sky, Inter/JetBrains): reescribir tokens, componentes, layouts y los 4 flujos desde las referencias de docs/identidad/referencias."
+  command: feature-selection
+  prompt: "Selecciona la siguiente feature del Sprint 2: 004 (PDF con pdfme + correos) o 005 (auth real + navegación solicitante)."
 ---
 
 # Project State
 
 ## Current objective
 
-**Rediseño oficial** dentro de la feature 003-design-enterprise: reemplazar la estética previa por la nueva identidad BIA Compras (documentada en `docs/identidad/referencias/`): glassmorphism, slate neutros + naranja (solicitante) + sky (coordinador/admin), tipografía Inter + JetBrains Mono, botones pill, sidebar con progress tracker, y los 4 flujos (solicitante/convocatoria/admin/decisión/administración). Fuente única de verdad = referencias HTML.
+Feature **003-design-enterprise** cerrada (G5 ✅, G6 ✅). Interfaz oficial BIA Compras confirmada: identidad glassmorphism, flujos solicitante/coordinador/admin completos, y pantallas del flujo-admin2 integradas (trazabilidad, procesos, coordinadores, configuración, ajustes). Pusheado a origin/main.
 
 ## Approvals
 
-- G1 ✅ · 000 ✅ · 001 ✅ · 002 ✅.
-- 003-design-enterprise: G2/G3/G4 ✅; rediseño oficial en curso.
+- G1 ✅ · 000 ✅ · 001 ✅ · 002 ✅ · 003-design-enterprise G2/G3/G4/G5/G6 ✅ (2026-08-13).
 
 ## Blockers
 
-None.
+None. Siguiente: Sprint 2 (PDF + correos) o auth real (Sprint 3).
