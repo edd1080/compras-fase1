@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/design/cn";
+import { useSesion } from "@/lib/sesion-context";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: "M4 20V10M10 20V4M16 20v-6M22 20H2" },
@@ -21,6 +23,15 @@ function Icon({ d }: { d: string }) {
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const sesion = useSesion();
+
+  async function salir() {
+    const supabase = getSupabaseBrowserClient();
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  }
   return (
     <aside className="hidden md:flex shrink-0 w-64 border-r border-white/60 bg-white/40 relative z-20 flex-col py-8 px-6">
       <div className="flex items-center gap-3 mb-10">
@@ -51,14 +62,17 @@ export function AdminSidebar() {
         })}
       </nav>
       <div className="mt-auto pt-6 border-t border-white/60">
-        <div className="flex items-center gap-3 hover:bg-white/50 p-2 -ml-2 rounded-xl transition-colors">
+        <div className="flex items-center gap-3 p-2 -ml-2 rounded-xl">
           <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
           </div>
-          <div className="text-left">
-            <div className="text-xs font-semibold text-slate-900">Lady (Admin)</div>
+          <div className="min-w-0 flex-1 text-left">
+            <div className="truncate text-xs font-semibold text-slate-900">{sesion?.nombre ?? "Admin"}</div>
             <div className="text-[10px] text-slate-500">Administración</div>
           </div>
+          <button onClick={salir} title="Salir" className="text-slate-400 hover:text-slate-900 transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+          </button>
         </div>
       </div>
     </aside>

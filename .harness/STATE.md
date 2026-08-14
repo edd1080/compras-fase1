@@ -1,28 +1,29 @@
 ---
 schemaVersion: 1
-lifecycle: closed
-currentGate: G6
-activeFeature: 004-pdf-correos
+lifecycle: specification
+currentGate: G2
+activeFeature: 005-auth-supabase
 approvals:
   G1: true
-  G2: true
-  G3: true
-  G4: true
+  G2: false
+  G3: false
+  G4: false
 nextAction:
-  command: feature-selection
-  prompt: "Selecciona la siguiente feature: 005 (auth real con Supabase Auth + navegación) o trabajo de detalle en flujos."
+  command: feature-specify
+  prompt: Especifica la feature 005-auth-supabase (auth real con Supabase Auth + rutas segmentadas por rol).
 ---
 
 # Project State
 
 ## Current objective
 
-Feature **004-pdf-correos** cerrada (G5 ✅, G6 ✅). PDF con pdfme + correos 1–5 con Resend + corrección de 5 bugs reales detectados en pruebas manuales/visual QA. Pusheado a origin/main (`efb1510`).
+Feature **004-pdf-correos** cerrada (G6). Nueva: especificar la feature **005-auth-supabase**: autenticación real con Supabase Auth, separación de portales por rol (solicitante/coordinador/admin), login/logout, middleware de protección de rutas, y reemplazo de la fixtura de sesión temporal.
 
 ## Approvals
 
-- G1 ✅ · 000 ✅ · 001 ✅ · 002 ✅ · 003 ✅ · 004-pdf-correos G2/G3/G4/G5/G6 ✅ (2026-08-14).
+- G1 ✅ · 000 ✅ · 001 ✅ · 002 ✅ · 003 ✅ · 004 ✅ (G6).
+- 005-auth-supabase: G2 pendiente — especificación en elaboración.
 
 ## Blockers
 
-None. Siguiente: feature 005 (auth real con Supabase Auth + rutas segmentadas) o trabajo de detalle en flujos. Resend: se integra clave cuando el usuario la genere.
+None. Se requiere proyecto Supabase (URL + anon key + service role key) para la integración; se pedirá en el momento de implementación (G4).

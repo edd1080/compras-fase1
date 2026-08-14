@@ -38,18 +38,44 @@ npm run db:migrate # aplicar migraciones pendientes
 npm run secret-scan# verificar que no haya secretos en el repo
 ```
 
+## Autenticación y roles
+
+- **Solicitante:** sin autenticación. Identificación solo con correo + cookie de continuidad (30 días).
+- **Coordinador y Administrador:** autenticación real con **Supabase Auth** (email/contraseña).
+  - Login: `/login/coordinador` y `/login/admin`
+  - El middleware protege `/panel/*` (rol `coordinador`) y `/admin/*` (rol `admin`); sin sesión redirige a login.
+  - El rol se lee de `app_metadata.rol`.
+
+### Credenciales de Supabase (en `.env.local`, nunca en el repo)
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>
+SUPABASE_SERVICE_ROLE_KEY=<service role key>   # solo para seed-auth
+```
+
+### Usuarios iniciales
+Crea las cuentas desde el dashboard de Supabase (Authentication → Users → Add user) o ejecuta:
+
+```bash
+npm run seed-auth
+```
+
+Cada usuario debe tener `app_metadata.rol` = `"coordinador"` o `"admin"`. Ver `scripts/seed-auth.mjs`.
+
 ## Estructura
 
 ```text
 app/            # Next.js App Router (rutas del producto)
-components/     # componentes base (Button, Field, Card, Alert, Badge)
+components/     # componentes base y de diseño
 lib/
-  supabase/     # cliente de Supabase
-  design/       # tokens, utilidades (cn)
-migrations/     # SQL 001..006 (diccionario de datos)
-scripts/        # db-migrate, db-reset, db-seed, secret-scan
+  supabase/     # clientes Supabase (server.ts: SSR, client.ts: browser)
+  auth.ts       # helpers de sesión y rol (requireAuth, getSession)
+  sesion-context.tsx  # contexto de sesión para el frontend
+migrations/     # SQL 001..008 (diccionario de datos + documento/correo + cotizaciones)
+scripts/        # db-*, seed-auth, secret-scan
 styles/         # globals.css (tokens de identidad BIA)
-tests/          # (tests de componentes junto a componentes o en tests/)
+middleware.ts   # protección de rutas por rol
 ```
 
 ## Convenciones

@@ -2,9 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AmbientBackground } from "@/components/ui-ext/AmbientBackground";
 import { Badge, type BadgeTone } from "@/components/Badge";
-import { obtenerSesionFixture } from "@/lib/session";
+import { useSesion } from "@/lib/sesion-context";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { api } from "@/lib/api-client";
 import type { Solicitud } from "@/lib/domain/types";
 
@@ -21,20 +23,28 @@ const ESTADO_FILTRO: Record<string, Filtro> = {
 };
 
 export default function PanelPage() {
-  const sesion = obtenerSesionFixture("coordinador");
+  const sesion = useSesion();
+  const router = useRouter();
   const [filtro, setFiltro] = useState<Filtro>("todos");
   const [busqueda, setBusqueda] = useState("");
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [cargando, setCargando] = useState(true);
 
+  async function salir() {
+    const supabase = getSupabaseBrowserClient();
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  }
+
   useEffect(() => {
+    if (!sesion?.localId) return;
     api
-      .listarSolicitudes(sesion.usuario.id)
+      .listarSolicitudes(sesion.localId)
       .then((d) => setSolicitudes(d))
       .catch(() => setSolicitudes([]))
       .finally(() => setCargando(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [sesion?.localId]);
 
   const contadores = useMemo(() => {
     const activa = solicitudes.filter((s) => ["ENVIADA_A_COMPRAS"].includes(s.estado)).length;
@@ -86,14 +96,14 @@ export default function PanelPage() {
                   <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-100 to-sky-200 flex items-center justify-center">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-slate-700"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
                   </div>
-                  <div className="leading-tight">
-                    <div className="text-[11px] font-semibold text-slate-800">{sesion.usuario.nombre}</div>
-                    <div className="text-[10px] text-slate-500">Equipo de Compras</div>
+                    <div className="leading-tight">
+                      <div className="text-[11px] font-semibold text-slate-800">{sesion?.nombre ?? "Coordinador"}</div>
+                      <div className="text-[10px] text-slate-500">Equipo de Compras</div>
+                    </div>
                   </div>
-                </div>
-                <Link href="/" className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-sky-600 transition-colors flex items-center gap-1.5 bg-white/70 px-3 py-2 rounded-2xl border border-white shadow-sm">
-                  Salir
-                </Link>
+                  <button onClick={salir} className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-sky-600 transition-colors flex items-center gap-1.5 bg-white/70 px-3 py-2 rounded-2xl border border-white shadow-sm">
+                    Salir
+                  </button>
               </div>
             </div>
           </div>

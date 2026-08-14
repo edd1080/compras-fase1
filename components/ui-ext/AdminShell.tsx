@@ -1,5 +1,8 @@
+"use client";
+
 import { AdminSidebar } from "./AdminSidebar";
 import { AmbientBackground } from "./AmbientBackground";
+import { useSesion } from "@/lib/sesion-context";
 
 type AdminShellProps = {
   title: string;
@@ -8,6 +11,7 @@ type AdminShellProps = {
 };
 
 export function AdminShell({ title, subtitle, children }: AdminShellProps) {
+  const sesion = useSesion();
   return (
     <main className="min-h-screen flex p-0 relative overflow-hidden">
       <AmbientBackground />
@@ -24,7 +28,7 @@ export function AdminShell({ title, subtitle, children }: AdminShellProps) {
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-100 to-sky-200 flex items-center justify-center">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-slate-700"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
               </div>
-              <span className="text-xs font-semibold text-slate-800">Lady Matute</span>
+              <span className="text-xs font-semibold text-slate-800">{sesion?.nombre ?? "Admin"}</span>
             </div>
           </div>
         </header>

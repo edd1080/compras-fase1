@@ -1,11 +1,21 @@
+import { requireAuth } from "@/lib/auth";
+import { SesionProvider } from "@/lib/sesion-context";
+
 export const metadata = {
   title: "Administración — Portal de Compras BIA",
 };
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  // Protección server-side real + datos del usuario autenticado.
+  const sesion = await requireAuth(["admin"]);
+
+  return (
+    <SesionProvider value={{ nombre: sesion.nombre, email: sesion.email, rol: sesion.rol }}>
+      {children}
+    </SesionProvider>
+  );
 }
