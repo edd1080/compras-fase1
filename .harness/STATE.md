@@ -1,29 +1,28 @@
 ---
 schemaVersion: 1
-lifecycle: specification
-currentGate: G2
+lifecycle: closed
+currentGate: G6
 activeFeature: 005-auth-supabase
 approvals:
   G1: true
-  G2: false
-  G3: false
-  G4: false
+  G2: true
+  G3: true
+  G4: true
 nextAction:
-  command: feature-specify
-  prompt: Especifica la feature 005-auth-supabase (auth real con Supabase Auth + rutas segmentadas por rol).
+  command: feature-selection
+  prompt: "Selecciona la siguiente feature: integración de IA (Sprint 3) o trabajo de detalle en flujos (gestión de plantillas/coordinadores en admin)."
 ---
 
 # Project State
 
 ## Current objective
 
-Feature **004-pdf-correos** cerrada (G6). Nueva: especificar la feature **005-auth-supabase**: autenticación real con Supabase Auth, separación de portales por rol (solicitante/coordinador/admin), login/logout, middleware de protección de rutas, y reemplazo de la fixtura de sesión temporal.
+Feature **005-auth-supabase** cerrada (G5 ✅, G6 ✅). Auth real implementado: middleware protege /panel y /admin, login con Supabase Auth, sesión real en paneles. Pusheado a origin/main (`4bf4231`).
 
 ## Approvals
 
-- G1 ✅ · 000 ✅ · 001 ✅ · 002 ✅ · 003 ✅ · 004 ✅ (G6).
-- 005-auth-supabase: G2 pendiente — especificación en elaboración.
+- G1 ✅ · 000 ✅ · 001 ✅ · 002 ✅ · 003 ✅ · 004 ✅ · 005-auth-supabase ✅ (2026-08-14).
 
 ## Blockers
 
-None. Se requiere proyecto Supabase (URL + anon key + service role key) para la integración; se pedirá en el momento de implementación (G4).
+None. Pendiente: el usuario debe crear las cuentas en Supabase Auth (o ejecutar `npm run seed-auth`). Sin cuentas, el login redirige a la página pero sin credenciales válidas no se inicia sesión.
