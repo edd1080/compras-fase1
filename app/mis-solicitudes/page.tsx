@@ -1,32 +1,66 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { AmbientBackground } from "@/components/ui-ext/AmbientBackground";
 import { Badge, type BadgeTone } from "@/components/Badge";
 import { api, type SalidaCorta } from "@/lib/api-client";
 
 export default function MisSolicitudesPage() {
-  const [email, setEmail] = useState("");
-  const [buscado, setBuscado] = useState(false);
-  const [cargando, setCargando] = useState(false);
+  return (
+    <Suspense fallback={null}>
+      <MisSolicitudesInner />
+    </Suspense>
+  );
+}
+
+function MisSolicitudesInner() {
+  const searchParams = useSearchParams();
+  const qEmail = searchParams.get("email") ?? "";
+  const [email, setEmail] = useState(qEmail);
+  const [buscado, setBuscado] = useState(!!qEmail);
+  const [cargando, setCargando] = useState(!!qEmail);
   const [error, setError] = useState<string | null>(null);
   const [resultados, setResultados] = useState<SalidaCorta[]>([]);
 
-  async function buscar(e?: React.FormEvent) {
-    e?.preventDefault();
-    if (!email.trim()) return;
+  async function consultar(correo: string) {
+    if (!correo.trim()) return;
     setBuscado(true);
     setCargando(true);
     setError(null);
     try {
-      setResultados(await api.misSolicitudes(email));
+      setResultados(await api.misSolicitudes(correo));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al consultar");
       setResultados([]);
     } finally {
       setCargando(false);
     }
+  }
+
+  useEffect(() => {
+    if (!qEmail) return;
+    let activo = true;
+    api
+      .misSolicitudes(qEmail)
+      .then((r) => {
+        if (activo) setResultados(r);
+      })
+      .catch((err) => {
+        if (activo) setError(err instanceof Error ? err.message : "Error al consultar");
+      })
+      .finally(() => {
+        if (activo) setCargando(false);
+      });
+    return () => {
+      activo = false;
+    };
+  }, [qEmail]);
+
+  async function buscar(e?: React.FormEvent) {
+    e?.preventDefault();
+    await consultar(email);
   }
 
   return (

@@ -2,9 +2,10 @@
 
 // Hook del wizard del solicitante — usa la capa de dominio (cerebro) y persiste vía API.
 import { useState, useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import type { SubtipoSolicitud, TipoSolicitud } from "@/lib/domain/types";
 import { bloqueoB2Activo } from "@/lib/domain/rules";
-import { leerBorradorEmail, guardarBorradorEmail } from "@/lib/cookie";
+import { leerBorradorEmail, guardarBorradorEmail, guardarBorrador, limpiarBorrador, leerBorrador } from "@/lib/cookie";
 
 export type PasoWizard = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -32,29 +33,40 @@ export type WizardState = {
   archivoLogo: string;
   assessmentListo: boolean;
   assessmentPreguntas: { campoKey: string; pregunta: string }[];
+  solicitudId: string | null;
 };
 
-const estadoInicial = (): WizardState => ({
-  paso: 2,
-  maxAlcanzado: 2,
-  email: leerBorradorEmail() ?? "",
-  nombre: "",
-  titulo: "",
-  tipoNecesidad: "",
-  subtipo: "producto",
-  fechaRequerida: "",
-  area: "",
-  descripcion: "",
-  clasificacion: "RFQ",
-  confianzaClasificacion: 0.9,
-  clasificacionCorregida: false,
-  llevaBranding: true,
-  archivoLogo: "",
-  assessmentListo: false,
-  assessmentPreguntas: [],
-});
+function estadoInicial(): WizardState {
+  const guardado = leerBorrador<WizardState>();
+  const base: WizardState = {
+    paso: 2,
+    maxAlcanzado: 2,
+    email: leerBorradorEmail() ?? "",
+    nombre: "",
+    titulo: "",
+    tipoNecesidad: "",
+    subtipo: "producto",
+    fechaRequerida: "",
+    area: "",
+    descripcion: "",
+    clasificacion: "RFQ",
+    confianzaClasificacion: 0.9,
+    clasificacionCorregida: false,
+    llevaBranding: true,
+    archivoLogo: "",
+    assessmentListo: false,
+    assessmentPreguntas: [],
+    solicitudId: null,
+  };
+  // Si hay un borrador guardado y coincide con el email, se retoma.
+  if (guardado && guardado.email === base.email && guardado.solicitudId === null) {
+    return { ...base, ...guardado };
+  }
+  return base;
+}
 
 export function useSolicitudWizard() {
+  const router = useRouter();
   const [estado, setEstado] = useState<WizardState>(() => estadoInicial());
   const [envio, setEnvio] = useState<EstadoEnvio>({ estado: "inactivo" });
 
@@ -85,9 +97,16 @@ export function useSolicitudWizard() {
         actorTipo: "solicitante",
         actorIdentificador: estado.email,
         nota: "Solicitud completada por el solicitante",
+        respuestas: {
+          titulo: estado.titulo,
+          tipoNecesidad: estado.tipoNecesidad,
+          descripcion: estado.descripcion,
+          subtipo: estado.subtipo,
+          llevaBranding: String(estado.llevaBranding),
+        },
       });
       setEnvio({ estado: "ok", referencia: creada.numeroReferencia });
-      setEstado((s) => ({ ...s, paso: 6, maxAlcanzado: 6 }));
+      setEstado((s) => ({ ...s, paso: 6, maxAlcanzado: 6, solicitudId: creada.id }));
     } catch (e) {
       setEnvio({
         estado: "error",
@@ -132,6 +151,16 @@ export function useSolicitudWizard() {
     }
   }, [estado]);
 
+  const guardarBorradorActual = useCallback(() => {
+    const copia = { ...estado, paso: estado.paso as PasoWizard, maxAlcanzado: estado.maxAlcanzado as PasoWizard };
+    guardarBorrador(copia);
+  }, [estado]);
+
+  const cancelar = useCallback(() => {
+    limpiarBorrador();
+    router.push("/");
+  }, [router]);
+
   return {
     estado,
     siguiente,
@@ -141,5 +170,7 @@ export function useSolicitudWizard() {
     pasoValido,
     envio,
     enviarSolicitud,
+    guardarBorrador: guardarBorradorActual,
+    cancelar,
   };
 }

@@ -2,7 +2,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { AdminShell } from "@/components/ui-ext/AdminShell";
 import { Badge, type BadgeTone } from "@/components/Badge";
-import { solicitudesFixture, usuariosFixture } from "@/lib/fixtures";
+import { PostgresRepositorio } from "@/lib/db/postgres-repo";
+
+const repo = new PostgresRepositorio();
 
 export default async function AdminSolicitudDetallePage({
   params,
@@ -10,10 +12,12 @@ export default async function AdminSolicitudDetallePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const s = solicitudesFixture.find((x) => x.id === id);
+  const s = await repo.obtenerSolicitud(id);
   if (!s) notFound();
 
-  const coordinador = usuariosFixture.find((u) => u.id === s.coordinadorId);
+  const coordinador = s.coordinadorId
+    ? (await repo.listarCoordinadores()).find((u) => u.id === s.coordinadorId)
+    : undefined;
 
   const timeline = [
     { titulo: "Creación", fecha: s.fechaCreacion, descripcion: `Iniciada por ${s.solicitanteNombre}.`, activo: true },

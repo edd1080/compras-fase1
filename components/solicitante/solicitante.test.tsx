@@ -5,6 +5,7 @@ import { SolicitanteWizard } from "./SolicitanteWizard";
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams("email=maria.reyes@bia.hn&nombre=Maria+Reyes&area=Marketing"),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
 }));
 
 Object.defineProperty(window, "matchMedia", {

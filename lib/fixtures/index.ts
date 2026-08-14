@@ -12,11 +12,11 @@ import {
 } from "../domain/comparativa";
 
 export const usuariosFixture: Usuario[] = [
-  { id: "u1", nombre: "Carlos Mejía", email: "carlos.mejia@compras.bia.hn", rol: "coordinador", categoriasAsignadas: ["materia_prima", "mercadeo_publicidad"], activo: true },
-  { id: "u2", nombre: "Ana Paredes", email: "ana.paredes@compras.bia.hn", rol: "coordinador", categoriasAsignadas: ["servicios_logisticos"], activo: true },
-  { id: "u3", nombre: "Jorge Salinas", email: "jorge.salinas@compras.bia.hn", rol: "coordinador", categoriasAsignadas: ["capex_indirectos"], activo: true },
-  { id: "u4", nombre: "Fátima Cruz", email: "fatima.cruz@compras.bia.hn", rol: "coordinador", categoriasAsignadas: ["tecnologia"], activo: true },
-  { id: "u5", nombre: "Lady Matute", email: "lady.matute@compras.bia.hn", rol: "admin", categoriasAsignadas: [], activo: true },
+  { id: "00000000-0000-4000-8000-000000000001", nombre: "Carlos Mejía", email: "carlos.mejia@compras.bia.hn", rol: "coordinador", categoriasAsignadas: ["materia_prima", "mercadeo_publicidad"], activo: true },
+  { id: "00000000-0000-4000-8000-000000000002", nombre: "Ana Paredes", email: "ana.paredes@compras.bia.hn", rol: "coordinador", categoriasAsignadas: ["servicios_logisticos"], activo: true },
+  { id: "00000000-0000-4000-8000-000000000003", nombre: "Jorge Salinas", email: "jorge.salinas@compras.bia.hn", rol: "coordinador", categoriasAsignadas: ["capex_indirectos"], activo: true },
+  { id: "00000000-0000-4000-8000-000000000004", nombre: "Fátima Cruz", email: "fatima.cruz@compras.bia.hn", rol: "coordinador", categoriasAsignadas: ["tecnologia"], activo: true },
+  { id: "00000000-0000-4000-8000-000000000005", nombre: "Lady Matute", email: "lady.matute@compras.bia.hn", rol: "admin", categoriasAsignadas: [], activo: true },
 ];
 
 export const coordinadores = usuariosFixture.filter((u) => u.rol === "coordinador");
@@ -224,7 +224,8 @@ return {
         requerimiento: solicitud?.titulo ?? "Solicitud",
         cotizaciones,
       }),
-      recomendacionComprador: undefined,
+      recomendacionComprador:
+        "Sugerimos avanzar con PlayaPromo por mejor relación precio-calidad y entrega.",
       fechaGeneracion: "2026-07-22T12:00:00Z",
     };
 }

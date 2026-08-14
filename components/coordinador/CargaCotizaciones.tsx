@@ -10,16 +10,18 @@ type CargaCotizacionesProps = {
 };
 
 export function CargaCotizaciones({ cotizaciones, onPosibleGenerar, onGenerar }: CargaCotizacionesProps) {
-  const [cargadas, setCargadas] = useState<string[]>([]);
-  const tiene = (id: string) => cargadas.includes(id);
-  const count = cargadas.length;
+  // Botones de un proveedor que el coordinador marca como cargados (además de los ya persistidos).
+  const [marcadas, setMarcadas] = useState<string[]>([]);
+
+  // Todas las cotizaciones (persistidas o marcadas) cuentan como cargadas.
+  const idsPersistidos = cotizaciones.map((c) => c.id);
+  const ids = Array.from(new Set([...idsPersistidos, ...marcadas]));
+  const count = ids.length;
+  const tiene = (id: string) => ids.includes(id);
 
   function cargar(id: string) {
-    setCargadas((prev) => {
-      const next = prev.includes(id) ? prev : [...prev, id];
-      onPosibleGenerar(next.length);
-      return next;
-    });
+    setMarcadas((prev) => (prev.includes(id) ? prev : [...prev, id]));
+    onPosibleGenerar(ids.length + 1);
   }
 
   return (

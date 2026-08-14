@@ -60,4 +60,15 @@ El agente **debe recomendar** un commit cuando se cumpla alguna de estas condici
 
 **Regla de oro:** prefiero commit **pequeños y frecuentes con mensajes claros y atómicos** sobre commits grandes y tardíos. Un commit atómico es aquel donde la prueba (`typecheck`/`lint`/`test`) pasa y el cambio tiene un único propósito que el mensaje describe con exactitud. Cuando la persona aprueba un commit, el mensaje sigue la convención del repo (prefijo de tipo corto, en el idioma de los mensajes existentes).
 
-**Version**: 0.2 · **Estado**: borrador de intake, pendiente de ratificación por el dueño del proceso (Lady Matute).
+## Verificación y aprobación antes de commit (obligatorio)
+
+**Antes de proponer o realizar cualquier commit de una feature completada, el agente DEBE:**
+1. **Probar manualmente el flujo principal** (el usuario lo hará en paralelo; el agente lo verifica) y ejecutar **pruebas automatizadas de interfaz con Playwright** (`e2e/`) que recorran los flujos oficiales y sus edge cases: wizard del solicitante, bandeja/detalle del coordinador (incluidos bloqueos B1/B2/B3), vista pública de decisión, y dashboard de admin.
+2. Confirmar que la **batería de verificación** pasa: `typecheck`, `lint`, `test` (unit/integration), `build`, `adf doctor`, `secret-scan`.
+3. **Buscar la aprobación explícita de la persona antes de commitear**, presentando: resumen de la feature, evidencia de las pruebas (Playwright + unit), y el `git diff`/`git status`.
+
+**Nunca commitear** sin esa aprobación explícita posterior a la verificación. Si el usuario hizo pruebas manuales y encontró fallos, se corrigen y se vuelve a verificar antes de proponer el commit.
+
+**Nota:** las pruebas e2e con Playwright no sustituyen a las pruebas unitarias/integración; son una capa adicional de confirmación del funcionamiento oficial y de los edge cases de cada solución desarrollada.
+
+**Version**: 0.3 · **Estado**: borrador de intake, pendiente de ratificación por el dueño del proceso (Lady Matute).

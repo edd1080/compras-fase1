@@ -50,13 +50,13 @@ CAPA DE DATOS — PostgreSQL + Object Storage
 |---|---|---|
 | Frontend + backend | Next.js (App Router), TypeScript estricto, Tailwind | Un solo proyecto para portal, panel, API y dashboard |
 | Hosting | Vercel | Despliegue continuo, manejo de dominios |
-| Base de datos | Supabase (PostgreSQL) | Relacional, auth para coordinadores, storage, RLS |
-| Almacenamiento | Supabase Storage | Adjuntos, PDFs, cotizaciones |
+| Base de datos | PostgreSQL (hoy local vía `pg`; migrable a **Supabase Cloud**) | Relacional, auth para coordinadores, storage, RLS |
+| Almacenamiento | PostgreSQL / proveedor de objetos (Supabase Storage en cloud) | Adjuntos, PDFs, cotizaciones |
 | Motor de IA | Claude API | 6 funciones; requiere visión (imágenes) y búsqueda web (assessment) |
-| Generación de PDF | Plantilla HTML + render headless, o React-PDF | Replica el membrete BIA |
+| **Generación de PDF** | **pdfme** (@pdfme/generator, plantilla declarativa JSON) | **PDF genérico templatable**: la plantilla vive en config/datos para reemplazarla (membrete BIA) sin recodificar |
 | Generación de Excel | SheetJS (xlsx) | Comparativo editable/descargable |
 | Parseo de cotizaciones | Extracción nativa (PDF/DOCX) + visión (imágenes) → Markdown | |
-| Correo transaccional | Servicio dedicado con dominio propio | Evita depender del Outlook corporativo / IT |
+| **Correo transaccional** | **Resend** (servicio dedicado, dominio propio) | Correos 1–5 del ciclo; evita depender del Outlook corporativo / IT |
 
 ## Pipeline de la solicitud
 

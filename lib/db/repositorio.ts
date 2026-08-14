@@ -3,10 +3,13 @@
 // Esto permite migrar a Supabase Cloud con un adaptador nuevo (misma interfaz).
 import type {
   Comparativa,
+  CorreoEnviado,
   Cotizacion,
   Decision,
+  DocumentoGenerado,
   RespuestaCampo,
   Solicitud,
+  Usuario,
 } from "@/lib/domain/types";
 
 export type TransicionResultado = {
@@ -33,7 +36,13 @@ export interface Repositorio {
     nota?: string;
   }): Promise<TransicionResultado>;
 
+  listarCoordinadores(): Promise<Usuario[]>;
+
   listarPorCoordinador(coordinadorId: string): Promise<Solicitud[]>;
+
+  listarTodas(): Promise<Solicitud[]>;
+
+  asignarCoordinador(solicitudId: string, coordinadorId: string): Promise<void>;
 
   listarPorEmail(email: string): Promise<Solicitud[]>;
 
@@ -48,6 +57,23 @@ export interface Repositorio {
   registrarDecision(
     decision: Omit<Decision, "id" | "fechaDecision">
   ): Promise<Decision>;
+
+  persistirDocumento(input: {
+    solicitudId: string;
+    tipo: string;
+    rutaPdf: string;
+    plantillaVersion?: number;
+  }): Promise<DocumentoGenerado>;
+
+  registrarCorreo(input: {
+    solicitudId: string;
+    tipoCorreo: string;
+    destinatario: string;
+    asunto?: string;
+    estadoEnvio: CorreoEnviado["estadoEnvio"];
+    intentos?: number;
+    errorDetalle?: string;
+  }): Promise<CorreoEnviado>;
 
   leerConfig(clave: string): Promise<unknown>;
 }

@@ -6,7 +6,8 @@ import { AdminShell } from "@/components/ui-ext/AdminShell";
 import { Badge, type BadgeTone } from "@/components/Badge";
 import { api } from "@/lib/api-client";
 import type { MetricasDashboard } from "@/lib/domain/metrics";
-import { usuariosFixture, solicitudesFixture } from "@/lib/fixtures";
+import { usuariosFixture } from "@/lib/fixtures";
+import type { Solicitud } from "@/lib/domain/types";
 
 type Rango = "all" | "hoy" | "semana" | "mes";
 
@@ -25,6 +26,7 @@ export default function AdminDashboardPage() {
   const [busqueda, setBusqueda] = useState("");
   const [metricas, setMetricas] = useState<MetricasDashboard>(METRICAS_VACIAS);
   const [cargando, setCargando] = useState(true);
+  const [procesos, setProcesos] = useState<Solicitud[]>([]);
 
   useEffect(() => {
     api
@@ -32,6 +34,7 @@ export default function AdminDashboardPage() {
       .then((m) => setMetricas(m))
       .catch(() => setMetricas(METRICAS_VACIAS))
       .finally(() => setCargando(false));
+    api.listarSolicitudesTodas().then(setProcesos).catch(() => setProcesos([]));
   }, [rango, coordinador]);
 
   const nombreCoord = (id: string) => usuariosFixture.find((u) => u.id === id)?.nombre.split(" ")[0] ?? id;
@@ -42,7 +45,7 @@ export default function AdminDashboardPage() {
   const distribucion = Object.entries(metricas.distribucionPorTipo);
   const distribucionTotal = Math.max(1, distribucion.reduce((a, [, v]) => a + v, 0));
 
-  const procesos = solicitudesFixture.filter((s) => {
+  const procesosFiltrados = procesos.filter((s) => {
     if (coordinador !== "all" && s.coordinadorId !== coordinador) return false;
     if (busqueda.trim() === "") return true;
     const q = busqueda.toLowerCase();
@@ -130,7 +133,7 @@ export default function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-xs">
-                  {procesos.map((s) => (
+                  {procesosFiltrados.map((s) => (
                     <tr key={s.id} className="hover:bg-slate-50/60 transition-colors">
                       <td className="px-5 py-4">
                         <span className="font-mono font-semibold text-slate-900">{s.numeroReferencia ?? "—"}</span>

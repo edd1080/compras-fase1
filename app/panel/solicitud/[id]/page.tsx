@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { DetalleSolicitud } from "@/components/coordinador/DetalleSolicitud";
-import { solicitudesFixture } from "@/lib/fixtures";
+import { PostgresRepositorio } from "@/lib/db/postgres-repo";
 import { Badge, type BadgeTone } from "@/components/Badge";
 import { AmbientBackground } from "@/components/ui-ext/AmbientBackground";
+
+const repo = new PostgresRepositorio();
 
 export default async function SolicitudDetallePage({
   params,
@@ -10,7 +12,7 @@ export default async function SolicitudDetallePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const solicitud = solicitudesFixture.find((s) => s.id === id);
+  const solicitud = await repo.obtenerSolicitud(id);
   if (!solicitud) notFound();
 
   return (

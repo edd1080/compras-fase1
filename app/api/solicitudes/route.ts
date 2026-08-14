@@ -45,6 +45,10 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const coordinadorId = searchParams.get("coordinadorId");
+    if (coordinadorId === "all") {
+      const todas = await repo.listarTodas();
+      return NextResponse.json(todas);
+    }
     if (!coordinadorId) {
       return NextResponse.json(
         { error: "Falta coordinadorId" },

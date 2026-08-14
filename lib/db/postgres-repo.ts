@@ -4,10 +4,13 @@ import type { Pool } from "pg";
 import { pool as obtenerPool } from "./pool";
 import type {
   Comparativa,
+  CorreoEnviado,
   Cotizacion,
   Decision,
+  DocumentoGenerado,
   RespuestaCampo,
   Solicitud,
+  Usuario,
 } from "@/lib/domain/types";
 import type {
   Repositorio,
@@ -131,12 +134,38 @@ export class PostgresRepositorio implements Repositorio {
     }
   }
 
+  async listarCoordinadores(): Promise<Usuario[]> {
+    const res = await this.pg.query(
+      "SELECT id, nombre, email, rol, categorias_asignadas, activo FROM usuario WHERE rol = 'coordinador' AND activo = true"
+    );
+    return res.rows.map((f) => ({
+      id: String(f.id),
+      nombre: String(f.nombre),
+      email: String(f.email),
+      rol: f.rol,
+      categoriasAsignadas: f.categorias_asignadas ?? [],
+      activo: Boolean(f.activo),
+    }));
+  }
+
+  async listarTodas(): Promise<Solicitud[]> {
+    const res = await this.pg.query("SELECT * FROM solicitud ORDER BY fecha_creacion DESC");
+    return res.rows.map(filaSolicitud);
+  }
+
   async listarPorCoordinador(coordinadorId: string): Promise<Solicitud[]> {
     const res = await this.pg.query(
       "SELECT * FROM solicitud WHERE coordinador_id = $1 ORDER BY fecha_creacion DESC",
       [coordinadorId]
     );
     return res.rows.map(filaSolicitud);
+  }
+
+  async asignarCoordinador(solicitudId: string, coordinadorId: string): Promise<void> {
+    await this.pg.query(
+      "UPDATE solicitud SET coordinador_id = $2 WHERE id = $1",
+      [solicitudId, coordinadorId]
+    );
   }
 
   async listarPorEmail(email: string): Promise<Solicitud[]> {
@@ -281,5 +310,66 @@ export class PostgresRepositorio implements Repositorio {
   async leerConfig(clave: string): Promise<unknown> {
     const res = await this.pg.query("SELECT valor FROM configuracion WHERE clave = $1", [clave]);
     return res.rows[0]?.valor ?? null;
+  }
+
+  async persistirDocumento(input: {
+    solicitudId: string;
+    tipo: string;
+    rutaPdf: string;
+    plantillaVersion?: number;
+  }): Promise<DocumentoGenerado> {
+    const res = await this.pg.query(
+      `INSERT INTO documento_generado (solicitud_id, tipo, ruta_pdf, plantilla_version)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, solicitud_id, tipo, ruta_pdf, version, plantilla_version, fecha_generacion`,
+      [input.solicitudId, input.tipo, input.rutaPdf, input.plantillaVersion ?? 1]
+    );
+    const f = res.rows[0];
+    return {
+      id: String(f.id),
+      solicitudId: String(f.solicitud_id),
+      tipo: f.tipo,
+      rutaPdf: String(f.ruta_pdf),
+      version: Number(f.version),
+      plantillaVersion: Number(f.plantilla_version),
+      fechaGeneracion: String(f.fecha_generacion),
+    };
+  }
+
+  async registrarCorreo(input: {
+    solicitudId: string;
+    tipoCorreo: string;
+    destinatario: string;
+    asunto?: string;
+    estadoEnvio: CorreoEnviado["estadoEnvio"];
+    intentos?: number;
+    errorDetalle?: string;
+  }): Promise<CorreoEnviado> {
+    const res = await this.pg.query(
+      `INSERT INTO correo_enviado (solicitud_id, tipo_correo, destinatario, asunto, estado_envio, intentos, error_detalle)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id, solicitud_id, tipo_correo, destinatario, asunto, estado_envio, intentos, error_detalle, fecha_envio`,
+      [
+        input.solicitudId,
+        input.tipoCorreo,
+        input.destinatario,
+        input.asunto ?? null,
+        input.estadoEnvio,
+        input.intentos ?? 1,
+        input.errorDetalle ?? null,
+      ]
+    );
+    const f = res.rows[0];
+    return {
+      id: String(f.id),
+      solicitudId: String(f.solicitud_id),
+      tipoCorreo: String(f.tipo_correo),
+      destinatario: String(f.destinatario),
+      asunto: f.asunto ?? undefined,
+      estadoEnvio: f.estado_envio,
+      intentos: Number(f.intentos),
+      errorDetalle: f.error_detalle ?? undefined,
+      fechaEnvio: String(f.fecha_envio),
+    };
   }
 }

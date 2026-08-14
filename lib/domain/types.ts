@@ -225,3 +225,27 @@ export type Usuario = {
   categoriasAsignadas: string[];
   activo: boolean;
 };
+
+export type DocumentoGenerado = {
+  id: string;
+  solicitudId: string;
+  tipo: TipoSolicitud;
+  rutaPdf: string;
+  version: number;
+  plantillaVersion: number;
+  fechaGeneracion: string;
+};
+
+export type EstadoCorreo = "enviado" | "fallido" | "reintentando";
+
+export type CorreoEnviado = {
+  id: string;
+  solicitudId: string;
+  tipoCorreo: string;
+  destinatario: string;
+  asunto?: string;
+  estadoEnvio: EstadoCorreo;
+  intentos: number;
+  errorDetalle?: string;
+  fechaEnvio: string;
+};

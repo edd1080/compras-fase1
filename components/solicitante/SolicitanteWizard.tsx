@@ -16,15 +16,17 @@ const PASOS_SIDEBAR = [
 export function SolicitanteWizard() {
   const searchParams = useSearchParams();
   const w = useSolicitudWizard();
-  const { estado, set, siguiente, anterior, pasoValido, envio, enviarSolicitud } = w;
+  const { estado, set, siguiente, anterior, pasoValido, envio, enviarSolicitud, guardarBorrador, cancelar } = w;
   const emailInicial = searchParams.get("email") ?? "";
   const nombreInicial = searchParams.get("nombre") ?? "";
+  const areaInicial = searchParams.get("area") ?? "";
 
   useEffect(() => {
     if (emailInicial) set("email", emailInicial);
     if (nombreInicial) set("nombre", nombreInicial);
+    if (areaInicial) set("area", areaInicial);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [emailInicial, nombreInicial]);
+  }, [emailInicial, nombreInicial, areaInicial]);
 
   // Mapeo html step (2..6) -> sidebar progress (1..4)
   const progress = useMemo(() => {
@@ -101,6 +103,26 @@ export function SolicitanteWizard() {
                 </span>
               </div>
             </div>
+            {estado.paso < 6 ? (
+              <div className="mt-3 flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => guardarBorrador()}
+                  className="w-full text-[11px] font-semibold text-slate-700 hover:text-slate-900 bg-white/70 hover:bg-white border border-white rounded-xl py-2 px-3 flex items-center justify-center gap-1.5 shadow-sm transition-colors"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+                  Guardar borrador
+                </button>
+                <button
+                  type="button"
+                  onClick={cancelar}
+                  className="w-full text-[11px] font-semibold text-slate-500 hover:text-rose-600 bg-white/40 hover:bg-rose-50 border border-white rounded-xl py-2 px-3 flex items-center justify-center gap-1.5 shadow-sm transition-colors"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+                  Cancelar
+                </button>
+              </div>
+            ) : null}
           </div>
         </aside>
 
@@ -423,6 +445,7 @@ function PasoDocumento({
 
 /* ---------- STEP 6: Confirmación ---------- */
 function PasoConfirmacion({ estado }: { estado: ReturnType<typeof useSolicitudWizard>["estado"] }) {
+  const docUrl = estado.solicitudId ? `/api/solicitudes/${estado.solicitudId}/documento` : null;
   return (
     <div className="flex flex-col items-center justify-center h-full w-full text-center py-10 step-enter">
       <div className="relative mb-6">
@@ -432,10 +455,37 @@ function PasoConfirmacion({ estado }: { estado: ReturnType<typeof useSolicitudWi
         </div>
       </div>
       <h2 className="text-3xl font-medium tracking-tight mb-3 text-slate-900">Tu solicitud fue enviada</h2>
-      <p className="text-sm text-slate-500 mb-8 max-w-sm leading-relaxed">
+      <p className="text-sm text-slate-500 mb-6 max-w-sm leading-relaxed">
         Todo listo. Te avisaremos a <span className="font-semibold text-slate-800">{estado.email || "tu correo"}</span> en cuanto haya una comparativa lista para que decidas.
       </p>
-      <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-4 flex items-center gap-4 w-full max-w-xs text-left mb-8">
+
+      {docUrl ? (
+        <div className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm p-4 w-full max-w-sm text-left">
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Documento generado</div>
+          <div className="text-sm font-semibold text-slate-900">{estado.titulo || "Solicitud"}</div>
+          <div className="mt-2 flex gap-2">
+            <a
+              href={docUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 bg-slate-900 text-white text-xs px-4 py-2 rounded-full font-medium hover:bg-slate-800 transition-all"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5"/></svg>
+              Ver PDF
+            </a>
+            <a
+              href={docUrl}
+              download={`${estado.solicitudId}.pdf`}
+              className="inline-flex items-center gap-1.5 bg-white text-slate-700 text-xs px-4 py-2 rounded-full font-medium hover:bg-slate-50 transition-all border border-slate-200"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              Descargar
+            </a>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-4 flex items-center gap-4 w-full max-w-xs text-left mb-6">
         <div className="w-12 h-12 bg-gradient-to-br from-sky-100 to-sky-200 rounded-xl flex items-center justify-center shrink-0">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-slate-700"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
@@ -444,9 +494,9 @@ function PasoConfirmacion({ estado }: { estado: ReturnType<typeof useSolicitudWi
           <span className="text-sm font-medium text-slate-900">Equipo Compras BIA</span>
         </div>
       </div>
-      <Link href="/" className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1.5">
+      <Link href="/mis-solicitudes" className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1.5">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M10 5 5 12l5 7"/></svg>
-        Volver al inicio
+        Ver mis solicitudes
       </Link>
     </div>
   );

@@ -1,20 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CargaCotizaciones } from "./CargaCotizaciones";
 import { ComparativaView } from "./Comparativa";
 import { Recomendacion } from "./Recomendacion";
-import { cotizacionesFixture, comparativaFixture } from "@/lib/fixtures";
-import type { Solicitud } from "@/lib/domain/types";
+import { api } from "@/lib/api-client";
+import type { Cotizacion, Solicitud } from "@/lib/domain/types";
+import { construirComparativa } from "@/lib/domain/comparativa";
 
 type Etapa = 7 | 8 | 9;
 
 export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
   const [etapa, setEtapa] = useState<Etapa>(7);
-  const [enviada, setEnviada] = useState(false);
-  const cotizaciones = cotizacionesFixture[solicitud.id] ?? [];
-  const comparativa = comparativaFixture(solicitud.id);
+  const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>([]);
+  const [cargando, setCargando] = useState(true);
+
+  useEffect(() => {
+    api
+      .listarCotizaciones(solicitud.id)
+      .then((c) => setCotizaciones(c))
+      .catch(() => setCotizaciones([]))
+      .finally(() => setCargando(false));
+  }, [solicitud.id]);
 
   const tabs: { n: Etapa; label: string }[] = [
     { n: 7, label: "07 · Cotizaciones" },
@@ -22,24 +30,23 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
     { n: 9, label: "09 · Recomendación" },
   ];
 
+  const comparativaData =
+    cotizaciones.length >= 2
+      ? construirComparativa({
+          solicitudId: solicitud.id,
+          especificacionesSolicitadas: {},
+          requerimiento: solicitud.titulo,
+          cotizaciones,
+          now: new Date().toISOString(),
+        })
+      : undefined;
+
   return (
     <div className="pt-2">
       <Link href="/panel" className="mb-5 inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition-colors">
         Volver
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
       </Link>
-
-      {enviada ? (
-        <div className="mb-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl p-5 shadow-sm">
-          <div className="flex items-start gap-3">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-green-600 mt-0.5 shrink-0"><path d="M4 12l5 5L20 6"/></svg>
-            <div>
-              <div className="text-sm font-semibold">ENVIADA_A_SOLICITANTE · Comparativa enviada</div>
-              <div className="text-xs mt-1">La solicitud queda en espera de la decisión del solicitante. El ciclo del coordinador termina aquí.</div>
-            </div>
-          </div>
-        </div>
-      ) : null}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-8">
@@ -51,7 +58,7 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
                     key={t.n}
                     type="button"
                     aria-pressed={etapa === t.n}
-                    disabled={!comparativa && t.n === 8}
+                    disabled={!comparativaData && t.n === 8}
                     onClick={() => setEtapa(t.n)}
                     className={
                       "px-3 py-2 rounded-xl text-xs font-semibold tracking-tight transition-colors " +
@@ -63,16 +70,18 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
                 ))}
               </div>
 
-              {enviada ? null : etapa === 7 ? (
-                <CargaCotizaciones cotizaciones={cotizaciones} onPosibleGenerar={() => undefined} onGenerar={() => setEtapa(8)} />
+              {cargando ? (
+                <p className="text-[11px] text-slate-500">Cargando cotizaciones…</p>
+              ) : etapa === 7 ? (
+                <CargaCotizaciones cotizaciones={cotizaciones} onPosibleGenerar={() => undefined} onGenerar={() => { if (comparativaData) setEtapa(8); }} />
               ) : etapa === 8 ? (
-                comparativa ? (
-                  <ComparativaView comparativa={comparativa} cotizaciones={cotizaciones} onContinuar={() => setEtapa(9)} />
+                comparativaData ? (
+                  <ComparativaView comparativa={comparativaData} cotizaciones={cotizaciones} onContinuar={() => setEtapa(9)} />
                 ) : (
-                  <p className="text-[11px] text-slate-500">Aún no hay cotizaciones cargadas para esta solicitud.</p>
+                  <p className="text-[11px] text-slate-500">Se necesitan al menos 2 cotizaciones cargadas para generar la comparativa.</p>
                 )
               ) : (
-                <Recomendacion cotizaciones={cotizaciones} prosContras={comparativa?.prosContras ?? {}} sugerenciaIA={comparativa?.sugerenciaIA} cotizacionSugeridaId={comparativa?.cotizacionSugeridaId} onEnviar={() => setEnviada(true)} />
+                <Recomendacion cotizaciones={cotizaciones} prosContras={comparativaData?.prosContras ?? {}} sugerenciaIA={comparativaData?.sugerenciaIA} cotizacionSugeridaId={comparativaData?.cotizacionSugeridaId} onEnviar={() => undefined} />
               )}
             </div>
           </div>

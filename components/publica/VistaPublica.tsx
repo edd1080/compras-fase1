@@ -13,8 +13,8 @@ type VistaPublicaProps = {
 };
 
 export function VistaPublica({ cotizaciones, prosContras, recomendacion, advertenciaGeneral }: VistaPublicaProps) {
-  const [elegida, setElegida] = useState<string | null>(null);
-  const [modal, setModal] = useState<string | null>(null);
+  const [elegida, setElegida] = useState<string | null>(null); // id del proveedor
+  const [modal, setModal] = useState<{ id: string; nombre: string } | null>(null);
   const [ningunaSirve, setNingunaSirve] = useState(false);
 
   return (
@@ -98,7 +98,7 @@ export function VistaPublica({ cotizaciones, prosContras, recomendacion, adverte
                   <button
                     type="button"
                     disabled={elegida !== null && elegida !== c.id}
-                    onClick={() => setModal(c.proveedorNombre)}
+                    onClick={() => setModal({ id: c.id, nombre: c.proveedorNombre })}
                     className={"w-full text-xs px-6 py-3 rounded-full font-medium transition-all flex items-center justify-center gap-2 " + (elegida === c.id ? "bg-green-600 text-white" : "bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed")}
                   >
                     {elegida === c.id ? "✓ Opción elegida" : "Elegir esta opción"}
@@ -131,14 +131,14 @@ export function VistaPublica({ cotizaciones, prosContras, recomendacion, adverte
             </div>
             <h3 className="text-xl font-medium tracking-tight text-slate-900 mb-2">Confirmar selección</h3>
             <p className="text-sm text-slate-500 mb-6">
-              Estás por elegir <span className="font-semibold text-slate-900">{modal}</span>. Esta acción registrará tu decisión y notificará a Compras para avanzar.
+              Estás por elegir <span className="font-semibold text-slate-900">{modal.nombre}</span>. Esta acción registrará tu decisión y notificará a Compras para avanzar.
             </p>
             <div className="flex gap-3">
               <button type="button" onClick={() => setModal(null)} className="flex-1 bg-white text-slate-700 text-xs px-4 py-3 rounded-full font-medium border border-slate-200 hover:bg-slate-50 transition-all">Cancelar</button>
               <button
                 type="button"
                 onClick={() => {
-                  setElegida(modal);
+                  setElegida(modal.id);
                   setModal(null);
                 }}
                 className="flex-1 bg-slate-900 text-white text-xs px-4 py-3 rounded-full font-medium hover:bg-slate-800 transition-all"

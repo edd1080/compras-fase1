@@ -43,3 +43,30 @@ export function leerBorradorEmail(): string | null {
     return null;
   }
 }
+
+const BORRADOR_KEY = "bia_borrador";
+
+// Guarda el estado completo del borrador en localStorage para retomarlo.
+export function guardarBorrador<T>(estado: T): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(BORRADOR_KEY, JSON.stringify(estado));
+  } catch {
+    /* sin almacenamiento */
+  }
+}
+
+export function leerBorrador<T>(): T | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(BORRADOR_KEY);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function limpiarBorrador(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(BORRADOR_KEY);
+}

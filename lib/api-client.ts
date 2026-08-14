@@ -44,7 +44,9 @@ export const api = {
     actorTipo: string;
     actorIdentificador?: string;
     nota?: string;
-  }): Promise<{ solicitud: Solicitud; eventoId: string }> {
+    respuestas?: Record<string, string>;
+    coordenadorNombre?: string;
+  }): Promise<{ solicitud: Solicitud; eventoId: string; pipeline?: unknown }> {
     return fetch(`/api/solicitudes/${payload.solicitudId}/estado`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -55,6 +57,20 @@ export const api = {
   listarSolicitudes(coordinadorId: string): Promise<Solicitud[]> {
     return fetch(`/api/solicitudes?coordinadorId=${encodeURIComponent(coordinadorId)}`).then(
       (r) => json<Solicitud[]>(r)
+    );
+  },
+
+  listarSolicitudesTodas(): Promise<Solicitud[]> {
+    return fetch("/api/solicitudes?coordinadorId=all").then((r) => json<Solicitud[]>(r));
+  },
+
+  obtenerSolicitud(id: string): Promise<Solicitud> {
+    return fetch(`/api/solicitudes/${encodeURIComponent(id)}`).then((r) => json<Solicitud>(r));
+  },
+
+  listarCotizaciones(solicitudId: string): Promise<Cotizacion[]> {
+    return fetch(`/api/solicitudes/${encodeURIComponent(solicitudId)}/cotizaciones`).then(
+      (r) => json<Cotizacion[]>(r)
     );
   },
 

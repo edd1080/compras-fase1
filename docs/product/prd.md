@@ -221,6 +221,12 @@ El producto se considera entregado cuando (fuente 18 §14):
 - **1 correo de alerta** (configurable, no del ciclo): 5 solicitud sin movimiento — se envía solo si el umbral de días está configurado.
 - Los cinco se registran en la bitácora `correo_enviado`.
 
+## Stack de PDF y correo (vigente)
+
+- **PDF:** se genera con **pdfme** (`@pdfme/generator`) usando una **plantilla declarativa JSON genérica y reemplazable**. El membrete/estructura vive en configuración (no en código) para poder sustituirla por la oficial de Compras sin recodificar. El documento se persiste en `documento_generado` con versión.
+- **Correo transaccional:** se envía con **Resend** (servicio dedicado, dominio propio). Se registra cada envío en la bitácora `correo_enviado` (remitente, destinatario, asunto, estado, intentos, error).
+- **Base de datos:** hoy PostgreSQL local vía `pg`; la capa de acceso es abstracta (puerto `Repositorio`) para migrar a **Supabase Cloud** (misma interfaz, adaptador + URL). Ver `docs/references/architecture.md`.
+
 ## Temas abiertos (TBD — no bloquean G1)
 
 | # | Tema | Responsable | Efecto |

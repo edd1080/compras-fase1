@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { PostgresRepositorio } from "@/lib/db/postgres-repo";
 import { esTransicionValida } from "@/lib/domain/state-machine";
+import { pipelineEnvioACompras } from "@/lib/pdf/pipeline";
 
 const repo = new PostgresRepositorio();
 
@@ -19,6 +20,7 @@ const schema = z.object({
   actorTipo: z.enum(["solicitante", "coordinador", "admin", "sistema"]),
   actorIdentificador: z.string().optional(),
   nota: z.string().optional(),
+  respuestas: z.record(z.string(), z.string()).optional(),
 });
 
 export async function PATCH(
@@ -43,6 +45,23 @@ export async function PATCH(
       );
     }
 
+    // Pipeline: al transicionar a ENVIADA_A_COMPRAS, generar PDF + correos 1 y 2.
+    // Si el PDF falla, la solicitud NO cambia de estado (RF-24).
+    let pipeline: Awaited<ReturnType<typeof pipelineEnvioACompras>> | undefined;
+    if (body.hacia === "ENVIADA_A_COMPRAS") {
+      pipeline = await pipelineEnvioACompras({
+        repo,
+        solicitud,
+        respuestas: body.respuestas,
+      });
+      if (!pipeline.ok) {
+        return NextResponse.json(
+          { error: pipeline.error ?? "No se pudo generar el documento" },
+          { status: 500 }
+        );
+      }
+    }
+
     const res = await repo.transicionarEstado({
       solicitudId: id,
       hacia: body.hacia,
@@ -50,7 +69,8 @@ export async function PATCH(
       actorIdentificador: body.actorIdentificador,
       nota: body.nota,
     });
-    return NextResponse.json(res);
+
+    return NextResponse.json({ ...res, pipeline });
   } catch (e) {
     if (e instanceof z.ZodError) {
       return NextResponse.json({ error: "Datos inválidos", detalles: e.issues }, { status: 400 });

@@ -4,6 +4,19 @@ import { PostgresRepositorio } from "@/lib/db/postgres-repo";
 
 const repo = new PostgresRepositorio();
 
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const cotizaciones = await repo.listarCotizaciones(id);
+    return NextResponse.json(cotizaciones);
+  } catch {
+    return NextResponse.json({ error: "Error al listar cotizaciones" }, { status: 500 });
+  }
+}
+
 const schema = z.object({
   proveedorNombre: z.string().min(1),
   formatoOriginal: z.enum(["pdf", "docx", "imagen", "manual"]),

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { AmbientBackground } from "@/components/ui-ext/AmbientBackground";
 
 export default function Home() {
@@ -111,7 +112,14 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="pt-1 flex items-center justify-end">
+              <div className="pt-1 flex items-center justify-between gap-3">
+                <Link
+                  href={email.includes("@") ? `/mis-solicitudes?email=${encodeURIComponent(email)}` : "/mis-solicitudes"}
+                  className="text-xs font-medium text-slate-500 hover:text-sky-600 transition-colors flex items-center gap-1.5"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                  Mis solicitudes
+                </Link>
                 <button
                   type="submit"
                   disabled={!valido}

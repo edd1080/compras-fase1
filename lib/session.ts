@@ -15,7 +15,7 @@ export const SESION_FIXTURE_ADMIN: Sesion = {
 };
 
 export const SESION_FIXTURE_COORDINADOR: Sesion = {
-  usuario: usuariosFixture.find((u) => u.id === "u1")!,
+  usuario: usuariosFixture.find((u) => u.rol === "coordinador")!,
   rol: "coordinador",
 };
 

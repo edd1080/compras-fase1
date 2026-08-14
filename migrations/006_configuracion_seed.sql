@@ -62,11 +62,12 @@ INSERT INTO catalogo_valor (catalogo, clave, etiqueta, orden) VALUES
   ('modalidad', 'remoto', 'Remoto', 2),
   ('modalidad', 'mixto', 'Mixto', 3);
 
--- Datos semilla: 4 coordinadores (placeholder, OBLIGATORIO reemplazar credenciales reales)
--- Al ser datos de configuración iniciales sin cuenta real, se indican como pendientes de alta por Lady.
-INSERT INTO usuario (nombre, email, rol, categorias_asignadas, activo) VALUES
-  ('Coordinador 1', 'coordinador1@compras.bia.local', 'coordinador', '{materia_prima,servicios_logisticos}', true),
-  ('Coordinador 2', 'coordinador2@compras.bia.local', 'coordinador', '{administrativa,mercadeo_publicidad}', true),
-  ('Coordinador 3', 'coordinador3@compras.bia.local', 'coordinador', '{capex_indirectos,tecnologia}', true),
-  ('Coordinador 4', 'coordinador4@compras.bia.local', 'coordinador', '{tecnologia}', true),
-  ('Lady Matute', 'lady.matute@compras.bia.local', 'admin', '{}', true);
+-- Datos semilla: 4 coordinadores (UUID fijos para que el fixture de sesión temporal
+-- en lib/session.js coincida; el auth real reemplazará esto en Sprint 3).
+-- u1..u5 = 00000000-0000-4000-8000-000000000001 .. 00000000-0000-4000-8000-000000000005
+INSERT INTO usuario (id, nombre, email, rol, categorias_asignadas, activo) VALUES
+  ('00000000-0000-4000-8000-000000000001', 'Coordinador 1', 'coordinador1@compras.bia.local', 'coordinador', '{materia_prima,servicios_logisticos}', true),
+  ('00000000-0000-4000-8000-000000000002', 'Coordinador 2', 'coordinador2@compras.bia.local', 'coordinador', '{administrativa,mercadeo_publicidad}', true),
+  ('00000000-0000-4000-8000-000000000003', 'Coordinador 3', 'coordinador3@compras.bia.local', 'coordinador', '{capex_indirectos,tecnologia}', true),
+  ('00000000-0000-4000-8000-000000000004', 'Coordinador 4', 'coordinador4@compras.bia.local', 'coordinador', '{tecnologia}', true),
+  ('00000000-0000-4000-8000-000000000005', 'Lady Matute', 'lady.matute@compras.bia.local', 'admin', '{}', true);
