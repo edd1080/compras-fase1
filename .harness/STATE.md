@@ -1,7 +1,7 @@
 ---
 schemaVersion: 1
-lifecycle: implementation
-currentGate: G4
+lifecycle: closed
+currentGate: G6
 activeFeature: 004-pdf-correos
 approvals:
   G1: true
@@ -9,21 +9,20 @@ approvals:
   G3: true
   G4: true
 nextAction:
-  command: feature-implement
-  prompt: Implementa la feature 004-pdf-correos según tasks.md (T001→T023), con verificación Playwright antes del commit.
+  command: feature-selection
+  prompt: "Selecciona la siguiente feature: 005 (auth real con Supabase Auth + navegación) o trabajo de detalle en flujos."
 ---
 
 # Project State
 
 ## Current objective
 
-Implementación autorizada de **004-pdf-correos**. Ejecutar T001→T023: PDF con pdfme (plantilla JSON genérica), correos 1–5 con Resend, orquestación en transición, e2e Playwright. Antes de commitear: verificación completa + pruebas manuales del usuario + aprobación explícita.
+Feature **004-pdf-correos** cerrada (G5 ✅, G6 ✅). PDF con pdfme + correos 1–5 con Resend + corrección de 5 bugs reales detectados en pruebas manuales/visual QA. Pusheado a origin/main (`efb1510`).
 
 ## Approvals
 
-- G1 ✅ · 000 ✅ · 001 ✅ · 002 ✅ · 003 ✅ (G6).
-- 004-pdf-correos: G2 ✅, G3 ✅, G4 ✅ (2026-08-13).
+- G1 ✅ · 000 ✅ · 001 ✅ · 002 ✅ · 003 ✅ · 004-pdf-correos G2/G3/G4/G5/G6 ✅ (2026-08-14).
 
 ## Blockers
 
-None.
+None. Siguiente: feature 005 (auth real con Supabase Auth + rutas segmentadas) o trabajo de detalle en flujos. Resend: se integra clave cuando el usuario la genere.
