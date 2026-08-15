@@ -35,7 +35,7 @@ describe("Orquestador IA", () => {
       tipo: "RFQ",
       subtipo: "producto",
       confianza: 0.92,
-      razonamientoBreve: "Producto estándar con precio definido.",
+      razonamiento_breve: "Producto estándar con precio definido.",
     }));
     const res = await clasificar({ titulo: "Camisetas", descripcion: "5000 unidades", categoria: "empaque" });
     expect(res?.tipo).toBe("RFQ");
@@ -58,7 +58,7 @@ describe("Orquestador IA", () => {
         tipo: "RFP",
         subtipo: "servicio",
         confianza: 0.8,
-        razonamientoBreve: "Servicio a medida.",
+        razonamiento_breve: "Servicio a medida.",
       }));
     vi.stubGlobal("fetch", fetchMock);
     const res = await clasificar({ titulo: "Auditoría", descripcion: "", categoria: "" });
@@ -69,11 +69,11 @@ describe("Orquestador IA", () => {
   it("assessment filtra campoKey fuera del catálogo", async () => {
     vi.stubGlobal("fetch", mockOpenRouterResponde({
       preguntas: [
-        { campoKey: "material", pregunta: "¿Material?", porQue: "Para cotizar", critica: false },
-        { campoKey: "inventado_fuera", pregunta: "¿?", porQue: "?", critica: false },
+        { campoKey: "material", pregunta: "¿Material?", por_que: "Para cotizar", critica: false },
+        { campoKey: "inventado_fuera", pregunta: "¿?", por_que: "?", critica: false },
       ],
-      contextoInvestigado: "test",
-      sinPreguntasPendientes: false,
+      contexto_investigado: "test",
+      sin_preguntas_pendientes: false,
     }));
     const res = await assessment({
       tipo: "RFQ",

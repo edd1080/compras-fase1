@@ -3,6 +3,7 @@
 import type { Pool } from "pg";
 import { pool as obtenerPool } from "./pool";
 import type {
+  CampoCatalogo,
   Comparativa,
   CorreoEnviado,
   Cotizacion,
@@ -352,6 +353,25 @@ export class PostgresRepositorio implements Repositorio {
   async leerConfig(clave: string): Promise<unknown> {
     const res = await this.pg.query("SELECT valor FROM configuracion WHERE clave = $1", [clave]);
     return res.rows[0]?.valor ?? null;
+  }
+
+  async listarCampoCatalogo(incluirInactivos = false): Promise<CampoCatalogo[]> {
+    const res = await this.pg.query(
+      `SELECT * FROM campo_catalogo ${incluirInactivos ? "" : "WHERE activo = true"} ORDER BY orden`
+    );
+    return res.rows.map((f) => ({
+      campoKey: String(f.campo_key),
+      label: String(f.label),
+      ayuda: f.ayuda ?? undefined,
+      tipoDato: f.tipo_dato,
+      catalogoOpciones: f.catalogo_opciones ?? undefined,
+      obligatorio: Boolean(f.obligatorio),
+      origen: f.origen,
+      seccionPdf: f.seccion_pdf ?? undefined,
+      orden: Number(f.orden),
+      validacion: f.validacion ?? undefined,
+      activo: Boolean(f.activo),
+    }));
   }
 
   async persistirDocumento(input: {

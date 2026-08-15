@@ -10,7 +10,7 @@ export const ClasificarOutputSchema = z.object({
   tipo: z.enum(["RFI", "RFQ", "RFP"]).nullable(),
   subtipo: z.enum(["producto", "servicio", "mixto"]).nullable(),
   confianza: z.number().min(0).max(1),
-  razonamientoBreve: z.string(),
+  razonamiento_breve: z.string(),
 });
 
 export type ClasificarInput = z.infer<typeof ClasificarInputSchema>;
@@ -37,15 +37,19 @@ export const AssessmentInputSchema = z.object({
 export const PreguntaAssessmentSchema = z.object({
   campoKey: z.string(),
   pregunta: z.string(),
-  porQue: z.string(),
+  por_que: z.string(),
   critica: z.boolean(),
 });
 
 export const AssessmentOutputSchema = z.object({
   preguntas: z.array(PreguntaAssessmentSchema).max(6),
-  contextoInvestigado: z.string(),
-  sinPreguntasPendientes: z.boolean(),
-});
+  contexto_investigado: z.string().default(""),
+  sin_preguntas_pendientes: z.boolean().optional(),
+}).transform((d) => ({
+  preguntas: d.preguntas,
+  contexto_investigado: d.contexto_investigado,
+  sin_preguntas_pendientes: d.sin_preguntas_pendientes ?? d.preguntas.length === 0,
+}));
 
 export type AssessmentInput = z.infer<typeof AssessmentInputSchema>;
 export type AssessmentOutput = z.infer<typeof AssessmentOutputSchema>;
@@ -59,21 +63,24 @@ export const ExtraerCotizacionOutputSchema = z.object({
   proveedorNombre: z.string().nullable(),
   proveedorIdentificacionFiscal: z.string().nullable().optional(),
   proveedorContacto: z.string().nullable().optional(),
-  valorNeto: z.number().nullable(),
-  moneda: z.string().nullable(),
-  impuestosDesglosados: z.boolean().nullable(),
-  montoIsv: z.number().nullable(),
+  valorNeto: z.number().nullable().optional(),
+  moneda: z.string().nullable().optional(),
+  impuestosDesglosados: z.boolean().nullable().optional(),
+  montoIsv: z.number().nullable().optional(),
   montoOtrosImpuestos: z.number().nullable().optional(),
-  valorTotal: z.number().nullable(),
-  plazoEntrega: z.string().nullable(),
+  valorTotal: z.number().nullable().optional(),
+  plazoEntrega: z.string().nullable().optional(),
   formaPago: z.string().nullable().optional(),
   vigenciaOferta: z.string().nullable().optional(),
   garantia: z.string().nullable().optional(),
-  especificacionesOfertadas: z.record(z.string(), z.string()),
+  especificacionesOfertadas: z.record(z.string(), z.string()).default({}),
   observacionesFiscales: z.string().nullable().optional(),
-  ilegible: z.boolean(),
-  confianzaPorCampo: z.record(z.string(), z.number()),
-});
+  ilegible: z.boolean().optional(),
+  confianzaPorCampo: z.record(z.string(), z.number()).default({}),
+}).transform((d) => ({
+  ...d,
+  ilegible: d.ilegible ?? false,
+}));
 
 export type ExtraerCotizacionInput = z.infer<typeof ExtraerCotizacionInputSchema>;
 export type ExtraerCotizacionOutput = z.infer<typeof ExtraerCotizacionOutputSchema>;
@@ -106,12 +113,18 @@ export const DiscrepanciaSchema = z.object({
 });
 
 export const ComparativaOutputSchema = z.object({
-  discrepanciasDetectadas: z.array(DiscrepanciaSchema),
-  prosContras: z.record(z.string(), ProsContrasSchema),
-  sugerenciaIA: z.string().nullable(),
-  cotizacionSugeridaId: z.string().nullable(),
-  advertenciaGeneral: z.string().nullable(),
-});
+  discrepanciasDetectadas: z.array(DiscrepanciaSchema).default([]),
+  prosContras: z.record(z.string(), ProsContrasSchema).default({}),
+  sugerenciaIA: z.string().nullable().optional(),
+  cotizacionSugeridaId: z.string().nullable().optional(),
+  advertenciaGeneral: z.string().nullable().optional(),
+}).transform((d) => ({
+  discrepanciasDetectadas: d.discrepanciasDetectadas,
+  prosContras: d.prosContras,
+  sugerenciaIA: d.sugerenciaIA ?? null,
+  cotizacionSugeridaId: d.cotizacionSugeridaId ?? null,
+  advertenciaGeneral: d.advertenciaGeneral ?? null,
+}));
 
 export type ComparativaInput = z.infer<typeof ComparativaInputSchema>;
 export type ComparativaOutput = z.infer<typeof ComparativaOutputSchema>;

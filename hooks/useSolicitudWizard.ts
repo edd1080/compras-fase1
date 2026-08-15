@@ -6,8 +6,6 @@ import { useRouter } from "next/navigation";
 import type { SubtipoSolicitud, TipoSolicitud } from "@/lib/domain/types";
 import { bloqueoB2Activo } from "@/lib/domain/rules";
 import { leerBorradorEmail, guardarBorradorEmail, guardarBorrador, limpiarBorrador, leerBorrador } from "@/lib/cookie";
-import { clasificar } from "@/lib/ai/orchestrator";
-import { assessment_requerimiento } from "@/lib/domain/assessment";
 
 export type PasoWizard = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -91,11 +89,12 @@ export function useSolicitudWizard() {
     });
   }, []);
 
-  // Clasificación IA del solicitante (P2→P3).
+  // Clasificación IA del solicitante (P2→P3). Llamada server-side vía API.
   const clasificarIA = useCallback(async () => {
     setClasificandoIA(true);
     try {
-      const res = await clasificar({
+      const { api } = await import("@/lib/api-client");
+      const res = await api.clasificarIA({
         titulo: estado.titulo,
         descripcion: estado.descripcion,
         categoria: estado.tipoNecesidad,
@@ -106,7 +105,7 @@ export function useSolicitudWizard() {
           clasificacion: res.tipo ?? "RFQ",
           subtipo: res.subtipo ?? "producto",
           confianzaClasificacion: res.confianza,
-          razonamientoBreve: res.razonamientoBreve,
+          razonamientoBreve: res.razonamiento_breve,
         }));
       } else {
         // Confianza baja o fallo → sin preselección.
@@ -119,32 +118,37 @@ export function useSolicitudWizard() {
     }
   }, [estado.titulo, estado.descripcion, estado.tipoNecesidad]);
 
-  // Assessment IA del solicitante (P3→P4).
+  // Assessment IA del solicitante (P3→P4). Llamada server-side vía API.
   const evaluarAssessment = useCallback(async () => {
     setEvaluandoAssessment(true);
     try {
-      // El catálogo se cargará desde la DB en la próxima iteración; por ahora vacío.
+      const { api } = await import("@/lib/api-client");
       const catalogo: import("@/lib/domain/types").CampoCatalogo[] = [];
-      const res = await assessment_requerimiento({
+      const res = await api.assessmentIA({
+        tipo: estado.clasificacion,
+        subtipo: estado.subtipo,
+        categoria: estado.tipoNecesidad,
         camposCapturados: [
           { campoKey: "titulo", valor: estado.titulo },
           { campoKey: "descripcion", valor: estado.descripcion },
           { campoKey: "tipoNecesidad", valor: estado.tipoNecesidad },
         ],
-        camposDisponiblesCatalogo: catalogo,
-        tipo: estado.clasificacion,
-        subtipo: estado.subtipo,
+        catalogo,
         llevaBranding: estado.llevaBranding,
         archivoLogo: estado.archivoLogo,
       });
-      setEstado((s) => ({
-        ...s,
-        assessmentPreguntas: res.preguntas.map((p) => ({
-          campoKey: p.campoKey,
-          pregunta: p.pregunta,
-        })),
-        assessmentListo: res.sin_preguntas_pendientes,
-      }));
+      if (res) {
+        setEstado((s) => ({
+          ...s,
+          assessmentPreguntas: res.preguntas.map((p) => ({
+            campoKey: p.campoKey,
+            pregunta: p.pregunta,
+          })),
+          assessmentListo: res.sin_preguntas_pendientes,
+        }));
+      } else {
+        setEstado((s) => ({ ...s, assessmentListo: true }));
+      }
     } catch {
       setEstado((s) => ({ ...s, assessmentListo: true }));
     } finally {

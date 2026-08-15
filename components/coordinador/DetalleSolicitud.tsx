@@ -7,7 +7,6 @@ import { ComparativaView } from "./Comparativa";
 import { Recomendacion } from "./Recomendacion";
 import { api } from "@/lib/api-client";
 import type { Cotizacion, Comparativa, Solicitud } from "@/lib/domain/types";
-import { generarComparativaConIA } from "@/lib/domain/comparativa";
 
 type Etapa = 7 | 8 | 9;
 
@@ -32,18 +31,13 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
 
   const generandoComparativa = etapa === 8 && !comparativaData;
 
-  // Genera la comparativa con IA (fallback determinístico interno) al estar disponibles
-  // mínimo 2 cotizaciones y no haber una generada aún.
+  // Genera la comparativa con IA en el SERVIDOR (route /api/solicitudes/[id]/comparativa),
+  // que hace la llamada a OpenRouter con la clave y cae a fallback determinístico si falla.
   useEffect(() => {
     if (!tieneComparativa || comparativaData || etapa === 7) return;
     let activo = true;
-    generarComparativaConIA({
-      solicitudId: solicitud.id,
-      especificacionesSolicitadas: {},
-      requerimiento: solicitud.titulo,
-      cotizaciones,
-      now: new Date().toISOString(),
-    })
+    api
+      .generarComparativa(solicitud.id)
       .then((c) => {
         if (activo) setComparativaData(c);
       })
@@ -51,7 +45,7 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
     return () => {
       activo = false;
     };
-  }, [tieneComparativa, comparativaData, solicitud.id, solicitud.titulo, cotizaciones, etapa]);
+  }, [tieneComparativa, comparativaData, solicitud.id, etapa]);
 
   const tabs: { n: Etapa; label: string }[] = [
     { n: 7, label: "07 · Cotizaciones" },

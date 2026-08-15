@@ -1,6 +1,6 @@
 # Reporte Explorador Visual QA
 
-Fecha: 2026-08-15T21:49:22.330Z
+Fecha: 2026-08-15T23:36:31.970Z
 
 ## Errores detectados (consola / red / HTTP >= 400)
 - Ninguno

@@ -16,14 +16,14 @@ Tu tarea es analizar el título, descripción y categoría de una solicitud y de
 1. **Tipo**: RFI (Request for Information — solo información/cotización informal), RFQ (Request for Quotation — cotización con precio definido para producto estándar), o RFP (Request for Proposal — propuesta técnica + precio para servicio/proyecto).
 2. **Subtipo**: producto, servicio, o mixto.
 3. **Confianza**: 0.0 a 1.0. Si el texto es ambiguo, devuelve confianza < 0.7 y todos los campos como null (sin preseleccionar).
-4. **Razonamiento breve**: 1-2 oraciones explicando por qué elegiste ese tipo.
+4. **Razonamiento breve**: 1-2 oraciones (clave razonamiento_breve) explicando por qué elegiste ese tipo.
 
 ${GUARDRAILS_COMUNES}`,
   userPromptTemplate: `Título: "{{titulo}}"
 Descripción: "{{descripcion}}"
 Categoría seleccionada: "{{categoria}}"
 
-Determiná el tipo de solicitud RFI/RFQ/RFP, subtipo (producto/servicio/mixto), confianza (0-1) y razonamiento breve. Si hay ambigüedad, devolvé todo null menos confianza y razonamiento.`,
+Determiná el tipo de solicitud RFI/RFQ/RFP, subtipo (producto/servicio/mixto), confianza (0-1) y razonamiento breve. Si hay ambigüedad, devolvé todo null menos confianza y razonamiento. Entrega el JSON con claves: tipo, subtipo, confianza, razonamiento_breve (snake_case).`,
 };
 
 export const ASSESSMENT: z.infer<typeof FuncionPromptSchema> = {
@@ -48,7 +48,7 @@ Categoría: {{categoria}}
 Campos ya capturados: {{camposCapturados}}
 Catálogo disponible: {{catalogo}}
 
-Determiná qué preguntas hacer (máximo 6) para completar la información faltante. Si todo está cubierto, devolvé sinPreguntasPendientes: true.`,
+Determiná qué preguntas hacer (máximo 6) para completar la información faltante. Si todo está cubierto, devolvé sin_preguntas_pendientes: true. Entrega el JSON con claves en snake_case (por_que, contexto_investigado, sin_preguntas_pendientes).`,
 };
 
 export const EXTRAER_COTIZACION: z.infer<typeof FuncionPromptSchema> = {
@@ -73,7 +73,7 @@ Debés extraer:
 - observacionesFiscales
 - ilegible: true si el documento no se puede leer
 
-Para cada campo extraído, devolvé confianzaPorCampo (0.0 a 1.0).
+Para cada campo extraído, devolvé la clave EXACTA "confianzaPorCampo": un objeto con las mismas claves que extrajiste (ej. {"valorNeto": 0.95, "valorTotal": 0.94}) con valores 0.0 a 1.0.
 Si un campo no está presente, devolvé null, no inventes valores.
 Si la confianza de un campo es < 0.5, el coordinador deberá revisarlo manualmente.
 
@@ -83,7 +83,7 @@ ${GUARDRAILS_COMUNES}`,
 
 Especificaciones solicitadas: {{especificacionesSolicitadas}}
 
-Extraé la información estructurada de esta cotización. Devolvé cada campo con su valor y confianza.`,
+Extraé la información estructurada de esta cotización. Devolvé JSON ESTRICTO con exactamente las claves: proveedorNombre, proveedorIdentificacionFiscal, proveedorContacto, valorNeto, moneda, impuestosDesglosados, montoIsv, montoOtrosImpuestos, valorTotal, plazoEntrega, formaPago, vigenciaOferta, garantia, especificacionesOfertadas, observacionesFiscales, ilegible (booleano) y confianzaPorCampo (objeto campo->confianza). Cualquier campo sin dato en el documento va en null, nunca inventes.`,
 };
 
 export const COMPARATIVA: z.infer<typeof FuncionPromptSchema> = {
@@ -101,7 +101,14 @@ REGLA 7: La sugerencia debe estar etiquetada como generada por el sistema.`,
 Especificaciones solicitadas: {{especificacionesSolicitadas}}
 Cotizaciones: {{cotizaciones}}
 
-Analizá las siguientes cotizaciones y generá discrepancias, pros/contras por proveedor, una sugerencia razonada (con advertencias si aplica), y cotizacionSugeridaId.`,
+Analizá las cotizaciones y devolvé JSON ESTRICTO con exactamente estas claves:
+- "discrepanciasDetectadas": array de { aspecto, solicitado, porProveedor (objeto proveedorNombre->valor ofertado), severidad ("alta"|"media"|"baja"), explicacion }
+- "prosContras": objeto con clave = proveedorNombre, valor = { pros: string[], contras: string[] }
+- "sugerenciaIA": string en lenguaje natural razonada, etiquetada como generada por el sistema
+- "cotizacionSugeridaId": el proveedorNombre o id de la cotización sugerida, o null si no hay
+- "advertenciaGeneral": string o null
+
+La sugerencia es solo una sugerencia: no decidas el ganador de forma terminal, indicá advertencias si el criterio no es solo precio.`,
 };
 
 export const prompts = { CLASIFICAR, ASSESSMENT, EXTRAER_COTIZACION, COMPARATIVA } as const;

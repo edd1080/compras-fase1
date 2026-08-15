@@ -30,6 +30,11 @@ export type AssessmentInput = {
 const MAX_PREGUNTAS = 6;
 
 export async function assessment_requerimiento(input: AssessmentInput): Promise<ResultadoAssessment> {
+  // Sin catálogo no hay campos que preguntar; fallback directo (no gasta llamada IA).
+  if (!input.camposDisponiblesCatalogo || input.camposDisponiblesCatalogo.length === 0) {
+    return assessmentFallback(input);
+  }
+
   try {
     const iaCatalogo = input.camposDisponiblesCatalogo.filter((c) => c.activo && c.origen === "assessment");
     const camposCapturadosObj: Record<string, unknown> = {};
@@ -60,11 +65,11 @@ export async function assessment_requerimiento(input: AssessmentInput): Promise<
         preguntas: iaResultado.preguntas.map((p) => ({
           campoKey: p.campoKey,
           pregunta: p.pregunta,
-          por_que: p.porQue,
+          por_que: p.por_que,
           critica: p.critica,
         })),
-        contexto_investigado: iaResultado.contextoInvestigado,
-        sin_preguntas_pendientes: iaResultado.sinPreguntasPendientes,
+        contexto_investigado: iaResultado.contexto_investigado,
+        sin_preguntas_pendientes: iaResultado.sin_preguntas_pendientes,
       };
     }
   } catch {

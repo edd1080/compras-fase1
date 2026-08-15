@@ -2,19 +2,21 @@ import { test, expect, request } from "@playwright/test";
 
 // Credenciales seed (scripts/seed-auth.mjs). La feature 005 (auth) exige sesión real
 // en /panel, así que este spec inicia sesión antes de navegar.
+const BASE = process.env.E2E_BASE_URL ?? "http://localhost:3000";
+
 async function loginCoordinador(page: import("@playwright/test").Page) {
   await page.goto("/login/coordinador");
   await page.getByPlaceholder("usuario@compras.bia.local").fill("coordinador@biafoods.co");
   await page.getByPlaceholder("••••••••").fill("Coordinador2026!");
   await page.getByRole("button", { name: /Entrar al panel/ }).click();
-  await page.waitForURL("**/panel", { timeout: 15000 });
+  await page.getByRole("heading", { name: "Panel de Compras" }).waitFor({ timeout: 20000 });
 }
 
 test.describe("Flujo coordinador", () => {
   test("detalle → 3 etapas con cotizaciones reales, bloqueo B3", async ({ page }) => {
     await loginCoordinador(page);
 
-    const ctx = await request.newContext({ baseURL: "http://localhost:3000" });
+    const ctx = await request.newContext({ baseURL: BASE });
 
     // Crear solicitud
     const creada = await (await ctx.post("/api/solicitudes", { data: { titulo: "Detalle e2e", solicitanteEmail: "detalle@bia.hn", solicitanteNombre: "Det", areaSolicitante: "IT", descripcion: "test", categoria: "materia_prima" } })).json();

@@ -1,6 +1,7 @@
 // Cliente de API tipado para el frontend — Portal de Compras BIA.
 // Reemplaza el uso de fixtures en runtime; delgado, sobre fetch.
 import type {
+  CampoCatalogo,
   Comparativa,
   Cotizacion,
   Decision,
@@ -8,6 +9,8 @@ import type {
   Solicitud,
 } from "@/lib/domain/types";
 import type { MetricasDashboard as Metricas } from "@/lib/domain/metrics";
+import type { ClasificarOutput } from "@/lib/ai/schemas";
+import type { ResultadoAssessment } from "@/lib/domain/assessment";
 
 export type SalidaCorta = Pick<
   Solicitud,
@@ -106,6 +109,36 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     }).then((r) => json<Cotizacion>(r));
+  },
+
+  clasificarIA(payload: { titulo: string; descripcion?: string; categoria?: string }) {
+    return fetch("/api/ia/clasificar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).then((r) => {
+      if (r.status === 400) return null;
+      return json<ClasificarOutput | null>(r);
+    });
+  },
+
+  assessmentIA(payload: {
+    tipo: "RFI" | "RFQ" | "RFP";
+    subtipo: "producto" | "servicio" | "mixto";
+    categoria: string;
+    camposCapturados: { campoKey: string; valor?: string }[];
+    catalogo: CampoCatalogo[];
+    llevaBranding?: boolean;
+    archivoLogo?: string;
+  }) {
+    return fetch("/api/ia/assessment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).then((r) => {
+      if (r.status === 400) return null;
+      return json<ResultadoAssessment | null>(r);
+    });
   },
 
   convertirDocumento(file: File): Promise<{ ok: boolean; markdown?: string; error?: string }> {

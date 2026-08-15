@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { PostgresRepositorio } from "@/lib/db/postgres-repo";
-import { construirComparativa } from "@/lib/domain/comparativa";
+import { generarComparativaConIA } from "@/lib/domain/comparativa";
 
 const repo = new PostgresRepositorio();
 
@@ -23,7 +23,9 @@ export async function POST(
       );
     }
 
-    const comparativa = construirComparativa({
+    // IA server-side (la clave OPENROUTER siempre está en el servidor).
+    // Fallback determinístico interno: si la IA no responde o expira, no bloquea.
+    const comparativa = await generarComparativaConIA({
       solicitudId: id,
       especificacionesSolicitadas: {},
       requerimiento: solicitud.titulo,
