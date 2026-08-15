@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import type { SubtipoSolicitud, TipoSolicitud } from "@/lib/domain/types";
 import { bloqueoB2Activo } from "@/lib/domain/rules";
 import { leerBorradorEmail, guardarBorradorEmail, guardarBorrador, limpiarBorrador, leerBorrador } from "@/lib/cookie";
+import { clasificar } from "@/lib/ai/orchestrator";
+import { assessment_requerimiento } from "@/lib/domain/assessment";
 
 export type PasoWizard = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -28,6 +30,7 @@ export type WizardState = {
   descripcion: string;
   clasificacion: TipoSolicitud;
   confianzaClasificacion: number;
+  razonamientoBreve: string;
   clasificacionCorregida: boolean;
   llevaBranding: boolean;
   archivoLogo: string;
@@ -51,6 +54,7 @@ function estadoInicial(): WizardState {
     descripcion: "",
     clasificacion: "RFQ",
     confianzaClasificacion: 0.9,
+    razonamientoBreve: "",
     clasificacionCorregida: false,
     llevaBranding: true,
     archivoLogo: "",
@@ -70,6 +74,8 @@ export function useSolicitudWizard() {
   const [estado, setEstado] = useState<WizardState>(() => estadoInicial());
   const [envio, setEnvio] = useState<EstadoEnvio>({ estado: "inactivo" });
   const [borradoAt, setBorradoAt] = useState<number | null>(null);
+  const [clasificandoIA, setClasificandoIA] = useState(false);
+  const [evaluandoAssessment, setEvaluandoAssessment] = useState(false);
 
   // Autoguarda el borrador en cada cambio (para que back/forward y recarga conserven los datos).
   useEffect(() => {
@@ -84,6 +90,67 @@ export function useSolicitudWizard() {
       return { ...s, paso, maxAlcanzado: Math.max(s.maxAlcanzado, paso) as PasoWizard };
     });
   }, []);
+
+  // Clasificación IA del solicitante (P2→P3).
+  const clasificarIA = useCallback(async () => {
+    setClasificandoIA(true);
+    try {
+      const res = await clasificar({
+        titulo: estado.titulo,
+        descripcion: estado.descripcion,
+        categoria: estado.tipoNecesidad,
+      });
+      if (res && res.confianza >= 0.7) {
+        setEstado((s) => ({
+          ...s,
+          clasificacion: res.tipo ?? "RFQ",
+          subtipo: res.subtipo ?? "producto",
+          confianzaClasificacion: res.confianza,
+          razonamientoBreve: res.razonamientoBreve,
+        }));
+      } else {
+        // Confianza baja o fallo → sin preselección.
+        setEstado((s) => ({ ...s, confianzaClasificacion: 0 }));
+      }
+    } catch {
+      setEstado((s) => ({ ...s, confianzaClasificacion: 0 }));
+    } finally {
+      setClasificandoIA(false);
+    }
+  }, [estado.titulo, estado.descripcion, estado.tipoNecesidad]);
+
+  // Assessment IA del solicitante (P3→P4).
+  const evaluarAssessment = useCallback(async () => {
+    setEvaluandoAssessment(true);
+    try {
+      // El catálogo se cargará desde la DB en la próxima iteración; por ahora vacío.
+      const catalogo: import("@/lib/domain/types").CampoCatalogo[] = [];
+      const res = await assessment_requerimiento({
+        camposCapturados: [
+          { campoKey: "titulo", valor: estado.titulo },
+          { campoKey: "descripcion", valor: estado.descripcion },
+          { campoKey: "tipoNecesidad", valor: estado.tipoNecesidad },
+        ],
+        camposDisponiblesCatalogo: catalogo,
+        tipo: estado.clasificacion,
+        subtipo: estado.subtipo,
+        llevaBranding: estado.llevaBranding,
+        archivoLogo: estado.archivoLogo,
+      });
+      setEstado((s) => ({
+        ...s,
+        assessmentPreguntas: res.preguntas.map((p) => ({
+          campoKey: p.campoKey,
+          pregunta: p.pregunta,
+        })),
+        assessmentListo: res.sin_preguntas_pendientes,
+      }));
+    } catch {
+      setEstado((s) => ({ ...s, assessmentListo: true }));
+    } finally {
+      setEvaluandoAssessment(false);
+    }
+  }, [estado.titulo, estado.descripcion, estado.tipoNecesidad, estado.clasificacion, estado.subtipo, estado.llevaBranding, estado.archivoLogo]);
 
   // Persiste la solicitud al pasar del paso 5 (documento) al 6 (confirmación).
   const enviarSolicitud = useCallback(async () => {
@@ -178,6 +245,10 @@ export function useSolicitudWizard() {
     pasoValido,
     envio,
     enviarSolicitud,
+    clasificandoIA,
+    clasificarIA,
+    evaluandoAssessment,
+    evaluarAssessment,
     guardarBorrador: guardarBorradorActual,
     cancelar,
     borradoAt,

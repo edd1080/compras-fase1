@@ -34,7 +34,7 @@ CAPA DE APLICACIÓN
  · Máquina de estados + trazabilidad
         │
         ▼
-CAPA DE INTELIGENCIA — Claude API
+CAPA DE INTELIGENCIA — OpenRouter (Gemini 2.5 Flash Lite)
  · clasificar_solicitud · assessment_requerimiento
  · extraer_cotizacion · validar_fiscal
  · detectar_discrepancias · generar_pros_contras
@@ -52,7 +52,7 @@ CAPA DE DATOS — PostgreSQL + Object Storage
 | Hosting | Vercel | Despliegue continuo, manejo de dominios |
 | Base de datos | PostgreSQL (hoy local vía `pg`; migrable a **Supabase Cloud**) | Relacional, auth para coordinadores, storage, RLS |
 | Almacenamiento | PostgreSQL / proveedor de objetos (Supabase Storage en cloud) | Adjuntos, PDFs, cotizaciones |
-| Motor de IA | Claude API | 6 funciones; requiere visión (imágenes) y búsqueda web (assessment) |
+| Motor de IA | OpenRouter → Gemini 2.5 Flash Lite (default), GPT-4o-mini (fallback) | 6 funciones; visión nativa, 1M contexto, $0.10/M prompt. Fallback graceful sin bloqueo |
 | **Generación de PDF** | **pdfme** (@pdfme/generator, plantilla declarativa JSON) | **PDF genérico templatable**: la plantilla vive en config/datos para reemplazarla (membrete BIA) sin recodificar |
 | Generación de Excel | SheetJS (xlsx) | Comparativo editable/descargable |
 | Parseo de cotizaciones | Extracción nativa (PDF/DOCX) + visión (imágenes) → Markdown | |
@@ -72,7 +72,7 @@ CAPA DE DATOS — PostgreSQL + Object Storage
 
 1. Carga N archivos referenciados al `numero_referencia`
 2. Detección de formato → extracción (nativa PDF/DOCX, visión imágenes) → Markdown
-3. Extracción estructurada por Claude (proveedor, neto, moneda, impuestos, plazo, especificaciones)
+3. Extracción estructurada por IA (proveedor, neto, moneda, impuestos, plazo, especificaciones)
 4. Validación fiscal (detección de desglose)
 5. Detección de discrepancias (caso melamina vs madera)
 6. Generación de Excel + pros/contras + sugerencia

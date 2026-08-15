@@ -1,8 +1,9 @@
 // assessment_requerimiento — Portal de Compras BIA
 // Fuente: doc 16 (función del agente) + PRD RF-12…18. Contrato tipado listo para la IA (Sprint 3).
-// Ahora implementa por reglas del catálogo: pide solo los campos faltantes y determinantes.
+// IA principal con fallback determinístico por reglas de catálogo.
 import type { CampoCatalogo } from "./types";
 import { bloqueoB2Activo } from "./rules";
+import { assessment as assessmentIA } from "@/lib/ai/orchestrator";
 
 export type PreguntaAssessment = {
   campoKey: string;
@@ -28,17 +29,60 @@ export type AssessmentInput = {
 
 const MAX_PREGUNTAS = 6;
 
-export function assessment_requerimiento(input: AssessmentInput): ResultadoAssessment {
+export async function assessment_requerimiento(input: AssessmentInput): Promise<ResultadoAssessment> {
+  try {
+    const iaCatalogo = input.camposDisponiblesCatalogo.filter((c) => c.activo && c.origen === "assessment");
+    const camposCapturadosObj: Record<string, unknown> = {};
+    for (const c of input.camposCapturados) {
+      if (c.valor) camposCapturadosObj[c.campoKey] = c.valor;
+    }
+
+    const iaResultado = await assessmentIA({
+      tipo: (input.tipo ?? "RFQ") as "RFI" | "RFQ" | "RFP",
+      subtipo: (input.subtipo ?? "producto") as "producto" | "servicio" | "mixto",
+      categoria: input.camposDisponiblesCatalogo[0]?.seccionPdf ?? "general",
+      camposCapturados: camposCapturadosObj,
+      catalogo: iaCatalogo.map((c) => ({
+        campoKey: c.campoKey,
+        label: c.label,
+        ayuda: c.ayuda,
+        tipoDato: c.tipoDato,
+        obligatorio: c.obligatorio,
+        origen: c.origen,
+        seccionPdf: c.seccionPdf,
+        orden: c.orden,
+        activo: c.activo,
+      })),
+    });
+
+    if (iaResultado && iaResultado.preguntas.length > 0) {
+      return {
+        preguntas: iaResultado.preguntas.map((p) => ({
+          campoKey: p.campoKey,
+          pregunta: p.pregunta,
+          por_que: p.porQue,
+          critica: p.critica,
+        })),
+        contexto_investigado: iaResultado.contextoInvestigado,
+        sin_preguntas_pendientes: iaResultado.sinPreguntasPendientes,
+      };
+    }
+  } catch {
+    // IA falló → fallback determinístico
+  }
+
+  return assessmentFallback(input);
+}
+
+export function assessmentFallback(input: AssessmentInput): ResultadoAssessment {
   const { camposCapturados, camposDisponiblesCatalogo, llevaBranding, archivoLogo } = input;
   const respondidos = new Set(camposCapturados.map((c) => c.campoKey));
   const preguntas: PreguntaAssessment[] = [];
 
-  // Validación dura: solo campos que existan en el catálogo (RN-02).
   const validos = camposDisponiblesCatalogo.filter(
     (c) => c.activo && c.origen === "assessment"
   );
 
-  // Orden: obligatorios/determinantes primero (que más afectan la comparabilidad).
   const ordenados = [...validos].sort((a, b) => {
     const peso = (k: CampoCatalogo) =>
       (k.obligatorio ? 0 : 1) + (k.validacion?.bloqueante ? 0 : 10);
@@ -49,7 +93,6 @@ export function assessment_requerimiento(input: AssessmentInput): ResultadoAsses
     if (preguntas.length >= MAX_PREGUNTAS) break;
     if (respondidos.has(campo.campoKey)) continue;
 
-    // branding activo sin logo → crítica (B2)
     const esLogo = campo.campoKey === "archivo_logo";
     const criticaPorBranding =
       esLogo && bloqueoB2Activo({ llevaBranding, archivoLogo });
@@ -64,7 +107,7 @@ export function assessment_requerimiento(input: AssessmentInput): ResultadoAsses
 
   return {
     preguntas,
-    contexto_investigado: "Assessment por reglas del catálogo (IA se integra en Sprint 3).",
+    contexto_investigado: "Assessment por reglas del catálogo.",
     sin_preguntas_pendientes: preguntas.length === 0,
   };
 }

@@ -14,8 +14,8 @@ function capturados(keys: string[]) {
 }
 
 describe("assessment_requerimiento", () => {
-  it("pide solo campos faltantes del catálogo", () => {
-    const r = assessment_requerimiento({
+  it("pide solo campos faltantes del catálogo", async () => {
+    const r = await assessment_requerimiento({
       camposCapturados: capturados(["dimensiones"]),
       camposDisponiblesCatalogo: catalogo,
     });
@@ -25,7 +25,7 @@ describe("assessment_requerimiento", () => {
     expect(keys.every((k) => catalogo.some((c) => c.campoKey === k))).toBe(true);
   });
 
-  it("respeta el límite de 6 preguntas", () => {
+  it("respeta el límite de 6 preguntas", async () => {
     const grande: CampoCatalogo[] = Array.from({ length: 20 }, (_, i) => ({
       campoKey: `campo_${i}`,
       label: `Campo ${i}`,
@@ -35,24 +35,23 @@ describe("assessment_requerimiento", () => {
       orden: i,
       activo: true,
     }));
-    const r = assessment_requerimiento({
+    const r = await assessment_requerimiento({
       camposCapturados: [],
       camposDisponiblesCatalogo: grande,
     });
     expect(r.preguntas.length).toBeLessThanOrEqual(6);
   });
 
-  it("no devuelve preguntas si no falta nada", () => {
-    const r = assessment_requerimiento({
+  it("no devuelve preguntas si no falta nada", async () => {
+    const r = await assessment_requerimiento({
       camposCapturados: capturados(["dimensiones", "materiales", "color_acabado", "archivo_logo"]),
       camposDisponiblesCatalogo: catalogo,
     });
-    // archivo_logo solo es crítico con branding; sin branding no se pide por regla.
     expect(r.sin_preguntas_pendientes).toBe(true);
   });
 
-  it("marca crítico el logo cuando hay branding sin archivo (B2)", () => {
-    const r = assessment_requerimiento({
+  it("marca crítico el logo cuando hay branding sin archivo (B2)", async () => {
+    const r = await assessment_requerimiento({
       camposCapturados: capturados(["dimensiones", "materiales"]),
       camposDisponiblesCatalogo: catalogo,
       llevaBranding: true,
@@ -61,8 +60,8 @@ describe("assessment_requerimiento", () => {
     expect(logo?.critica).toBe(true);
   });
 
-  it("descarta campos no existentes en el catálogo (validación dura)", () => {
-    const r = assessment_requerimiento({
+  it("descarta campos no existentes en el catálogo (validación dura)", async () => {
+    const r = await assessment_requerimiento({
       camposCapturados: capturados(["campo_inventado"]),
       camposDisponiblesCatalogo: catalogo,
     });

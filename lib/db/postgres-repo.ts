@@ -234,6 +234,48 @@ export class PostgresRepositorio implements Repositorio {
     };
   }
 
+  async actualizarCotizacion(
+    id: string,
+    datos: Partial<Omit<Cotizacion, "id" | "solicitudId">>
+  ): Promise<void> {
+    const sets: string[] = [];
+    const vals: unknown[] = [];
+    let i = 1;
+
+    const m: Record<string, keyof typeof datos> = {
+      proveedor_nombre: "proveedorNombre",
+      formato_original: "formatoOriginal",
+      valor_neto: "valorNeto",
+      moneda: "moneda",
+      impuestos_desglosados: "impuestosDesglosados",
+      monto_isv: "montoIsv",
+      valor_total: "valorTotal",
+      plazo_entrega: "plazoEntrega",
+      especificaciones_ofertadas: "especificacionesOfertadas",
+      confianza_extraccion: "confianzaExtraccion",
+      editada_manualmente: "editadaManualmente",
+      fecha_carga: "fechaCarga",
+    };
+
+    for (const [col, key] of Object.entries(m)) {
+      const val = datos[key];
+      if (val !== undefined) {
+        sets.push(`${col} = $${i++}`);
+        vals.push(typeof val === "object" && !Array.isArray(val) && !(val instanceof Date)
+          ? JSON.stringify(val)
+          : val);
+      }
+    }
+
+    if (sets.length === 0) return;
+
+    vals.push(id);
+    await this.pg.query(
+      `UPDATE cotizacion SET ${sets.join(", ")} WHERE id = $${i}`,
+      vals
+    );
+  }
+
   async listarCotizaciones(solicitudId: string): Promise<Cotizacion[]> {
     const res = await this.pg.query(
       "SELECT * FROM cotizacion WHERE solicitud_id = $1 ORDER BY fecha_carga ASC",

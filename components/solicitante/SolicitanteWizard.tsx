@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { AmbientBackground } from "@/components/ui-ext/AmbientBackground";
-import { useSolicitudWizard } from "@/hooks/useSolicitudWizard";
+import { useSolicitudWizard, type WizardState } from "@/hooks/useSolicitudWizard";
 
 const PASOS_SIDEBAR = [
   { id: 1, label: "Captura Inicial" },
@@ -16,7 +16,7 @@ const PASOS_SIDEBAR = [
 export function SolicitanteWizard() {
   const searchParams = useSearchParams();
   const w = useSolicitudWizard();
-  const { estado, set, siguiente, anterior, pasoValido, envio, enviarSolicitud, guardarBorrador, cancelar, borradoAt } = w;
+  const { estado, set, siguiente, anterior, pasoValido, envio, enviarSolicitud, guardarBorrador, cancelar, borradoAt, clasificandoIA, clasificarIA, evaluandoAssessment, evaluarAssessment } = w;
   const [confirmCancel, setConfirmCancel] = useState(false);
   const emailInicial = searchParams.get("email") ?? "";
   const nombreInicial = searchParams.get("nombre") ?? "";
@@ -142,9 +142,9 @@ export function SolicitanteWizard() {
         {/* Main form area */}
         <section className="flex-1 p-5 md:p-8 relative overflow-y-auto no-scrollbar bg-white/30 flex flex-col">
           {estado.paso === 2 ? (
-            <PasoCaptura estado={estado} set={set} siguiente={siguiente} pasoValido={pasoValido} />
+            <PasoCaptura estado={estado} set={set} siguiente={siguiente} pasoValido={pasoValido} clasificarIA={clasificarIA} clasificandoIA={clasificandoIA} />
           ) : estado.paso === 3 ? (
-            <PasoClasificacion estado={estado} set={set} siguiente={siguiente} anterior={anterior} />
+            <PasoClasificacion estado={estado} set={set} siguiente={siguiente} anterior={anterior} clasificandoIA={clasificandoIA} evaluarAssessment={evaluarAssessment} evaluandoAssessment={evaluandoAssessment} />
           ) : estado.paso === 4 ? (
             <PasoDetalles estado={estado} set={set} siguiente={siguiente} anterior={anterior} pasoValido={pasoValido} />
           ) : estado.paso === 5 ? (
@@ -188,11 +188,15 @@ function PasoCaptura({
   set,
   siguiente,
   pasoValido,
+  clasificarIA,
+  clasificandoIA,
 }: {
-  estado: ReturnType<typeof useSolicitudWizard>["estado"];
-  set: ReturnType<typeof useSolicitudWizard>["set"];
+  estado: WizardState;
+  set: <K extends keyof WizardState>(key: K, valor: WizardState[K]) => void;
   siguiente: () => void;
   pasoValido: boolean;
+  clasificarIA: () => void;
+  clasificandoIA: boolean;
 }) {
   return (
     <div className="flex flex-col h-full w-full step-enter">
@@ -246,8 +250,8 @@ function PasoCaptura({
       </div>
       <div className="mt-auto flex justify-between items-center">
         <span className="text-xs font-medium text-slate-400">Área: {estado.area || "—"}</span>
-        <button onClick={siguiente} disabled={!pasoValido} className="bg-slate-900 text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2">
-          Continuar
+        <button onClick={() => { clasificarIA(); siguiente(); }} disabled={!pasoValido} className="bg-slate-900 text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2">
+          {clasificandoIA ? "Clasificando…" : "Continuar"}
           <svg className="text-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </button>
       </div>
@@ -261,11 +265,17 @@ function PasoClasificacion({
   set,
   siguiente,
   anterior,
+  clasificandoIA,
+  evaluarAssessment,
+  evaluandoAssessment,
 }: {
-  estado: ReturnType<typeof useSolicitudWizard>["estado"];
-  set: ReturnType<typeof useSolicitudWizard>["set"];
+  estado: WizardState;
+  set: <K extends keyof WizardState>(key: K, valor: WizardState[K]) => void;
   siguiente: () => void;
   anterior: () => void;
+  clasificandoIA: boolean;
+  evaluarAssessment: () => void;
+  evaluandoAssessment: boolean;
 }) {
   const opts = [
     { v: "RFI", sigla: "RFI", nombre: "Solicitud de Información", texto: "Todavía estoy explorando opciones, no sé qué existe en el mercado." },
@@ -281,28 +291,58 @@ function PasoClasificacion({
       <div className="bg-gradient-to-br from-white to-sky-50/50 rounded-2xl border border-slate-200/60 p-7 md:p-8 mb-8 shadow-sm relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/5 rounded-bl-full translate-x-4 -translate-y-4" />
         <div className="flex items-center gap-2 mb-5 relative z-10">
-          <span className="bg-sky-500 text-white text-[9px] font-bold px-2 py-1 rounded uppercase tracking-wider flex items-center gap-1">
-            Sugerencia IA
-          </span>
-          <span className="text-[10px] font-semibold text-green-600 uppercase tracking-wider">Confianza Alta</span>
+          {clasificandoIA ? (
+            <span className="bg-amber-500 text-white text-[9px] font-bold px-2 py-1 rounded uppercase tracking-wider flex items-center gap-1">
+              <svg className="animate-spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+              Clasificando…
+            </span>
+          ) : estado.confianzaClasificacion >= 0.7 ? (
+            <>
+              <span className="bg-sky-500 text-white text-[9px] font-bold px-2 py-1 rounded uppercase tracking-wider flex items-center gap-1">
+                Sugerencia IA
+              </span>
+              <span className="text-[10px] font-semibold text-green-600 uppercase tracking-wider">
+                {Math.round(estado.confianzaClasificacion * 100)}% confianza
+              </span>
+            </>
+          ) : (
+            <span className="bg-slate-400 text-white text-[9px] font-bold px-2 py-1 rounded uppercase tracking-wider flex items-center gap-1">
+              Sin sugerencia
+            </span>
+          )}
         </div>
         <h3 className="text-2xl md:text-3xl font-medium tracking-tight mb-3 text-slate-900 relative z-10">
-          Esto parece una <span className="font-semibold text-sky-600">{estado.clasificacion}</span>
+          {estado.confianzaClasificacion >= 0.7 ? (
+            <>Esto parece una <span className="font-semibold text-sky-600">{estado.clasificacion}</span></>
+          ) : (
+            <>No pudimos determinar el tipo automáticamente</>
+          )}
         </h3>
-        <p className="text-sm font-semibold text-slate-700 relative z-10 mb-2">
-          {estado.clasificacion === "RFQ"
-            ? "Solicitud de Cotización"
-            : estado.clasificacion === "RFI"
-              ? "Solicitud de Información"
-              : "Solicitud de Propuesta"}
-        </p>
-        <p className="text-[13px] text-slate-500 relative z-10 max-w-md leading-loose">
-          {estado.clasificacion === "RFQ"
-            ? "Ya sabés exactamente qué necesitás — solo nos falta cotizar el precio con los proveedores del mercado."
-            : estado.clasificacion === "RFI"
-              ? "Todavía estás explorando qué existe en el mercado antes de decidir."
-              : "Tenés un problema o proyecto amplio y buscás que un proveedor proponga la solución."}
-        </p>
+        {estado.confianzaClasificacion >= 0.7 ? (
+          <>
+            <p className="text-sm font-semibold text-slate-700 relative z-10 mb-2">
+              {estado.clasificacion === "RFQ"
+                ? "Solicitud de Cotización"
+                : estado.clasificacion === "RFI"
+                  ? "Solicitud de Información"
+                  : "Solicitud de Propuesta"}
+            </p>
+            <p className="text-[13px] text-slate-500 relative z-10 max-w-md leading-loose mb-1">
+              {estado.clasificacion === "RFQ"
+                ? "Ya sabés exactamente qué necesitás — solo nos falta cotizar el precio con los proveedores del mercado."
+                : estado.clasificacion === "RFI"
+                  ? "Todavía estás explorando qué existe en el mercado antes de decidir."
+                  : "Tenés un problema o proyecto amplio y buscás que un proveedor proponga la solución."}
+            </p>
+            {estado.razonamientoBreve ? (
+              <p className="text-[11px] text-slate-400 italic relative z-10">Razón: {estado.razonamientoBreve}</p>
+            ) : null}
+          </>
+        ) : (
+          <p className="text-[13px] text-slate-500 relative z-10 max-w-md leading-loose">
+            El texto ingresado era muy ambiguo para determinar el tipo. Elegí manualmente la opción que mejor describa tu necesidad.
+          </p>
+        )}
       </div>
       <p className="text-xs text-slate-600 mb-3 font-medium">¿No te parece correcto? Podés cambiarlo con un clic:</p>
       <div className="space-y-3 mb-6">
@@ -323,8 +363,8 @@ function PasoClasificacion({
       </div>
       <div className="mt-auto flex justify-between items-center">
         <button onClick={anterior} className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors px-2 py-2">Atrás</button>
-        <button onClick={siguiente} className="bg-slate-900 text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-slate-800 transition-all flex items-center gap-2">
-          Confirmar clasificación
+        <button onClick={() => { evaluarAssessment(); siguiente(); }} disabled={evaluandoAssessment} className="bg-slate-900 text-white text-xs px-6 py-3 rounded-full font-medium hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2">
+          {evaluandoAssessment ? "Evaluando…" : "Confirmar clasificación"}
           <svg className="text-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </button>
       </div>
@@ -409,6 +449,27 @@ function PasoDetalles({
             Formatos aceptados: PNG, JPG, PDF, SVG, AI, EPS. <span className="font-semibold text-amber-600">Obligatorio</span> para que el proveedor use la versión correcta.
           </span>
         </button>
+      ) : null}
+      {estado.assessmentPreguntas.length > 0 ? (
+        <div className="mb-6 space-y-4 border-t border-slate-100 pt-6">
+          <span className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+            Preguntas del asistente ({estado.assessmentPreguntas.length})
+          </span>
+          {estado.assessmentPreguntas.map((aq, i) => (
+            <div key={aq.campoKey ?? i} className="bg-amber-50/40 border border-amber-100 rounded-xl p-4">
+              <label className="block text-xs font-medium text-slate-800 mb-1">{aq.pregunta}</label>
+              <input
+                type="text"
+                placeholder="Ingresá este dato (o marcá 'No lo sé' si no lo tenés)"
+                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all"
+              />
+              <label className="inline-flex items-center gap-2 mt-2 cursor-pointer">
+                <input type="checkbox" className="rounded border-slate-300" />
+                <span className="text-[11px] text-slate-500">No lo sé</span>
+              </label>
+            </div>
+          ))}
+        </div>
       ) : null}
       <div className="mt-auto flex justify-between items-center pt-4">
         <button onClick={anterior} className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors px-2 py-2">Atrás</button>
