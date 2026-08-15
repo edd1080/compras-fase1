@@ -65,7 +65,15 @@ export const api = {
   },
 
   obtenerSolicitud(id: string): Promise<Solicitud> {
-    return fetch(`/api/solicitudes/${encodeURIComponent(id)}`).then((r) => json<Solicitud>(r));
+    return fetch(`/api/solicitudes/${encodeURIComponent(id)}`).then((r) =>
+      json<{ solicitud: Solicitud }>(r).then((d) => d.solicitud)
+    );
+  },
+
+  obtenerSolicitudDetalle(id: string): Promise<{ solicitud: Solicitud; cotizaciones: Cotizacion[] }> {
+    return fetch(`/api/solicitudes/${encodeURIComponent(id)}`).then((r) =>
+      json<{ solicitud: Solicitud; cotizaciones: Cotizacion[] }>(r)
+    );
   },
 
   listarCotizaciones(solicitudId: string): Promise<Cotizacion[]> {

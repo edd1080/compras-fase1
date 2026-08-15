@@ -29,7 +29,16 @@ export function LoginForm({ titulo, descripcion, rol, tono }: LoginFormProps) {
       const supabase = getSupabaseBrowserClient();
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        setError(error.message);
+        // Traducir errores comunes de Supabase a español.
+        const msg =
+          error.message.includes("Invalid login credentials")
+            ? "Correo o contraseña incorrectos. Verificá los datos e intentá de nuevo."
+            : error.message.includes("Email not confirmed")
+              ? "El correo no está confirmado. Revisá tu bandeja de entrada."
+              : error.message.includes("rate_limit")
+                ? "Demasiados intentos. Esperá un momento y volvé a intentar."
+                : `Error al iniciar sesión: ${error.message}`;
+        setError(msg);
         setCargando(false);
         return;
       }
@@ -37,7 +46,7 @@ export function LoginForm({ titulo, descripcion, rol, tono }: LoginFormProps) {
       router.push(rol === "admin" ? "/admin" : "/panel");
       router.refresh();
     } catch {
-      setError("No se pudo iniciar sesión");
+      setError("No se pudo iniciar sesión. Revisá tu conexión e intentá de nuevo.");
       setCargando(false);
     }
   }
@@ -101,7 +110,10 @@ export function LoginForm({ titulo, descripcion, rol, tono }: LoginFormProps) {
               </div>
 
               {error ? (
-                <p className="text-[11px] text-rose-600 font-medium">{error}</p>
+                <div className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-700">
+                  <svg className="mt-0.5 shrink-0 text-rose-500" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                  <span>{error}</span>
+                </div>
               ) : null}
 
               <div className="pt-1 flex items-center justify-end">

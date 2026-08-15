@@ -1,27 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { Cotizacion } from "@/lib/domain/types";
+import { api } from "@/lib/api-client";
 
 type CargaCotizacionesProps = {
+  solicitudId: string;
   cotizaciones: Cotizacion[];
-  onPosibleGenerar: (n: number) => void;
+  onCotizacionCargada: () => void;
   onGenerar: () => void;
 };
 
-export function CargaCotizaciones({ cotizaciones, onPosibleGenerar, onGenerar }: CargaCotizacionesProps) {
-  // Botones de un proveedor que el coordinador marca como cargados (además de los ya persistidos).
-  const [marcadas, setMarcadas] = useState<string[]>([]);
+export function CargaCotizaciones({ solicitudId, cotizaciones, onCotizacionCargada, onGenerar }: CargaCotizacionesProps) {
+  const [subiendo, setSubiendo] = useState<string | null>(null);
+  const [archivos, setArchivos] = useState<Record<string, string>>({});
+  const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
 
-  // Todas las cotizaciones (persistidas o marcadas) cuentan como cargadas.
-  const idsPersistidos = cotizaciones.map((c) => c.id);
-  const ids = Array.from(new Set([...idsPersistidos, ...marcadas]));
-  const count = ids.length;
-  const tiene = (id: string) => ids.includes(id);
+  const count = cotizaciones.length;
 
-  function cargar(id: string) {
-    setMarcadas((prev) => (prev.includes(id) ? prev : [...prev, id]));
-    onPosibleGenerar(ids.length + 1);
+  // Una cotización cuenta como cargada si ya trae valores extraídos o fue subida
+  // en esta sesión (el backend persiste metadata, no el binario).
+  function estaCargada(c: Cotizacion) {
+    return c.valorNeto !== undefined || c.valorTotal !== undefined || archivos[c.id] !== undefined;
+  }
+
+  // El archivo se "sube" persistiendo la cotización vía API; el nombre del archivo
+  // se guarda localmente como evidencia de la carga.
+  async function onFileSeleccionado(idx: number, e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSubiendo(cotizaciones[idx]?.id ?? `${idx}`);
+    try {
+      const guardada = await api.cargarCotizacion({
+        solicitudId,
+        proveedorNombre: cotizaciones[idx]?.proveedorNombre ?? `Proveedor ${idx + 1}`,
+        formatoOriginal: extFormato(file.name),
+        especificacionesOfertadas: {},
+      });
+      setArchivos((a) => ({ ...a, [guardada.id]: file.name }));
+      onCotizacionCargada();
+    } finally {
+      setSubiendo(null);
+    }
+    if (fileInputs.current[idx]) fileInputs.current[idx].value = "";
   }
 
   return (
@@ -29,13 +50,13 @@ export function CargaCotizaciones({ cotizaciones, onPosibleGenerar, onGenerar }:
       <div className="flex items-start justify-between gap-4 mb-4">
         <div>
           <h3 className="text-lg font-semibold tracking-tight text-slate-900">07 · Carga cotizaciones</h3>
-          <p className="text-[11px] text-slate-500 mt-1">Acepta PDF, Word o imagen. Cada archivo se convierte internamente a Markdown antes del análisis.</p>
+          <p className="text-[11px] text-slate-500 mt-1">Subí los archivos de cada proveedor (PDF, Word o imagen). Cada uno se convierte internamente a Markdown antes del análisis.</p>
         </div>
         <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-xl">RN: min 2 cotizaciones</div>
       </div>
 
       <div className="space-y-3">
-        {cotizaciones.map((c) => (
+        {cotizaciones.map((c, idx) => (
           <div key={c.id} className="bg-slate-50 rounded-2xl border border-slate-200 p-4">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
@@ -46,28 +67,53 @@ export function CargaCotizaciones({ cotizaciones, onPosibleGenerar, onGenerar }:
                 </div>
                 <div className="mt-1 text-[11px] text-slate-600">
                   Estado:{" "}
-                  <span className={"font-semibold " + (tiene(c.id) ? "text-green-700" : "text-slate-700")}>
-                    {tiene(c.id) ? "convertido a Markdown ✓" : "Sin archivo aún"}
+                  <span className={"font-semibold " + (estaCargada(c) ? "text-green-700" : "text-slate-700")}>
+                    {estaCargada(c)
+                      ? archivos[c.id]
+                        ? `${archivos[c.id]} — cargado`
+                        : "cotización cargada"
+                      : "Sin archivo aún"}
                   </span>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => cargar(c.id)}
-                className={
-                  "text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5 px-3 py-2 rounded-full border shadow-sm transition-colors " +
-                  (tiene(c.id)
-                    ? "text-green-700 bg-green-50/60 border-green-200"
-                    : "text-slate-700 hover:text-slate-900 bg-white border-slate-200")
-                }
-              >
-                {tiene(c.id) ? "Cargado" : "Adjuntar"}
-                {tiene(c.id) ? (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 13l4 4L19 7"/></svg>
-                ) : (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21.44 11.05a10 10 0 1 1-18.88 0A10 10 0 0 1 12 2a9.7 9.7 0 0 1 6.36 2.4M22 2l-2.5 4.5M16 6.5 22 2"/></svg>
-                )}
-              </button>
+              <div>
+                <label
+                  htmlFor={`file-${c.id}`}
+                  className={
+                    "inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider px-3 py-2 rounded-full border shadow-sm transition-colors cursor-pointer " +
+                    (subiendo === c.id
+                      ? "text-slate-500 bg-slate-100 border-slate-200"
+                      : estaCargada(c)
+                        ? "text-green-700 bg-green-50/60 border-green-200"
+                        : "text-slate-700 hover:text-slate-900 bg-white border-slate-200")
+                  }
+                >
+                  {subiendo === c.id ? (
+                    <>
+                      <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+                      Subiendo…
+                    </>
+                  ) : estaCargada(c) ? (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 13l4 4L19 7"/></svg>
+                      Cargado
+                    </>
+                  ) : (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21.44 11.05a10 10 0 1 1-18.88 0A10 10 0 0 1 12 2a9.7 9.7 0 0 1 6.36 2.4M22 2l-2.5 4.5M16 6.5 22 2"/></svg>
+                      Adjuntar archivo
+                    </>
+                  )}
+                </label>
+                <input
+                  id={`file-${c.id}`}
+                  type="file"
+                  hidden
+                  ref={(el) => { fileInputs.current[idx] = el; }}
+                  onChange={(e) => onFileSeleccionado(idx, e)}
+                  accept=".pdf,.doc,.docx,image/*"
+                />
+              </div>
             </div>
           </div>
         ))}
@@ -97,4 +143,11 @@ export function CargaCotizaciones({ cotizaciones, onPosibleGenerar, onGenerar }:
       </div>
     </div>
   );
+}
+
+function extFormato(nombre: string): "pdf" | "docx" | "imagen" {
+  const ext = nombre.split(".").pop()?.toLowerCase() ?? "";
+  if (ext === "pdf") return "pdf";
+  if (ext === "doc" || ext === "docx") return "docx";
+  return "imagen";
 }

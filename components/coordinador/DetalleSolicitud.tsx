@@ -73,7 +73,17 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
               {cargando ? (
                 <p className="text-[11px] text-slate-500">Cargando cotizaciones…</p>
               ) : etapa === 7 ? (
-                <CargaCotizaciones cotizaciones={cotizaciones} onPosibleGenerar={() => undefined} onGenerar={() => { if (comparativaData) setEtapa(8); }} />
+                <CargaCotizaciones
+                  solicitudId={solicitud.id}
+                  cotizaciones={cotizaciones}
+                  onCotizacionCargada={() =>
+                    api
+                      .listarCotizaciones(solicitud.id)
+                      .then((c) => setCotizaciones(c))
+                      .catch(() => undefined)
+                  }
+                  onGenerar={() => { if (comparativaData) setEtapa(8); }}
+                />
               ) : etapa === 8 ? (
                 comparativaData ? (
                   <ComparativaView comparativa={comparativaData} cotizaciones={cotizaciones} onContinuar={() => setEtapa(9)} />

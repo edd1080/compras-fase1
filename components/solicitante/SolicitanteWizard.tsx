@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AmbientBackground } from "@/components/ui-ext/AmbientBackground";
 import { useSolicitudWizard } from "@/hooks/useSolicitudWizard";
 
@@ -16,7 +16,8 @@ const PASOS_SIDEBAR = [
 export function SolicitanteWizard() {
   const searchParams = useSearchParams();
   const w = useSolicitudWizard();
-  const { estado, set, siguiente, anterior, pasoValido, envio, enviarSolicitud, guardarBorrador, cancelar } = w;
+  const { estado, set, siguiente, anterior, pasoValido, envio, enviarSolicitud, guardarBorrador, cancelar, borradoAt } = w;
+  const [confirmCancel, setConfirmCancel] = useState(false);
   const emailInicial = searchParams.get("email") ?? "";
   const nombreInicial = searchParams.get("nombre") ?? "";
   const areaInicial = searchParams.get("area") ?? "";
@@ -108,19 +109,31 @@ export function SolicitanteWizard() {
                 <button
                   type="button"
                   onClick={() => guardarBorrador()}
-                  className="w-full text-[11px] font-semibold text-slate-700 hover:text-slate-900 bg-white/70 hover:bg-white border border-white rounded-xl py-2 px-3 flex items-center justify-center gap-1.5 shadow-sm transition-colors"
+                  className="w-full text-[11px] font-bold text-white bg-sky-600 hover:bg-sky-700 border border-sky-600 rounded-xl py-2.5 px-3 flex items-center justify-center gap-1.5 shadow-md shadow-sky-600/20 transition-colors"
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
-                  Guardar borrador
+                  {borradoAt ? (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 13l4 4L19 7"/></svg>
+                      ¡Guardado!
+                    </>
+                  ) : (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+                      Guardar borrador
+                    </>
+                  )}
                 </button>
                 <button
                   type="button"
-                  onClick={cancelar}
-                  className="w-full text-[11px] font-semibold text-slate-500 hover:text-rose-600 bg-white/40 hover:bg-rose-50 border border-white rounded-xl py-2 px-3 flex items-center justify-center gap-1.5 shadow-sm transition-colors"
+                  onClick={() => setConfirmCancel(true)}
+                  className="w-full text-[11px] font-semibold text-rose-600 hover:bg-rose-50 bg-rose-50/40 border border-rose-100 rounded-xl py-2.5 px-3 flex items-center justify-center gap-1.5 transition-colors"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
-                  Cancelar
+                  Cancelar y descartar
                 </button>
+                {borradoAt ? (
+                  <p className="text-center text-[10px] text-green-600">Borrador guardado en este navegador.</p>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -141,6 +154,30 @@ export function SolicitanteWizard() {
           )}
         </section>
       </main>
+
+      {confirmCancel ? (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setConfirmCancel(false)} />
+          <div className="bg-white rounded-2xl md:rounded-[2rem] border border-slate-200 shadow-2xl w-full max-w-md relative z-10 p-6 md:p-8 step-enter">
+            <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-5">
+              <svg className="text-rose-500" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            </div>
+            <h3 className="text-xl font-semibold tracking-tight text-slate-900 mb-2">Descartar la solicitud</h3>
+            <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+              Vas a perder los datos de esta solicitud como borrador. Esta acción no se puede deshacer.
+              ¿Continuar?
+            </p>
+            <div className="flex gap-3">
+              <button type="button" onClick={() => setConfirmCancel(false)} className="flex-1 bg-white text-slate-700 text-xs px-4 py-3 rounded-full font-medium border border-slate-200 hover:bg-slate-50 transition-all">
+                Seguir editando
+              </button>
+              <button type="button" onClick={cancelar} className="flex-1 bg-rose-600 text-white text-xs px-4 py-3 rounded-full font-medium hover:bg-rose-700 transition-all">
+                Descartar y salir
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -241,19 +278,30 @@ function PasoClasificacion({
         <h2 className="text-2xl font-medium tracking-tight mb-1">Clasificación de tu solicitud</h2>
         <p className="text-xs text-slate-500">Nuestro sistema ha analizado tus datos.</p>
       </div>
-      <div className="bg-gradient-to-br from-white to-sky-50/50 rounded-2xl border border-slate-200/60 p-6 mb-6 shadow-sm relative overflow-hidden">
+      <div className="bg-gradient-to-br from-white to-sky-50/50 rounded-2xl border border-slate-200/60 p-7 md:p-8 mb-8 shadow-sm relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/5 rounded-bl-full translate-x-4 -translate-y-4" />
-        <div className="flex items-center gap-2 mb-4 relative z-10">
+        <div className="flex items-center gap-2 mb-5 relative z-10">
           <span className="bg-sky-500 text-white text-[9px] font-bold px-2 py-1 rounded uppercase tracking-wider flex items-center gap-1">
             Sugerencia IA
           </span>
           <span className="text-[10px] font-semibold text-green-600 uppercase tracking-wider">Confianza Alta</span>
         </div>
-        <h3 className="text-2xl font-medium tracking-tight mb-1 text-slate-900 relative z-10">
+        <h3 className="text-2xl md:text-3xl font-medium tracking-tight mb-3 text-slate-900 relative z-10">
           Esto parece una <span className="font-semibold text-sky-600">{estado.clasificacion}</span>
         </h3>
-        <p className="text-xs text-slate-500 relative z-10 max-w-sm leading-relaxed">
-          Ya sabés exactamente qué necesitás — solo nos falta cotizar el precio con los proveedores del mercado.
+        <p className="text-sm font-semibold text-slate-700 relative z-10 mb-2">
+          {estado.clasificacion === "RFQ"
+            ? "Solicitud de Cotización"
+            : estado.clasificacion === "RFI"
+              ? "Solicitud de Información"
+              : "Solicitud de Propuesta"}
+        </p>
+        <p className="text-[13px] text-slate-500 relative z-10 max-w-md leading-loose">
+          {estado.clasificacion === "RFQ"
+            ? "Ya sabés exactamente qué necesitás — solo nos falta cotizar el precio con los proveedores del mercado."
+            : estado.clasificacion === "RFI"
+              ? "Todavía estás explorando qué existe en el mercado antes de decidir."
+              : "Tenés un problema o proyecto amplio y buscás que un proveedor proponga la solución."}
         </p>
       </div>
       <p className="text-xs text-slate-600 mb-3 font-medium">¿No te parece correcto? Podés cambiarlo con un clic:</p>
@@ -393,7 +441,7 @@ function PasoDocumento({
       </div>
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 relative mx-auto w-full max-w-md overflow-hidden mb-8">
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-200 to-sky-500" />
-        <div className="flex justify-between items-start mb-8 mt-2 border-b border-slate-100 pb-5">
+        <div className="flex justify-between items-start mb-6 mt-2 border-b border-slate-100 pb-5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center">
               <span className="text-white text-xs font-bold tracking-tighter">BIA</span>
@@ -403,13 +451,21 @@ function PasoDocumento({
               <span className="block text-sm font-mono font-semibold text-slate-900">RFQ-2026-014</span>
             </div>
           </div>
-          <span className="bg-amber-100 text-amber-700 px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-wider">Borrador</span>
+          <span className={tipoBadgeClases(estado.clasificacion)}>
+            {estado.clasificacion}
+          </span>
         </div>
         <div className="space-y-5">
           <div>
             <span className="block text-[10px] text-slate-400 uppercase tracking-wider mb-1 font-semibold">Título de la Solicitud</span>
             <span className="text-sm font-medium text-slate-900 leading-snug">{estado.titulo || "—"}</span>
           </div>
+          {estado.descripcion ? (
+            <div>
+              <span className="block text-[10px] text-slate-400 uppercase tracking-wider mb-1 font-semibold">Descripción</span>
+              <span className="text-xs font-medium text-slate-700 leading-relaxed">{estado.descripcion}</span>
+            </div>
+          ) : null}
           <div className="grid grid-cols-2 gap-5">
             <div>
               <span className="block text-[10px] text-slate-400 uppercase tracking-wider mb-1 font-semibold">Solicitante</span>
@@ -419,12 +475,26 @@ function PasoDocumento({
               <span className="block text-[10px] text-slate-400 uppercase tracking-wider mb-1 font-semibold">Área</span>
               <span className="text-xs font-medium text-slate-900">{estado.area || "—"}</span>
             </div>
+            <div>
+              <span className="block text-[10px] text-slate-400 uppercase tracking-wider mb-1 font-semibold">Tipo de necesidad</span>
+              <span className="text-xs font-medium text-slate-900">{estado.tipoNecesidad || "—"}</span>
+            </div>
+            <div>
+              <span className="block text-[10px] text-slate-400 uppercase tracking-wider mb-1 font-semibold">Fecha requerida</span>
+              <span className="text-xs font-medium text-slate-900">{estado.fechaRequerida || "—"}</span>
+            </div>
           </div>
           <div className="bg-slate-50 rounded-lg p-3 border border-slate-100 flex items-start gap-3">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-slate-400 mt-0.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
             <div>
               <span className="block text-[10px] text-slate-500 uppercase tracking-wider mb-0.5 font-semibold">Clasificación Asignada</span>
-              <span className="text-xs font-medium text-slate-900">{estado.clasificacion} — Solicitud de {estado.clasificacion === "RFQ" ? "Cotización" : estado.clasificacion === "RFI" ? "Información" : "Propuesta"}</span>
+              <span className="text-xs font-medium text-slate-900">
+                <span className="inline-flex items-center gap-1 font-semibold">
+                  <span className={tipoDotClases(estado.clasificacion)} />
+                  {estado.clasificacion}
+                </span>{" "}
+                — {tipoNombreCompleto(estado.clasificacion)}
+              </span>
             </div>
           </div>
         </div>
@@ -460,15 +530,25 @@ function PasoConfirmacion({ estado }: { estado: ReturnType<typeof useSolicitudWi
       </p>
 
       {docUrl ? (
-        <div className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm p-4 w-full max-w-sm text-left">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Documento generado</div>
-          <div className="text-sm font-semibold text-slate-900">{estado.titulo || "Solicitud"}</div>
-          <div className="mt-2 flex gap-2">
+        <div className="mb-8 rounded-2xl border border-slate-200 bg-white shadow-sm p-6 w-full max-w-md mx-auto text-left">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Documento generado</span>
+            <span className={tipoBadgeClases(estado.clasificacion)}>{estado.clasificacion}</span>
+          </div>
+          <div className="text-sm font-semibold text-slate-900 mb-1">{estado.titulo || "Solicitud"}</div>
+          <div className="flex items-center gap-2 text-[11px] text-slate-500 mb-5">
+            <span className="inline-flex items-center gap-1.5">
+              <span className={tipoDotClases(estado.clasificacion)} />{tipoNombreCompleto(estado.clasificacion)}
+            </span>
+            <span className="text-slate-300">•</span>
+            <span>{estado.email || "—"}</span>
+          </div>
+          <div className="flex gap-2">
             <a
               href={docUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 bg-slate-900 text-white text-xs px-4 py-2 rounded-full font-medium hover:bg-slate-800 transition-all"
+              className="flex-1 inline-flex items-center justify-center gap-1.5 bg-slate-900 text-white text-xs px-4 py-2.5 rounded-full font-medium hover:bg-slate-800 transition-all"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5"/></svg>
               Ver PDF
@@ -476,7 +556,7 @@ function PasoConfirmacion({ estado }: { estado: ReturnType<typeof useSolicitudWi
             <a
               href={docUrl}
               download={`${estado.solicitudId}.pdf`}
-              className="inline-flex items-center gap-1.5 bg-white text-slate-700 text-xs px-4 py-2 rounded-full font-medium hover:bg-slate-50 transition-all border border-slate-200"
+              className="flex-1 inline-flex items-center justify-center gap-1.5 bg-white text-slate-700 text-xs px-4 py-2.5 rounded-full font-medium hover:bg-slate-50 transition-all border border-slate-200"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
               Descargar
@@ -494,7 +574,7 @@ function PasoConfirmacion({ estado }: { estado: ReturnType<typeof useSolicitudWi
           <span className="text-sm font-medium text-slate-900">Equipo Compras BIA</span>
         </div>
       </div>
-      <Link href="/mis-solicitudes" className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1.5">
+      <Link href={estado.email ? `/mis-solicitudes?email=${encodeURIComponent(estado.email)}` : "/mis-solicitudes"} className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1.5">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M10 5 5 12l5 7"/></svg>
         Ver mis solicitudes
       </Link>
@@ -506,4 +586,23 @@ function diasHasta(fecha: string): number {
   const val = new Date(fecha);
   const hoy = new Date();
   return Math.ceil(Math.abs(val.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+// Badge de tipo de solicitud: RFQ = celeste, RFI = naranja, RFP = amarillo.
+function tipoBadgeClases(tipo: string): string {
+  if (tipo === "RFI") return "px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-wider bg-orange-100 text-orange-700 border border-orange-200";
+  if (tipo === "RFP") return "px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700 border border-amber-200";
+  return "px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-wider bg-sky-100 text-sky-700 border border-sky-200";
+}
+
+function tipoDotClases(tipo: string): string {
+  if (tipo === "RFI") return "w-2 h-2 rounded-full bg-orange-400 inline-block";
+  if (tipo === "RFP") return "w-2 h-2 rounded-full bg-amber-400 inline-block";
+  return "w-2 h-2 rounded-full bg-sky-400 inline-block";
+}
+
+function tipoNombreCompleto(tipo: string): string {
+  if (tipo === "RFQ") return "Solicitud de Cotización";
+  if (tipo === "RFI") return "Solicitud de Información";
+  return "Solicitud de Propuesta";
 }

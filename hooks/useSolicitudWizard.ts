@@ -1,7 +1,7 @@
 "use client";
 
 // Hook del wizard del solicitante — usa la capa de dominio (cerebro) y persiste vía API.
-import { useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import type { SubtipoSolicitud, TipoSolicitud } from "@/lib/domain/types";
 import { bloqueoB2Activo } from "@/lib/domain/rules";
@@ -69,6 +69,13 @@ export function useSolicitudWizard() {
   const router = useRouter();
   const [estado, setEstado] = useState<WizardState>(() => estadoInicial());
   const [envio, setEnvio] = useState<EstadoEnvio>({ estado: "inactivo" });
+  const [borradoAt, setBorradoAt] = useState<number | null>(null);
+
+  // Autoguarda el borrador en cada cambio (para que back/forward y recarga conserven los datos).
+  useEffect(() => {
+    if (estado.paso >= 6) return;
+    guardarBorrador({ ...estado, email: estado.email });
+  }, [estado]);
 
   const siguiente = useCallback(() => {
     setEstado((s) => {
@@ -154,6 +161,7 @@ export function useSolicitudWizard() {
   const guardarBorradorActual = useCallback(() => {
     const copia = { ...estado, paso: estado.paso as PasoWizard, maxAlcanzado: estado.maxAlcanzado as PasoWizard };
     guardarBorrador(copia);
+    setBorradoAt(Date.now());
   }, [estado]);
 
   const cancelar = useCallback(() => {
@@ -172,5 +180,6 @@ export function useSolicitudWizard() {
     enviarSolicitud,
     guardarBorrador: guardarBorradorActual,
     cancelar,
+    borradoAt,
   };
 }

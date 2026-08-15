@@ -1,13 +1,9 @@
 #!/usr/bin/env node
 // Seed de usuarios en Supabase Auth — Portal de Compras BIA.
-// Crea/actualiza los usuarios iniciales en Supabase Auth con su rol en app_metadata.
-// Requiere SUPABASE_SERVICE_ROLE_KEY (rol de servicio) y SUPABASE_URL en .env.local.
+// Crea/actualiza los usuarios en Supabase Auth con su rol en app_metadata.
+// Requiere NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY en .env.local.
 //
 // Uso: node scripts/seed-auth.mjs
-//
-// NOTA: si ya creaste las cuentas manualmente desde el dashboard de Supabase,
-// puedes omitir este script. Solo asegúrate de que cada usuario tenga asignado
-// en "App Metadata" -> rol = "coordinador" o "admin".
 
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "node:fs";
@@ -17,7 +13,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Cargar .env.local si existe (para variables de entorno locales).
+// Cargar .env.local si existe.
 try {
   const envFile = path.resolve(__dirname, "../.env.local");
   const contents = readFileSync(envFile, "utf8");
@@ -43,17 +39,13 @@ const admin = createClient(supabaseUrl, serviceRole, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
-// Mismos usuarios que migrations/006_configuracion_seed.sql
+// Cuentas oficiales de la plataforma (dominio @biafoods.co).
 const USUARIOS = [
-  { email: "coordinador1@compras.bia.local", password: "Coordinador1!", rol: "coordinador", nombre: "Coordinador 1" },
-  { email: "coordinador2@compras.bia.local", password: "Coordinador2!", rol: "coordinador", nombre: "Coordinador 2" },
-  { email: "coordinador3@compras.bia.local", password: "Coordinador3!", rol: "coordinador", nombre: "Coordinador 3" },
-  { email: "coordinador4@compras.bia.local", password: "Coordinador4!", rol: "coordinador", nombre: "Coordinador 4" },
-  { email: "lady.matute@compras.bia.local", password: "AdminBIA2026!", rol: "admin", nombre: "Lady Matute" },
+  { email: "admin@biafoods.co", password: "AdminBIA2026!", rol: "admin", nombre: "Admin BIA" },
+  { email: "coordinador@biafoods.co", password: "Coordinador2026!", rol: "coordinador", nombre: "Coordinador BIA" },
 ];
 
 for (const u of USUARIOS) {
-  // Intentar actualizar si existe; si no, crear.
   const { data: existing } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
   const found = existing?.users?.find((x) => x.email === u.email);
 
@@ -84,3 +76,4 @@ for (const u of USUARIOS) {
 }
 
 console.log("Seed de usuarios completado.");
+console.log("Cuentas: admin@biafoods.co (admin) · coordinador@biafoods.co (coordinador)");
