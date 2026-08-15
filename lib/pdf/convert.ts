@@ -3,6 +3,8 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 
 const SCRIPT = path.resolve(process.cwd(), "scripts", "convert-document.py");
+// Preferir el venv de markitdown (created con uv). Fallback a python3 del sistema.
+const VENV_PYTHON = path.resolve(process.cwd(), ".venv-md", "bin", "python");
 
 export type ResultadoConversion =
   | { ok: true; markdown: string }
@@ -10,7 +12,8 @@ export type ResultadoConversion =
 
 function ejecutarPython(rutaArchivo: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    execFile("python3", [SCRIPT, rutaArchivo], {
+    const bin = existsSync(VENV_PYTHON) ? VENV_PYTHON : "python3";
+    execFile(bin, [SCRIPT, rutaArchivo], {
       timeout: 30000,
       maxBuffer: 10 * 1024 * 1024,
     }, (error, stdout) => {

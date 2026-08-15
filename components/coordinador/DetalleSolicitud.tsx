@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CargaCotizaciones } from "./CargaCotizaciones";
 import { ComparativaView } from "./Comparativa";
 import { Recomendacion } from "./Recomendacion";
 import { api } from "@/lib/api-client";
-import type { Cotizacion, Solicitud } from "@/lib/domain/types";
-import { construirComparativa } from "@/lib/domain/comparativa";
+import type { Cotizacion, Comparativa, Solicitud } from "@/lib/domain/types";
+import { generarComparativaConIA } from "@/lib/domain/comparativa";
 
 type Etapa = 7 | 8 | 9;
 
@@ -15,6 +15,7 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
   const [etapa, setEtapa] = useState<Etapa>(7);
   const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>([]);
   const [cargando, setCargando] = useState(true);
+  const [comparativaData, setComparativaData] = useState<Comparativa | undefined>(undefined);
 
   useEffect(() => {
     api
@@ -24,22 +25,39 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
       .finally(() => setCargando(false));
   }, [solicitud.id]);
 
+  const tieneComparativa = useMemo(
+    () => cotizaciones.length >= 2,
+    [cotizaciones.length]
+  );
+
+  const generandoComparativa = etapa === 8 && !comparativaData;
+
+  // Genera la comparativa con IA (fallback determinístico interno) al estar disponibles
+  // mínimo 2 cotizaciones y no haber una generada aún.
+  useEffect(() => {
+    if (!tieneComparativa || comparativaData || etapa === 7) return;
+    let activo = true;
+    generarComparativaConIA({
+      solicitudId: solicitud.id,
+      especificacionesSolicitadas: {},
+      requerimiento: solicitud.titulo,
+      cotizaciones,
+      now: new Date().toISOString(),
+    })
+      .then((c) => {
+        if (activo) setComparativaData(c);
+      })
+      .catch(() => undefined);
+    return () => {
+      activo = false;
+    };
+  }, [tieneComparativa, comparativaData, solicitud.id, solicitud.titulo, cotizaciones, etapa]);
+
   const tabs: { n: Etapa; label: string }[] = [
     { n: 7, label: "07 · Cotizaciones" },
     { n: 8, label: "08 · Comparativa" },
     { n: 9, label: "09 · Recomendación" },
   ];
-
-  const comparativaData =
-    cotizaciones.length >= 2
-      ? construirComparativa({
-          solicitudId: solicitud.id,
-          especificacionesSolicitadas: {},
-          requerimiento: solicitud.titulo,
-          cotizaciones,
-          now: new Date().toISOString(),
-        })
-      : undefined;
 
   return (
     <div className="pt-2">
@@ -82,13 +100,22 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
                       .then((c) => setCotizaciones(c))
                       .catch(() => undefined)
                   }
-                  onGenerar={() => { if (comparativaData) setEtapa(8); }}
+                  onGenerar={() => setEtapa(8)}
                 />
               ) : etapa === 8 ? (
                 comparativaData ? (
                   <ComparativaView comparativa={comparativaData} cotizaciones={cotizaciones} onContinuar={() => setEtapa(9)} />
                 ) : (
-                  <p className="text-[11px] text-slate-500">Se necesitan al menos 2 cotizaciones cargadas para generar la comparativa.</p>
+                  <p className="text-[11px] text-slate-500 flex items-center gap-2">
+                    {generandoComparativa ? (
+                      <>
+                        <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+                        Generando comparativa…
+                      </>
+                    ) : (
+                      "Se necesitan al menos 2 cotizaciones cargadas para generar la comparativa."
+                    )}
+                  </p>
                 )
               ) : (
                 <Recomendacion cotizaciones={cotizaciones} prosContras={comparativaData?.prosContras ?? {}} sugerenciaIA={comparativaData?.sugerenciaIA} cotizacionSugeridaId={comparativaData?.cotizacionSugeridaId} onEnviar={() => undefined} />

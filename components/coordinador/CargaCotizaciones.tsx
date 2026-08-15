@@ -13,6 +13,8 @@ type CargaCotizacionesProps = {
 
 export function CargaCotizaciones({ solicitudId, cotizaciones, onCotizacionCargada, onGenerar }: CargaCotizacionesProps) {
   const [subiendo, setSubiendo] = useState<string | null>(null);
+  const [fase, setFase] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [archivos, setArchivos] = useState<Record<string, string>>({});
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -24,23 +26,37 @@ export function CargaCotizaciones({ solicitudId, cotizaciones, onCotizacionCarga
     return c.valorNeto !== undefined || c.valorTotal !== undefined || archivos[c.id] !== undefined;
   }
 
-  // El archivo se "sube" persistiendo la cotización vía API; el nombre del archivo
-  // se guarda localmente como evidencia de la carga.
+  // Sube el archivo real → lo convierte a Markdown (markitdown) → persiste la
+  // cotización con markdownExtraido para que el backend dispare la extracción IA.
+  // Si la conversión o la IA fallan, se persiste igual con metadata (nunca bloquea).
   async function onFileSeleccionado(idx: number, e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    setSubiendo(cotizaciones[idx]?.id ?? `${idx}`);
+    const id = cotizaciones[idx]?.id ?? `${idx}`;
+    setSubiendo(id);
+    setError(null);
     try {
-      const guardada = await api.cargarCotizacion({
+      setFase("Convirtiendo a texto…");
+      const conv = await api.convertirDocumento(file);
+
+      setFase("Extrayendo datos con IA…");
+      await api.cargarCotizacion({
         solicitudId,
         proveedorNombre: cotizaciones[idx]?.proveedorNombre ?? `Proveedor ${idx + 1}`,
         formatoOriginal: extFormato(file.name),
         especificacionesOfertadas: {},
+        markdownExtraido: conv.ok ? conv.markdown : undefined,
       });
-      setArchivos((a) => ({ ...a, [guardada.id]: file.name }));
+      setArchivos((a) => ({ ...a, [id]: file.name }));
       onCotizacionCargada();
+      if (!conv.ok) {
+        setError(conv.error ?? "No se pudo extraer datos automáticamente.");
+      }
+    } catch {
+      setError("No se pudo subir. Intenta de nuevo.");
     } finally {
       setSubiendo(null);
+      setFase(null);
     }
     if (fileInputs.current[idx]) fileInputs.current[idx].value = "";
   }
@@ -74,7 +90,16 @@ export function CargaCotizaciones({ solicitudId, cotizaciones, onCotizacionCarga
                         : "cotización cargada"
                       : "Sin archivo aún"}
                   </span>
+                  {subiendo === c.id && fase ? (
+                    <span className="ml-1 text-slate-400">{fase}</span>
+                  ) : null}
                 </div>
+                {subiendo === c.id && error ? (
+                  <div className="mt-1 text-[11px] text-amber-700 flex items-start gap-1.5">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mt-[1px] shrink-0"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                    {error}
+                  </div>
+                ) : null}
               </div>
               <div>
                 <label

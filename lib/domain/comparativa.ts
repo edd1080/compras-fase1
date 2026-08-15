@@ -137,3 +137,89 @@ export function construirComparativa(opts: {
 export function formato(n: number | undefined): string {
   return typeof n === "number" ? n.toLocaleString("es-HN") : "—";
 }
+
+// Ruta IA de la comparativa: usa el orquestador para discrepancias + pros/contras +
+// sugerencia razonada. Si falla o no está configurado, cae al motor determinístico.
+export async function generarComparativaConIA(opts: {
+  solicitudId: string;
+  especificacionesSolicitadas: Record<string, string>;
+  requerimiento: string;
+  cotizaciones: Cotizacion[];
+  now?: string;
+}): Promise<Comparativa & { analysis: ResultadoComparativa }> {
+  const fallback = () =>
+    construirComparativa({
+      solicitudId: opts.solicitudId,
+      especificacionesSolicitadas: opts.especificacionesSolicitadas,
+      requerimiento: opts.requerimiento,
+      cotizaciones: opts.cotizaciones,
+      now: opts.now,
+    });
+
+  if (opts.cotizaciones.length < 2) return fallback();
+
+  try {
+    const { comparativa: comparativaIA } = await import("@/lib/ai/orchestrator");
+    const ia = await comparativaIA({
+      tituloSolicitud: opts.requerimiento,
+      especificacionesSolicitadas: opts.especificacionesSolicitadas,
+      cotizaciones: opts.cotizaciones.map((c) => ({
+        proveedorNombre: c.proveedorNombre,
+        valorNeto: c.valorNeto ?? null,
+        moneda: c.moneda ?? null,
+        montoIsv: c.montoIsv ?? null,
+        valorTotal: c.valorTotal ?? null,
+        plazoEntrega: c.plazoEntrega ?? null,
+        especificacionesOfertadas: c.especificacionesOfertadas ?? {},
+      })),
+    });
+
+    if (!ia) return fallback();
+
+    const now = opts.now ?? new Date().toISOString();
+    const disco = detectarDiscrepancias({
+      especificacionesSolicitadas: opts.especificacionesSolicitadas,
+      cotizaciones: opts.cotizaciones,
+    });
+    const pc = generarProsContras({
+      requerimiento: opts.requerimiento,
+      cotizaciones: opts.cotizaciones,
+    });
+
+    const discrepancias = ia.discrepanciasDetectadas.length
+      ? ia.discrepanciasDetectadas
+      : disco.discrepancias;
+
+    const prosContrasIA: Record<string, ProsContras> = {};
+    for (const c of opts.cotizaciones) {
+      prosContrasIA[c.id] = ia.prosContras[c.proveedorNombre] ?? pc.prosContras[c.id] ?? { pros: [], contras: [] };
+    }
+
+    // RN-01: la IA sugiere, nunca decide. La justificación debe citar datos.
+    const cotizacionSugerida = ia.cotizacionSugeridaId
+      ? opts.cotizaciones.find((c) => c.id === ia.cotizacionSugeridaId || c.proveedorNombre === ia.cotizacionSugeridaId)
+      : undefined;
+    const sugerenciaIA = ia.sugerenciaIA
+      ? `${ia.sugerenciaIA}${cotizacionSugerida ? " — Generada por el sistema." : ""}`
+      : (pc.sugerencia?.justificacion ?? null);
+
+    return {
+      id: `cmp-${now}`,
+      solicitudId: opts.solicitudId,
+      prosContras: prosContrasIA,
+      discrepanciasDetectadas: discrepancias,
+      sugerenciaIA: sugerenciaIA ?? undefined,
+      cotizacionSugeridaId: cotizacionSugerida?.id ?? pc.sugerencia?.cotizacionId ?? undefined,
+      fechaGeneracion: now,
+      analysis: {
+        discrepancias,
+        comparablesEntreSi: ia.advertenciaGeneral ? !discrepancias.some((d) => d.severidad === "alta") : disco.comparablesEntreSi,
+        advertenciaGeneral: ia.advertenciaGeneral ?? disco.advertenciaGeneral,
+        prosContras: prosContrasIA,
+        sugerencia: pc.sugerencia,
+      },
+    };
+  } catch {
+    return fallback();
+  }
+}

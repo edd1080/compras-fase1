@@ -27,8 +27,16 @@ test.describe("Flujo solicitante", () => {
     await page.locator("select").selectOption({ label: "Empaque y branding" });
     await page.getByRole("button", { name: "Continuar" }).click();
 
-    // P3 — clasificación
-    await expect(page.getByText(/Esto parece una/i)).toBeVisible();
+    // P3 — clasificación (la IA puede sugerir un tipo, o no si la confianza es baja)
+    await expect(page.getByText(/Esto parece una|No pudimos determinar/i)).toBeVisible({ timeout: 15000 });
+    // Si la IA no preseleccionó, el flujo igual continúa (el usuario puede corregir).
+    const opcionRFQ = page.getByRole("radio", { name: /RFQ/ });
+    if (await opcionRFQ.isEnabled().catch(() => false)) {
+      const noSugerida = await page.getByText(/No pudimos determinar/i).isVisible().catch(() => false);
+      if (noSugerida) {
+        await opcionRFQ.check();
+      }
+    }
     await page.getByRole("button", { name: "Confirmar clasificación" }).click();
 
     // P4 — detalles

@@ -99,12 +99,28 @@ export const api = {
     valorTotal?: number | null;
     plazoEntrega?: string;
     especificacionesOfertadas?: Record<string, string>;
+    markdownExtraido?: string;
   }): Promise<Cotizacion> {
     return fetch(`/api/solicitudes/${payload.solicitudId}/cotizaciones`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     }).then((r) => json<Cotizacion>(r));
+  },
+
+  convertirDocumento(file: File): Promise<{ ok: boolean; markdown?: string; error?: string }> {
+    const form = new FormData();
+    form.append("archivo", file);
+    return fetch("/api/convertir", {
+      method: "POST",
+      body: form,
+    }).then(async (r) => {
+      if (!r.ok) {
+        const detalle = await r.json().catch(() => ({ error: "Error de conversión" }));
+        return { ok: false, error: detalle.error ?? "Error de conversión" };
+      }
+      return r.json();
+    });
   },
 
   generarComparativa(solicitudId: string): Promise<Comparativa> {

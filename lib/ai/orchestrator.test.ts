@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { clasificar, assessment, extraerCotizacion, comparativa } from "./orchestrator";
 
-function mockOpenRouterResponde(contenido: unknown, status = 200) {
-  return vi.fn(async (_url: string, init?: RequestInit) => {
+function mockOpenRouterResponde(contenido: unknown, _status = 200) {
+  return vi.fn(async () => {
     await new Promise((r) => setTimeout(r, 1));
     return {
-      ok: status >= 200 && status < 300,
-      status,
-      text: async () => (status >= 200 && status < 300 ? "" : JSON.stringify({ error: "boom" })),
+      ok: _status >= 200 && _status < 300,
+      status: _status,
+      text: async () => (_status >= 200 && _status < 300 ? "" : JSON.stringify({ error: "boom" })),
       json: async () => ({ choices: [{ message: { content: JSON.stringify(contenido) } }] }),
     } as Response;
   });
