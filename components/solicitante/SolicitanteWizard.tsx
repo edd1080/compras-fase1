@@ -15,7 +15,8 @@ const PASOS_SIDEBAR = [
 
 export function SolicitanteWizard() {
   const searchParams = useSearchParams();
-  const w = useSolicitudWizard();
+  const nuevo = (searchParams.get("nuevo") ?? "") === "1";
+  const w = useSolicitudWizard(nuevo);
   const { estado, set, siguiente, anterior, pasoValido, envio, enviarSolicitud, guardarBorrador, cancelar, borradoAt, clasificandoIA, clasificarIA, evaluandoAssessment, evaluarAssessment } = w;
   const [confirmCancel, setConfirmCancel] = useState(false);
   const emailInicial = searchParams.get("email") ?? "";

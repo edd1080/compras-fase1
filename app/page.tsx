@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AmbientBackground } from "@/components/ui-ext/AmbientBackground";
+import { guardarBorradorEmail, limpiarBorrador } from "@/lib/cookie";
 
 export default function Home() {
   const router = useRouter();
@@ -12,6 +13,16 @@ export default function Home() {
   const [area, setArea] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [emailWarning, setEmailWarning] = useState(false);
+
+  // Inicia una solicitud NUEVA: descarta cualquier borrador anterior y actualiza la
+  // cookie de continuidad, así el wizard no retoma la solicitud previa del mismo correo.
+  function nuevaSolicitud(e: React.FormEvent) {
+    e.preventDefault();
+    if (!valido) return;
+    limpiarBorrador();
+    guardarBorradorEmail(email);
+    router.push(`/solicitud/nueva?nuevo=1&email=${encodeURIComponent(email)}&nombre=${encodeURIComponent(nombre)}&area=${encodeURIComponent(area)}`);
+  }
 
   const valido = email.includes("@") && email.includes(".") && nombre.trim() !== "" && area.trim() !== "";
 
@@ -55,13 +66,7 @@ export default function Home() {
               </div>
             </div>
 
-            <form
-              className="space-y-4"
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (valido) router.push(`/solicitud/nueva?email=${encodeURIComponent(email)}&nombre=${encodeURIComponent(nombre)}&area=${encodeURIComponent(area)}`);
-              }}
-            >
+            <form className="space-y-4" onSubmit={nuevaSolicitud}>
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1.5">Tu correo institucional</label>
                 <div className="relative">

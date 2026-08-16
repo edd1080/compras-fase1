@@ -12,6 +12,27 @@ test.describe("Flujo solicitante", () => {
     await expect(page.getByText(/no parece institucional/i)).toBeVisible();
   });
 
+  test("nueva solicitud no retoma un borrador anterior del mismo correo (regresión)", async ({ page }) => {
+    // Plantar un borrador previo en paso 5 con los datos viejos.
+    await page.addInitScript(() => {
+      const boradorViejo = {
+        paso: 5, maxAlcanzado: 5, email: "edgar.calderon@outlook.com", nombre: "Edgar Calderón",
+        titulo: "Solicitud anterior", tipoNecesidad: "Otro", subtipo: "producto", fechaRequerida: "2026-09-30",
+        area: "Intelia", clasificacion: "RFQ", confianzaClasificacion: 0.9, razonamientoBreve: "",
+        clasificacionCorregida: false, llevaBranding: true, archivoLogo: "", assessmentListo: false,
+        assessmentPreguntas: [], solicitudId: null,
+      };
+      localStorage.setItem("bia_borrador", JSON.stringify(boradorViejo));
+    });
+
+    // Entrar como si viniera de la home (P1) buscando una solicitud NUEVA.
+    await page.goto("/solicitud/nueva?nuevo=1&email=edgar.calderon%40outlook.com&nombre=Edgar%20Calder%C3%B3n&area=Intelia");
+    await expect(page.getByText("¿Qué necesitás?")).toBeVisible();
+    // No debe aparecer la vista de documento vieja ni el título anterior.
+    await expect(page.getByText("Tu solicitud está lista")).not.toBeVisible();
+    await expect(page.getByText("Solicitud anterior")).not.toBeVisible();
+  });
+
   test("P1→P6: completa el wizard de punta a punta y llega a confirmación", async ({ page }) => {
     test.setTimeout(120000);
     await page.goto("/");

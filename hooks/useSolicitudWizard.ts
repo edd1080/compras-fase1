@@ -37,8 +37,7 @@ export type WizardState = {
   solicitudId: string | null;
 };
 
-function estadoInicial(): WizardState {
-  const guardado = leerBorrador<WizardState>();
+function estadoInicial(nuevo: boolean): WizardState {
   const base: WizardState = {
     paso: 2,
     maxAlcanzado: 2,
@@ -60,16 +59,22 @@ function estadoInicial(): WizardState {
     assessmentPreguntas: [],
     solicitudId: null,
   };
-  // Si hay un borrador guardado y coincide con el email, se retoma.
+  // En una solicitud NUEVA (viniendo de P1) no se restaura ningún borrador anterior.
+  // El borrador previo ya fue limpiado al arrancar desde la home.
+  if (nuevo) {
+    return base;
+  }
+  // Solo retoma el borrador si coincide con el email y no es una solicitud ya enviada.
+  const guardado = leerBorrador<WizardState>();
   if (guardado && guardado.email === base.email && guardado.solicitudId === null) {
-    return { ...base, ...guardado };
+    return { ...guardado, email: base.email };
   }
   return base;
 }
 
-export function useSolicitudWizard() {
+export function useSolicitudWizard(nuevo = false) {
   const router = useRouter();
-  const [estado, setEstado] = useState<WizardState>(() => estadoInicial());
+  const [estado, setEstado] = useState<WizardState>(() => estadoInicial(nuevo));
   const [envio, setEnvio] = useState<EstadoEnvio>({ estado: "inactivo" });
   const [borradoAt, setBorradoAt] = useState<number | null>(null);
   const [clasificandoIA, setClasificandoIA] = useState(false);
