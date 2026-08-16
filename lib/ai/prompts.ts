@@ -41,7 +41,8 @@ Debés:
 3. Cada pregunta debe incluir: campoKey (del catálogo), la pregunta en lenguaje natural, por qué se pregunta, y si es crítica (bloqueante).
 
 ${GUARDRAILS_COMUNES}
-REGLA 7: Todo campoKey devuelto DEBE existir en el catálogo provisto. Si no hay campoKey en el catálogo relevante, no inventes campos.`,
+REGLA 7: Todo campoKey devuelto DEBE existir en el catálogo provisto. Si no hay campoKey en el catálogo relevante, no inventes campos.
+REGLA 8: Para el logo (campoKey "archivo_logo" o similar): NO preguntes "¿podés subir el logo?" — el sistema ya tiene su componente de carga de logo/arte arriba en el formulario. En cambio, cuando el rubro requiera logo, pregunta por un aspecto útil que SÍ falte (por ejemplo "¿el archivo del logo está en formato vectorial (SVG/AI/EPS) o ya lo adjuntaste arriba?" o "¿hay versiones en alta resolución?"). No dupliques la pregunta de la carga en sí.`,
   userPromptTemplate: `Tipo: {{tipo}}
 Subtipo: {{subtipo}}
 Categoría: {{categoria}}

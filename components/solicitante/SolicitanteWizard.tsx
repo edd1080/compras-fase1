@@ -314,7 +314,7 @@ function PasoClasificacion({
         </div>
         <h3 className="text-2xl md:text-3xl font-medium tracking-tight mb-3 text-slate-900 relative z-10">
           {estado.confianzaClasificacion >= 0.7 ? (
-            <>Esto parece una <span className="font-semibold text-sky-600">{estado.clasificacion}</span></>
+            <>Esto parece una <span className={"font-semibold " + tipoTextoColor(estado.clasificacion)}>{estado.clasificacion}</span></>
           ) : (
             <>No pudimos determinar el tipo automáticamente</>
           )}
@@ -348,9 +348,9 @@ function PasoClasificacion({
       <p className="text-xs text-slate-600 mb-3 font-medium">¿No te parece correcto? Podés cambiarlo con un clic:</p>
       <div className="space-y-3 mb-6">
         {opts.map((o) => (
-          <label key={o.v} className="group flex items-start gap-3 p-4 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 has-[:checked]:border-sky-500 has-[:checked]:ring-1 has-[:checked]:ring-sky-500/30 has-[:checked]:bg-sky-500/5 transition-all shadow-sm">
+          <label key={o.v} className={"group flex items-start gap-3 p-4 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 has-[:checked]:ring-1 transition-all shadow-sm " + (estado.clasificacion === o.v ? tipoCardChecked(o.v) : "")}>
             <input type="radio" name="classif" checked={estado.clasificacion === o.v} onChange={() => { set("clasificacion", o.v); set("clasificacionCorregida", true); }} className="sr-only" />
-            <div className={"mt-0.5 w-4 h-4 shrink-0 rounded-full border flex items-center justify-center transition-colors " + (estado.clasificacion === o.v ? "border-sky-500 bg-sky-500" : "border-slate-300")}>
+            <div className={"mt-0.5 w-4 h-4 shrink-0 rounded-full border flex items-center justify-center transition-colors " + (estado.clasificacion === o.v ? tipoRadioOn(o.v) : "border-slate-300")}>
               <div className="w-1.5 h-1.5 bg-white rounded-full" style={{ opacity: estado.clasificacion === o.v ? 1 : 0 }} />
             </div>
             <div>
@@ -394,28 +394,20 @@ function PasoDetalles({
         <p className="text-xs text-slate-500">Completá la información técnica requerida para tu solicitud.</p>
       </div>
       <div className="bg-white rounded-2xl border border-slate-200/60 p-5 md:p-6 mb-4 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Información general para cotizar</span>
+          <span className={"px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider " + (estado.clasificacion === "RFI" ? "bg-orange-100 text-orange-700 border border-orange-200" : estado.clasificacion === "RFP" ? "bg-amber-100 text-amber-700 border border-amber-200" : "bg-sky-100 text-sky-700 border border-sky-200")}>
+            {estado.clasificacion}
+          </span>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-          <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1.5">Dimensiones esperadas</label>
-            <input type="text" placeholder="Ej. 2m x 2m, Talle M, etc." className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:bg-white transition-all" />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1.5">Materiales sugeridos</label>
-            <input type="text" placeholder="Ej. Lona impermeable, cartón corrugado..." className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:bg-white transition-all" />
-          </div>
-          <div className="md:col-span-2">
-            <label className="block text-xs font-medium text-slate-700 mb-1.5">Calidad requerida</label>
-            <div className="grid grid-cols-2 gap-3">
-              {[["estandar", "Estándar (Funcional)"], ["premium", "Premium (Alta gama)"]].map(([val, label]) => (
-                <label key={val} className="group cursor-pointer relative">
-                  <input type="radio" name="quality" defaultChecked={val === "estandar"} className="sr-only" />
-                  <div className="py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 text-center transition-all group-has-[:checked]:border-slate-900 group-has-[:checked]:bg-slate-900">
-                    <div className="text-xs font-medium text-slate-600 group-has-[:checked]:text-white">{label}</div>
-                  </div>
-                </label>
-              ))}
-            </div>
-          </div>
+          <CampoDetalleGenerico label="¿Qué necesitás exactamente?" placeholder={ejemploDetalle(estado)} />
+          <CampoDetalleGenerico label="Cantidad o volumen estimado" placeholder="Ej. 500 unidades, 3 meses de servicio, 1 proyecto" />
+          {estado.subtipo !== "servicio" ? (
+            <CampoDetalleGenerico label="Especificaciones técnicas" placeholder="Ej. 2m x 2m, material algodón, dorado o mate" clase="md:col-span-2" />
+          ) : (
+            <CampoDetalleGenerico label="Alcance del servicio" placeholder="Ej. cuántas visitas, qué incluye, qué excluye" clase="md:col-span-2" />
+          )}
         </div>
         <label className="flex items-center justify-between cursor-pointer p-4 bg-slate-50 border border-slate-200 rounded-xl hover:border-slate-300 transition-colors">
           <div>
@@ -453,23 +445,47 @@ function PasoDetalles({
       ) : null}
       {estado.assessmentPreguntas.length > 0 ? (
         <div className="mb-6 space-y-4 border-t border-slate-100 pt-6">
-          <span className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-            Preguntas del asistente ({estado.assessmentPreguntas.length})
-          </span>
-          {estado.assessmentPreguntas.map((aq, i) => (
-            <div key={aq.campoKey ?? i} className="bg-amber-50/40 border border-amber-100 rounded-xl p-4">
-              <label className="block text-xs font-medium text-slate-800 mb-1">{aq.pregunta}</label>
-              <input
-                type="text"
-                placeholder="Ingresá este dato (o marcá 'No lo sé' si no lo tenés)"
-                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all"
-              />
-              <label className="inline-flex items-center gap-2 mt-2 cursor-pointer">
-                <input type="checkbox" className="rounded border-slate-300" />
-                <span className="text-[11px] text-slate-500">No lo sé</span>
-              </label>
-            </div>
-          ))}
+          <div className="flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-violet-500"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg>
+            <span className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+              El asistente necesita estos detalles ({estado.assessmentPreguntas.length})
+            </span>
+          </div>
+          {estado.assessmentPreguntas.map((aq, i) => {
+            const respuesta = estado.assessmentRespuestas[aq.campoKey];
+            const completada = respuesta?.noSe === true || (respuesta?.valor ?? "").trim().length > 0;
+            return (
+              <div key={aq.campoKey ?? i} className={"rounded-2xl border p-5 transition-all " + (completada ? "bg-green-50/50 border-green-200" : "bg-amber-50/40 border-amber-200")}>
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <p className={"font-semibold text-slate-900 " + (completada ? "text-[15px]" : "text-[15px]")}>
+                    {aq.pregunta}
+                  </p>
+                  <span className={"shrink-0 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full " + (completada ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700")}>
+                    {completada ? "Listo" : "Pendiente"}
+                  </span>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <input
+                    type="text"
+                    value={respuesta?.valor ?? ""}
+                    onChange={(e) => set("assessmentRespuestas", { ...estado.assessmentRespuestas, [aq.campoKey]: { valor: e.target.value, noSe: false } })}
+                    placeholder={placeholderAssessment(aq.campoKey, aq.pregunta)}
+                    disabled={respuesta?.noSe === true}
+                    className={"w-full bg-white border rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-1 transition-all " + (respuesta?.noSe === true ? "opacity-50 border-slate-200" : "border-slate-200 focus:border-sky-500 focus:ring-sky-500")}
+                  />
+                  <label className={"shrink-0 inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border text-xs font-semibold cursor-pointer transition-all select-none " + (respuesta?.noSe === true ? "bg-green-100 border-green-300 text-green-800" : "bg-white/70 border-slate-200 text-slate-600 hover:border-slate-300")}>
+                    <input
+                      type="checkbox"
+                      checked={respuesta?.noSe === true}
+                      onChange={(e) => set("assessmentRespuestas", { ...estado.assessmentRespuestas, [aq.campoKey]: { valor: "", noSe: e.target.checked } })}
+                      className="w-4 h-4 rounded accent-green-600"
+                    />
+                    No lo sé
+                  </label>
+                </div>
+              </div>
+            );
+          })}
         </div>
       ) : null}
       <div className="mt-auto flex justify-between items-center pt-4">
@@ -663,8 +679,68 @@ function tipoDotClases(tipo: string): string {
   return "w-2 h-2 rounded-full bg-sky-400 inline-block";
 }
 
+// Colores coherentes por tipo para los radio options del PasoClasificacion.
+type ClasesTipo = { card: string; esquema: string; accent: "sky" | "orange" | "amber" };
+function tipoVisual(tipo: string): ClasesTipo {
+  if (tipo === "RFI") return { card: "border-orange-400 ring-orange-400/30 bg-orange-50/60", esquema: "border-orange-500 bg-orange-500", accent: "orange" };
+  if (tipo === "RFP") return { card: "border-amber-400 ring-amber-400/30 bg-amber-50/60", esquema: "border-amber-500 bg-amber-500", accent: "amber" };
+  return { card: "border-sky-400 ring-sky-400/30 bg-sky-50/60", esquema: "border-sky-500 bg-sky-500", accent: "sky" };
+}
+
+function tipoCardChecked(tipo: string): string {
+  return tipoVisual(tipo).card;
+}
+
+function tipoRadioOn(tipo: string): string {
+  return tipoVisual(tipo).esquema;
+}
+
+function tipoTextoColor(tipo: string): string {
+  if (tipo === "RFI") return "text-orange-600";
+  if (tipo === "RFP") return "text-amber-600";
+  return "text-sky-600";
+}
+
 function tipoNombreCompleto(tipo: string): string {
   if (tipo === "RFQ") return "Solicitud de Cotización";
   if (tipo === "RFI") return "Solicitud de Información";
   return "Solicitud de Propuesta";
+}
+
+function CampoDetalleGenerico({ label, placeholder, clase = "" }: { label: string; placeholder: string; clase?: string }) {
+  return (
+    <div className={clase}>
+      <label className="block text-xs font-semibold text-slate-700 mb-1.5">{label}</label>
+      <input
+        type="text"
+        placeholder={placeholder}
+        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:bg-white transition-all"
+      />
+    </div>
+  );
+}
+
+// Placeholders adaptados al tipo de solicitud (cuando aún no hay assessment IA).
+function ejemploDetalle(estado: { clasificacion: string; subtipo: string }): string {
+  if (estado.subtipo === "servicio") return "Ej. auditoría anual, diseño gráfico del empaque…";
+  if (estado.clasificacion === "RFQ") return "Ej. sombrillas corporativas 2m x 2m, 500 uds…";
+  if (estado.clasificacion === "RFI") return "Ej. opciones de empaques biodegradables…";
+  return "Ej. migrar inventario al nuevo ERP…";
+}
+
+// Sugerencia de respuesta válida por campo del assessment (placeholder más útil).
+function placeholderAssessment(campoKey: string, _pregunta: string): string {
+  const ejemplos: Record<string, string> = {
+    dimensiones: "Ej. 1.5m x 2m · Talla M-L · 20 x 30 cm",
+    materiales: "Ej. lona impermeable 600d, cartón corrugado, algodón 200gsm",
+    cantidad: "Ej. 2,000 unidades · 12 meses · 3 lotes de 500",
+    color_acabado: "Ej. azul corporativo, acabado mate",
+    calidad: "Ej. estándar funcional · premium",
+    alcance_servicio: "Ej. visita mensual, incluye insumos…",
+    lugar_prestacion: "Ej. bodega BIA, Tegucigalpa · remoto",
+    periodicidad: "Ej. único · mensual · trimestral",
+    duracion_contrato: "Ej. 6 meses · 1 año renovable",
+    archivo_logo: "Ya lo subí arriba ✓ (o escribí cómo enviarlo)",
+  };
+  return `Ingresá el dato, por ejemplo: ${ejemplos[campoKey] ?? "lo más específico posible"}`;
 }

@@ -34,6 +34,7 @@ export type WizardState = {
   archivoLogo: string;
   assessmentListo: boolean;
   assessmentPreguntas: { campoKey: string; pregunta: string }[];
+  assessmentRespuestas: Record<string, { valor: string; noSe: boolean }>;
   solicitudId: string | null;
 };
 
@@ -57,6 +58,7 @@ function estadoInicial(nuevo: boolean): WizardState {
     archivoLogo: "",
     assessmentListo: false,
     assessmentPreguntas: [],
+    assessmentRespuestas: {},
     solicitudId: null,
   };
   // En una solicitud NUEVA (viniendo de P1) no se restaura ningún borrador anterior.
@@ -186,6 +188,12 @@ export function useSolicitudWizard(nuevo = false) {
           descripcion: estado.descripcion,
           subtipo: estado.subtipo,
           llevaBranding: String(estado.llevaBranding),
+          ...Object.fromEntries(
+            Object.entries(estado.assessmentRespuestas).map(([k, v]) => [
+              `assessment_${k}`,
+              v.noSe ? "(no lo sé)" : (v.valor || ""),
+            ])
+          ),
         },
       });
       setEnvio({ estado: "ok", referencia: creada.numeroReferencia });
