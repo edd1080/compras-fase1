@@ -39,6 +39,7 @@ export const PreguntaAssessmentSchema = z.object({
   pregunta: z.string(),
   por_que: z.string(),
   critica: z.boolean(),
+  ejemplo_respuesta: z.string().optional(),
 });
 
 export const AssessmentOutputSchema = z.object({

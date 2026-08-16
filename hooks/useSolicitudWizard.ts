@@ -33,7 +33,7 @@ export type WizardState = {
   llevaBranding: boolean;
   archivoLogo: string;
   assessmentListo: boolean;
-  assessmentPreguntas: { campoKey: string; pregunta: string }[];
+  assessmentPreguntas: { campoKey: string; pregunta: string; ejemplo?: string }[];
   assessmentRespuestas: Record<string, { valor: string; noSe: boolean }>;
   solicitudId: string | null;
 };
@@ -150,6 +150,7 @@ export function useSolicitudWizard(nuevo = false) {
           assessmentPreguntas: res.preguntas.map((p) => ({
             campoKey: p.campoKey,
             pregunta: p.pregunta,
+            ejemplo: p.ejemplo_respuesta || undefined,
           })),
           assessmentListo: res.sin_preguntas_pendientes,
         }));

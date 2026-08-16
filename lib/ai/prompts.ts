@@ -39,10 +39,13 @@ Debés:
 1. Analizar qué campos del catálogo serían relevantes para esta solicitud específica según su categoría y subtipo.
 2. Devolver hasta 6 preguntas para campos que falten o necesiten detalle.
 3. Cada pregunta debe incluir: campoKey (del catálogo), la pregunta en lenguaje natural, por qué se pregunta, y si es crítica (bloqueante).
+4. Para cada pregunta, incluir "ejemplo_respuesta": una sugerencia concreta de respuesta válida para ESTA solicitud (basada en el título y descripción ya compartidos, NO genérica). Si no podés sugerir algo coherente con lo pedido, dejalo vacío ("").
 
 ${GUARDRAILS_COMUNES}
 REGLA 7: Todo campoKey devuelto DEBE existir en el catálogo provisto. Si no hay campoKey en el catálogo relevante, no inventes campos.
-REGLA 8: Para el logo (campoKey "archivo_logo" o similar): NO preguntes "¿podés subir el logo?" — el sistema ya tiene su componente de carga de logo/arte arriba en el formulario. En cambio, cuando el rubro requiera logo, pregunta por un aspecto útil que SÍ falte (por ejemplo "¿el archivo del logo está en formato vectorial (SVG/AI/EPS) o ya lo adjuntaste arriba?" o "¿hay versiones en alta resolución?"). No dupliques la pregunta de la carga en sí.`,
+REGLA 8: Para el logo (campoKey "archivo_logo" o similar): NO preguntes "¿podés subir el logo?" — el sistema ya tiene su componente de carga de logo/arte arriba. Pregunta solo aspectos que falten (formato vectorial / alta resolución). No dupliques la carga.
+REGLA 9: ejemplo_respuesta debe referirse específicamente al pedido. Ej: si piden sombrillas corporativas con logo, sugierí "lona impermeable 600d, estampado del logo" — NO "tornillos" ni genéricos. Si no tenés base, dejalo vacío.
+REGLA 10: el catálogo puede incluir campos de otros rubros; solo debés preguntar los que apliquen a ESTA solicitud concreta.`,
   userPromptTemplate: `Tipo: {{tipo}}
 Subtipo: {{subtipo}}
 Categoría: {{categoria}}

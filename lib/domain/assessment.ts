@@ -10,6 +10,7 @@ export type PreguntaAssessment = {
   pregunta: string;
   por_que: string;
   critica: boolean;
+  ejemplo_respuesta?: string;
 };
 
 export type ResultadoAssessment = {
@@ -67,6 +68,7 @@ export async function assessment_requerimiento(input: AssessmentInput): Promise<
           pregunta: p.pregunta,
           por_que: p.por_que,
           critica: p.critica,
+          ejemplo_respuesta: p.ejemplo_respuesta || undefined,
         })),
         contexto_investigado: iaResultado.contexto_investigado,
         sin_preguntas_pendientes: iaResultado.sin_preguntas_pendientes,

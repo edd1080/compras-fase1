@@ -394,20 +394,12 @@ function PasoDetalles({
         <p className="text-xs text-slate-500">Completá la información técnica requerida para tu solicitud.</p>
       </div>
       <div className="bg-white rounded-2xl border border-slate-200/60 p-5 md:p-6 mb-4 shadow-sm">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Información general para cotizar</span>
-          <span className={"px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider " + (estado.clasificacion === "RFI" ? "bg-orange-100 text-orange-700 border border-orange-200" : estado.clasificacion === "RFP" ? "bg-amber-100 text-amber-700 border border-amber-200" : "bg-sky-100 text-sky-700 border border-sky-200")}>
-            {estado.clasificacion}
-          </span>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Información de tu solicitud</span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-          <CampoDetalleGenerico label="¿Qué necesitás exactamente?" placeholder={ejemploDetalle(estado)} />
-          <CampoDetalleGenerico label="Cantidad o volumen estimado" placeholder="Ej. 500 unidades, 3 meses de servicio, 1 proyecto" />
-          {estado.subtipo !== "servicio" ? (
-            <CampoDetalleGenerico label="Especificaciones técnicas" placeholder="Ej. 2m x 2m, material algodón, dorado o mate" clase="md:col-span-2" />
-          ) : (
-            <CampoDetalleGenerico label="Alcance del servicio" placeholder="Ej. cuántas visitas, qué incluye, qué excluye" clase="md:col-span-2" />
-          )}
+        <div className="mb-5 rounded-xl bg-slate-50 border border-slate-100 p-4">
+          <div className="text-sm font-medium text-slate-900 mb-1">{estado.titulo || "Sin título"}</div>
+          <div className="text-[12px] text-slate-500 line-clamp-2">{estado.descripcion || "Sin descripción adicional."}</div>
         </div>
         <label className="flex items-center justify-between cursor-pointer p-4 bg-slate-50 border border-slate-200 rounded-xl hover:border-slate-300 transition-colors">
           <div>
@@ -469,7 +461,7 @@ function PasoDetalles({
                     type="text"
                     value={respuesta?.valor ?? ""}
                     onChange={(e) => set("assessmentRespuestas", { ...estado.assessmentRespuestas, [aq.campoKey]: { valor: e.target.value, noSe: false } })}
-                    placeholder={placeholderAssessment(aq.campoKey, aq.pregunta)}
+                    placeholder={aq.ejemplo ? `Ej.: ${aq.ejemplo}` : "Ingresá el dato…"}
                     disabled={respuesta?.noSe === true}
                     className={"w-full bg-white border rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-1 transition-all " + (respuesta?.noSe === true ? "opacity-50 border-slate-200" : "border-slate-200 focus:border-sky-500 focus:ring-sky-500")}
                   />
@@ -705,42 +697,4 @@ function tipoNombreCompleto(tipo: string): string {
   if (tipo === "RFQ") return "Solicitud de Cotización";
   if (tipo === "RFI") return "Solicitud de Información";
   return "Solicitud de Propuesta";
-}
-
-function CampoDetalleGenerico({ label, placeholder, clase = "" }: { label: string; placeholder: string; clase?: string }) {
-  return (
-    <div className={clase}>
-      <label className="block text-xs font-semibold text-slate-700 mb-1.5">{label}</label>
-      <input
-        type="text"
-        placeholder={placeholder}
-        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:bg-white transition-all"
-      />
-    </div>
-  );
-}
-
-// Placeholders adaptados al tipo de solicitud (cuando aún no hay assessment IA).
-function ejemploDetalle(estado: { clasificacion: string; subtipo: string }): string {
-  if (estado.subtipo === "servicio") return "Ej. auditoría anual, diseño gráfico del empaque…";
-  if (estado.clasificacion === "RFQ") return "Ej. sombrillas corporativas 2m x 2m, 500 uds…";
-  if (estado.clasificacion === "RFI") return "Ej. opciones de empaques biodegradables…";
-  return "Ej. migrar inventario al nuevo ERP…";
-}
-
-// Sugerencia de respuesta válida por campo del assessment (placeholder más útil).
-function placeholderAssessment(campoKey: string, _pregunta: string): string {
-  const ejemplos: Record<string, string> = {
-    dimensiones: "Ej. 1.5m x 2m · Talla M-L · 20 x 30 cm",
-    materiales: "Ej. lona impermeable 600d, cartón corrugado, algodón 200gsm",
-    cantidad: "Ej. 2,000 unidades · 12 meses · 3 lotes de 500",
-    color_acabado: "Ej. azul corporativo, acabado mate",
-    calidad: "Ej. estándar funcional · premium",
-    alcance_servicio: "Ej. visita mensual, incluye insumos…",
-    lugar_prestacion: "Ej. bodega BIA, Tegucigalpa · remoto",
-    periodicidad: "Ej. único · mensual · trimestral",
-    duracion_contrato: "Ej. 6 meses · 1 año renovable",
-    archivo_logo: "Ya lo subí arriba ✓ (o escribí cómo enviarlo)",
-  };
-  return `Ingresá el dato, por ejemplo: ${ejemplos[campoKey] ?? "lo más específico posible"}`;
 }
