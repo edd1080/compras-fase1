@@ -18,19 +18,19 @@ export default async function SolicitudDetallePage({
   return (
     <main className="min-h-screen flex items-start justify-center p-4 md:p-8 relative overflow-hidden">
       <AmbientBackground />
-      <div className="w-full max-w-[1180px] bg-white/70 backdrop-blur-3xl rounded-3xl md:rounded-[2.5rem] border border-white shadow-[0_8px_40px_rgb(0,0,0,0.06)] overflow-hidden relative z-10">
-        <div className="px-6 md:px-8 pt-6 pb-4">
+      <div className="w-full max-w-[1280px] bg-white/70 backdrop-blur-3xl rounded-3xl md:rounded-[2.5rem] border border-white shadow-[0_8px_40px_rgb(0,0,0,0.06)] overflow-hidden relative z-10">
+        <div className="px-6 md:px-10 pt-7 pb-4">
           <div className="flex flex-col gap-4 mb-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-semibold text-slate-700 bg-white/70 border border-white px-2.5 py-1 rounded-xl">
+                  <span className="font-mono text-sm font-semibold text-slate-700 bg-white/70 border border-white px-2.5 py-1 rounded-xl">
                     {solicitud.numeroReferencia ?? "—"}
                   </span>
                   <Badge tone={toneDe(solicitud.estado)} label={estadoLegible(solicitud.estado)} />
                 </div>
-                <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900 mt-2">{solicitud.titulo}</h2>
-                <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-600">
+                <h2 className="text-2xl md:text-[2rem] font-semibold tracking-tight text-slate-900 mt-2">{solicitud.titulo}</h2>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
                   <span className="inline-flex items-center gap-1.5">{solicitud.solicitanteNombre}</span>
                   <span className="text-slate-300">•</span>
                   <span className="inline-flex items-center gap-1.5">{solicitud.areaSolicitante ?? "—"}</span>
@@ -41,7 +41,7 @@ export default async function SolicitudDetallePage({
             </div>
           </div>
         </div>
-        <div className="px-6 md:px-8 pb-8">
+        <div className="px-6 md:px-10 pb-10">
           <DetalleSolicitud solicitud={solicitud} />
         </div>
       </div>

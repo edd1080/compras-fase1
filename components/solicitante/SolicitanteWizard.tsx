@@ -224,13 +224,14 @@ function PasoCaptura({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1.5">¿Producto o servicio?</label>
-            <div className="grid grid-cols-2 gap-2">
-              {([["producto", "Producto"], ["servicio", "Servicio"]] as const).map(([val, label]) => (
+            <label className="block text-sm font-semibold text-slate-700 mb-2">¿Producto o servicio?</label>
+            <div className="grid grid-cols-2 gap-3">
+              {([["producto", "Producto", "Bien físico: materiales, empaques, artículos."], ["servicio", "Servicio", "Trabajo o actividad: logística, diseño, consultoría."]] as const).map(([val, label, ayuda]) => (
                 <label key={val} className="group cursor-pointer relative">
                   <input type="radio" name="prod_serv" checked={estado.subtipo === val} onChange={() => set("subtipo", val)} className="sr-only" />
-                  <div className="py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 text-center transition-all group-has-[:checked]:border-sky-500 group-has-[:checked]:bg-sky-500/5 group-has-[:checked]:ring-1 group-has-[:checked]:ring-sky-500/30">
-                    <div className={"text-xs font-medium " + (estado.subtipo === val ? "text-sky-600" : "text-slate-600")}>{label}</div>
+                  <div className="py-3.5 px-4 rounded-xl border-2 border-slate-200 bg-slate-50 text-center transition-all group-has-[:checked]:border-sky-500 group-has-[:checked]:bg-sky-50/50 group-has-[:checked]:ring-1 group-has-[:checked]:ring-sky-500/30">
+                    <div className={"text-sm font-bold " + (estado.subtipo === val ? "text-sky-700" : "text-slate-700")}>{label}</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">{ayuda}</div>
                   </div>
                 </label>
               ))}

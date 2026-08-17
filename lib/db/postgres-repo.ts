@@ -300,6 +300,10 @@ export class PostgresRepositorio implements Repositorio {
     }));
   }
 
+  async eliminarCotizacion(id: string): Promise<void> {
+    await this.pg.query("DELETE FROM cotizacion WHERE id = $1", [id]);
+  }
+
   async guardarComparativa(solicitudId: string, comparativa: Comparativa): Promise<Comparativa> {
     await this.pg.query(
       `INSERT INTO comparativa

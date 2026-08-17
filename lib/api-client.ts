@@ -111,6 +111,53 @@ export const api = {
     }).then((r) => json<Cotizacion>(r));
   },
 
+  crearCotizacionManual(payload: {
+    solicitudId: string;
+    proveedorNombre: string;
+    valorNeto?: number | null;
+    moneda?: string;
+    impuestosDesglosados?: boolean | null;
+    montoIsv?: number | null;
+    valorTotal?: number | null;
+    plazoEntrega?: string;
+  }): Promise<Cotizacion> {
+    return fetch(`/api/solicitudes/${payload.solicitudId}/cotizaciones`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        proveedorNombre: payload.proveedorNombre,
+        formatoOriginal: "manual",
+        valorNeto: payload.valorNeto ?? null,
+        moneda: payload.moneda,
+        impuestosDesglosados: payload.impuestosDesglosados ?? null,
+        montoIsv: payload.montoIsv ?? null,
+        valorTotal: payload.valorTotal ?? null,
+        plazoEntrega: payload.plazoEntrega,
+      }),
+    }).then((r) => json<Cotizacion>(r));
+  },
+
+  actualizarCotizacion(cotizacionId: string, datos: {
+    proveedorNombre?: string;
+    valorNeto?: number | null;
+    moneda?: string;
+    montoIsv?: number | null;
+    valorTotal?: number | null;
+    plazoEntrega?: string;
+  }): Promise<void> {
+    return fetch(`/api/solicitudes/_/cotizaciones/${encodeURIComponent(cotizacionId)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(datos),
+    }).then(async (r) => { if (!r.ok) throw new Error("No se pudo guardar"); });
+  },
+
+  eliminarCotizacion(cotizacionId: string): Promise<void> {
+    return fetch(`/api/solicitudes/_/cotizaciones/${encodeURIComponent(cotizacionId)}`, {
+      method: "DELETE",
+    }).then(async (r) => { if (!r.ok) throw new Error("No se pudo eliminar"); });
+  },
+
   clasificarIA(payload: { titulo: string; descripcion?: string; categoria?: string }) {
     return fetch("/api/ia/clasificar", {
       method: "POST",

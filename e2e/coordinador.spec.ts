@@ -25,19 +25,38 @@ test.describe("Flujo coordinador", () => {
     // Transicionar a ENVIADA_A_COMPRAS (asigna coordinador)
     await ctx.patch(`/api/solicitudes/${id}/estado`, { data: { hacia: "ENVIADA_A_COMPRAS", actorTipo: "solicitante", actorIdentificador: "detalle@bia.hn" } });
 
-    // Cargar 2 cotizaciones
-    await ctx.post(`/api/solicitudes/${id}/cotizaciones`, { data: { proveedorNombre: "CostaPrint", formatoOriginal: "pdf", valorNeto: 86, moneda: "HNL", impuestosDesglosados: true, montoIsv: 12.9, valorTotal: 98.9, plazoEntrega: "12 días" } });
-    await ctx.post(`/api/solicitudes/${id}/cotizaciones`, { data: { proveedorNombre: "PlayaPromo", formatoOriginal: "docx", valorNeto: 31.5, moneda: "USD", impuestosDesglosados: false, valorTotal: 31.5, plazoEntrega: "10 días" } });
-
-    // Navegar al detalle real
+    // Navegar al detalle real (sin cotizaciones pre-cargadas)
     await page.goto(`/panel/solicitud/${id}`);
     await expect(page.getByRole("heading", { name: "Detalle e2e" })).toBeVisible();
 
-    // Etapa 07 — cotizaciones (2 reales cargadas)
-    await expect(page.getByText("07 · Carga cotizaciones")).toBeVisible();
+    // Etapa 07 — crear 2 cotizaciones manualmente desde la UI
+    await expect(page.getByText("Todavía no hay cotizaciones")).toBeVisible();
+    await page.getByRole("button", { name: "Agregar cotización manual" }).click();
+
+    async function crearCotizacion(nombre: string, neto: string, isv: string, total: string, plazo: string, moneda: string) {
+      await page.getByPlaceholder("Ej. Imprenta CostaPrint S. de R.L.").fill(nombre);
+      await page.getByPlaceholder("0.00").first().fill(neto);
+      await page.getByPlaceholder("0.00").nth(1).fill(isv);
+      await page.getByPlaceholder("0.00").nth(2).fill(total);
+      await page.getByPlaceholder("Ej. 12 días").fill(plazo);
+      if (moneda === "USD") {
+        await page.getByRole("combobox").selectOption("USD");
+      }
+      await page.getByRole("button", { name: "Guardar cotización" }).click();
+      await page.getByRole("button", { name: "Agregar cotización manual" }).click();
+    }
+
+    await crearCotizacion("CostaPrint", "86", "12.9", "98.9", "12 días", "HNL");
+    await expect(page.getByText("CostaPrint")).toBeVisible();
+    await crearCotizacion("PlayaPromo", "31.5", "0", "31.5", "10 días", "USD");
+    await expect(page.getByText("PlayaPromo")).toBeVisible();
+
+    // Generar comparativa (con confirmación)
     const generar = page.getByRole("button", { name: "Generar comparativa" });
     await expect(generar).toBeEnabled();
     await generar.click();
+    await expect(page.getByText("Generar comparativa?")).toBeVisible();
+    await page.getByRole("button", { name: "Sí, generar" }).click();
 
     // Etapa 08 — comparativa (puede tardar por la IA; tolerante)
     await expect(page.getByText("08 · Comparativa generada")).toBeVisible({ timeout: 30000 });
