@@ -21,7 +21,9 @@ export default async function PanelLayout({
     const match = coordinadores.find(
       (c) => c.email.toLowerCase() === sesion.email.toLowerCase()
     );
-    localId = match?.id;
+    // Si el email del auth aún no existe en la DB local, usar el primer coordinador activo
+    // como fallback para que la bandeja no quede en spinner infinito.
+    localId = match?.id ?? coordinadores[0]?.id;
   } catch {
     localId = undefined;
   }
