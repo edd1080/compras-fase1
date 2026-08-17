@@ -2,7 +2,7 @@
 schemaVersion: 1
 lifecycle: closed
 currentGate: G6
-activeFeature: 005-auth-supabase
+activeFeature: 007-sprint3-ia-comparativa
 approvals:
   G1: true
   G2: true
@@ -10,19 +10,29 @@ approvals:
   G4: true
 nextAction:
   command: feature-selection
-  prompt: "Selecciona la siguiente feature: integración de IA (Sprint 3) o trabajo de detalle en flujos (gestión de plantillas/coordinadores en admin)."
+  prompt: "Feature 006 cerrada (G5/G6). Iniciar 007: profundización de IA en comparativa y extracción (costo por token via OpenRouter ya implementado)."
 ---
 
 # Project State
 
 ## Current objective
 
-Feature **005-auth-supabase** cerrada (G5 ✅, G6 ✅). Auth real implementado: middleware protege /panel y /admin, login con Supabase Auth, sesión real en paneles. Pusheado a origin/main (`4bf4231`).
+Feature **006-ia-integracion** cerrada (G5 ✅, G6 ✅). Integración de IA aproximada: orquestador OpenRouter → Gemini Flash Lite, clasificación y assessment del solicitante, extracción de cotizaciones con conversión markitdown, comparativa IA razonada con fallback determinístico, y creación manual de cotizaciones por el coordinador. Pusheado a origin/main (cierres `a60fe75`…`014b501`, verificación `verification.md`).
 
 ## Approvals
 
-- G1 ✅ · 000 ✅ · 001 ✅ · 002 ✅ · 003 ✅ · 004 ✅ · 005-auth-supabase ✅ (2026-08-14).
+- G1 ✅ · 000 ✅ · 001 ✅ · 002 ✅ · 003 ✅ · 004 ✅ · 005-auth-supabase ✅ · 006-ia-integracion ✅ (2026-08-15, G5/G6 con `specs/006-ia-integracion/verification.md`).
 
-## Blockers
+## Next feature (007) — recomendación
 
-None. Pendiente: el usuario debe crear las cuentas en Supabase Auth (o ejecutar `npm run seed-auth`). Sin cuentas, el login redirige a la página pero sin credenciales válidas no se inicia sesión.
+**007-sprint3-ia-comparativa**: profundizar la IA en los puntos donde hoy es un primer corte:
+
+1. **Extracción multi-formato robusta** — manejar tablas dentro de PDF/configuración, validar el desglose fiscal (ISV) con la IA, y marcar "revisar manualmente" con listas de discrepancias reales (RF-33…38).
+2. **Comparativa contextual** — que la IA considere plazos, condiciones de pago y garantías, no solo precio; y que genere el Excel comparativo descargable (doc 17).
+3. **Configuración del catálogo en admin** — edición de campos/categorías para que el assessment y la extracción se ajusten a cada rubro (fecha: parte del work de detalle).
+
+Prioridad sugerida para el primer slice: **mejorar la extracción de cotizaciones** (validación fiscal + alertas de revisión), porque es donde el coordinador más captura valor manual hoy.
+
+## Blocker
+
+Ninguno. Pendiente: decidir alcance de los slicés de la 007 (extracción vs comparativa vs catálogo).

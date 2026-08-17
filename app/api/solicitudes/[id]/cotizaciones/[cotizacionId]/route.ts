@@ -37,7 +37,7 @@ export async function PATCH(
       fechaCarga: new Date().toISOString(),
     });
     return NextResponse.json({ ok: true });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "No se pudo actualizar la cotización" }, { status: 500 });
   }
 }

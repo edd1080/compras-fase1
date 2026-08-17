@@ -264,6 +264,26 @@ export function CargaCotizaciones({ solicitudId, cotizaciones, onCotizacionCarga
                     {c.fechaCarga ? <span className="text-xs text-slate-400">({new Date(c.fechaCarga).toLocaleDateString("es-HN")})</span> : null}
                   </div>
 
+                  {camposBajaConfianza(c).length > 0 ? (
+                    <div className="mt-3 flex items-start gap-2 text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mt-0.5 shrink-0"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                      <span className="text-sm">
+                        Revisión manual requerida: campos con baja confianza de extracción — <span className="font-semibold">{camposBajaConfianza(c).join(", ")}</span>. Verificá estos datos antes de generar la comparativa.
+                      </span>
+                    </div>
+                  ) : null}
+
+                  {mostrarConfianza(c) ? (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                      <span className="uppercase tracking-wider text-slate-400 font-semibold">Confianza IA:</span>
+                      {Object.entries(c.confianzaExtraccion ?? {}).filter(([, v]) => v !== undefined).map(([k, v]) => (
+                        <span key={k} className={"inline-flex items-center gap-1 px-2 py-0.5 rounded-full border " + (v! < 0.5 ? "bg-amber-50 border-amber-200 text-amber-700" : v! < 0.8 ? "bg-slate-50 border-slate-200 text-slate-600" : "bg-emerald-50 border-emerald-200 text-emerald-700")}>
+                          {nombreCampo(k)} {Math.round(v! * 100)}%
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+
                   {faseSubida === c.id ? (
                     <div className="mt-3 inline-flex items-center gap-2 text-sm text-slate-500">
                       <svg className="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
@@ -323,7 +343,7 @@ export function CargaCotizaciones({ solicitudId, cotizaciones, onCotizacionCarga
                   {(["proveedorNombre", "moneda", "valorNeto", "valorTotal", "plazoEntrega"] as const).map((campo) => (
                     <CampoEdicion key={campo} campo={campo} borrador={borradorEdit} setBorrador={setBorradorEdit} />
                   ))}
-                  <div className="col-span-2 md:col-span-5 text-xs text-slate-400 mt-1">La edición se guarda al presionar "Guardar".</div>
+                  <div className="col-span-2 md:col-span-5 text-xs text-slate-400 mt-1">La edición se guarda al presionar &quot;Guardar&quot;.</div>
                 </div>
               ) : null}
             </div>
@@ -461,6 +481,32 @@ function numero(s?: string): number | null {
   if (!s || s.trim() === "") return null;
   const n = Number(s.replace(/[^\d.-]/g, ""));
   return Number.isFinite(n) ? n : null;
+}
+
+function camposBajaConfianza(c: Cotizacion): string[] {
+  const conf = c.confianzaExtraccion ?? {};
+  return Object.entries(conf)
+    .filter(([, v]) => typeof v === "number" && v >= 0 && v < 0.5)
+    .map(([k]) => nombreCampo(k));
+}
+
+function mostrarConfianza(c: Cotizacion): boolean {
+  const conf = c.confianzaExtraccion ?? {};
+  const claves = Object.entries(conf).filter(([, v]) => typeof v === "number" && v >= 0);
+  return claves.length > 0;
+}
+
+function nombreCampo(clave: string): string {
+  const nombres: Record<string, string> = {
+    proveedorNombre: "Proveedor",
+    valorNeto: "Valor neto",
+    montoIsv: "ISV",
+    valorTotal: "Total",
+    plazoEntrega: "Plazo",
+    moneda: "Moneda",
+    impuestosDesglosados: "Impuestos",
+  };
+  return nombres[clave] ?? clave;
 }
 
 function numeroFmt(n: number): string {
