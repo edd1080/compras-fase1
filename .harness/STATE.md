@@ -1,23 +1,23 @@
 ---
 schemaVersion: 1
-lifecycle: feature-selection
-currentGate: G1
+lifecycle: feature-specify
+currentGate: G2
 activeFeature: 007-sprint3-ia-comparativa
 approvals:
   G1: true
-  G2: false
+  G2: true
   G3: false
   G4: false
 nextAction:
-  command: feature-specify
-  prompt: "Feature 007 abierta. Revisar y aprobar specs/007-sprint3-ia-comparativa/spec.md (Gate G2)."
+  command: feature-plan
+  prompt: "G2 aprobado. Producción de specs/007-sprint3-ia-comparativa/plan.md (Gate G3)."
 ---
 
 # Project State
 
 ## Current objective
 
-Abrir la feature **007-sprint3-ia-comparativa** (intake oficial). El proyecto global ya tiene G1 aprobado; la auditoría observacional de los slices candidatos se completó y la spec draft está lista para revisión G2.
+Feature **007-sprint3-ia-comparativa** en G2 aprobado (2026-08-18, aprobación del usuario). Alcance confirmado en orden: S1 (persistencia completa + validación fiscal) → S2 (comparativa contextual + Excel 3 hojas) → S3 (catálogo en admin). Preparando plan (G3).
 
 ## Approvals
 
