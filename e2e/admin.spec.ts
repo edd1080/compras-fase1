@@ -43,4 +43,23 @@ test.describe("Panel admin", () => {
     await page.goto("/admin/ajustes");
     await expect(page.getByText("Ajustes de Perfil")).toBeVisible();
   });
+
+  test("catálogo: crea un campo y lo desactiva (T014)", async ({ page }) => {
+    await loginAdmin(page);
+    await page.goto("/admin/campos");
+    await expect(page.getByRole("heading", { name: "Catálogo de campos" })).toBeVisible();
+
+    await page.getByRole("button", { name: "Nuevo campo" }).click();
+    await page.getByRole("textbox", { name: "Clave interna" }).fill("test_e2e_campo");
+    await page.getByRole("textbox", { name: "Etiqueta (visible al usuario)" }).fill("Campo de prueba e2e");
+    await page.getByRole("button", { name: "Guardar campo" }).click();
+
+    await expect(page.getByText("Campo creado correctamente.")).toBeVisible();
+    await expect(page.getByText("test_e2e_campo")).toBeVisible();
+
+    // Desactivar el campo creado.
+    const fila = page.getByRole("row", { name: /test_e2e_campo/ });
+    await fila.getByRole("button", { name: "Desactivar" }).click();
+    await expect(page.getByText("test_e2e_campo")).toBeVisible();
+  });
 });

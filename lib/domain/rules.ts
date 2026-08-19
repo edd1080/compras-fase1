@@ -73,6 +73,7 @@ export function detectarTratamientoFiscal(
   tratamiento: TratamientoFiscal;
   coherencia: "correcta" | "inconsistente" | "no_verificable";
   observacion: string | null;
+  requiere_aclaracion: boolean;
 } {
   const { valorNeto, montoIsv, valorTotal, impuestosDesglosados } = cotizacion;
 
@@ -89,6 +90,7 @@ export function detectarTratamientoFiscal(
         coherencia === "inconsistente"
           ? "Los montos de esta cotización no cuadran entre sí."
           : null,
+      requiere_aclaracion: coherencia === "inconsistente",
     };
   }
 
@@ -98,6 +100,7 @@ export function detectarTratamientoFiscal(
       coherencia: "no_verificable",
       observacion:
         "El precio no desglosa impuestos; se recomienda pedir aclaración antes de comparar.",
+      requiere_aclaracion: true,
     };
   }
 
@@ -106,6 +109,7 @@ export function detectarTratamientoFiscal(
     coherencia: "no_verificable",
     observacion:
       "No se especifica si el precio incluye el impuesto sobre ventas; se recomienda pedir aclaración.",
+    requiere_aclaracion: true,
   };
 }
 

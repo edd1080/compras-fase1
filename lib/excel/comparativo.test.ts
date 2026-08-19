@@ -1,0 +1,80 @@
+import { describe, it, expect } from "vitest";
+import * as XLSX from "xlsx";
+import { generarExcelComparativo } from "./comparativo";
+import type { Comparativa, Cotizacion, Solicitud } from "@/lib/domain/types";
+
+const solicitud: Solicitud = {
+  id: "s1",
+  numeroReferencia: "RFQ-2026-014",
+  titulo: "Sombrillas corporativas",
+  descripcion: "Sombrillas con logo",
+  estado: "COMPARATIVA_LISTA",
+  solicitanteEmail: "maria@bia.hn",
+  solicitanteNombre: "María",
+  areaSolicitante: "Marketing",
+  fechaCreacion: "2026-08-15",
+  clasificacionCorregida: false,
+  notificacionFallida: false,
+};
+
+function cot(id: string, nombre: string, precios: { moneda?: string; neto?: number; isv?: number; total?: number; desglosado?: boolean }): Cotizacion {
+  return {
+    id,
+    solicitudId: "s1",
+    proveedorNombre: nombre,
+    formatoOriginal: "manual",
+    valorNeto: precios.neto,
+    moneda: precios.moneda ?? "HNL",
+    montoIsv: precios.isv,
+    valorTotal: precios.total,
+    impuestosDesglosados: precios.desglosado,
+    especificacionesOfertadas: { material: "lona impermeable" },
+    confianzaExtraccion: {},
+    editadaManualmente: false,
+    fechaCarga: "2026-08-15",
+  };
+}
+
+const comparativa: Comparativa = {
+  id: "cmp-1",
+  solicitudId: "s1",
+  prosContras: { CostaPrint: { pros: ["Lona impermeable"], contras: ["Más caro"] }, PlayaPromo: { pros: ["Menor precio"], contras: [] } },
+  discrepanciasDetectadas: [],
+  sugerenciaIA: "Generada por el sistema: PlayaPromo ofrece el menor total.",
+  cotizacionSugeridaId: "PlayaPromo",
+  fechaGeneracion: "2026-08-15",
+};
+
+describe("generarExcelComparativo", () => {
+  it("produce un .xlsx con las 3 hojas", () => {
+    const buffer = generarExcelComparativo({
+      solicitud,
+      comparativa,
+      cotizaciones: [
+        cot("c1", "CostaPrint", { neto: 86000, isv: 12900, total: 98900, desglosado: true }),
+        cot("c2", "PlayaPromo", { moneda: "USD", neto: 3000, total: 3000, desglosado: false }),
+      ],
+      especificacionesSolicitadas: { material: "lona impermeable 600d" },
+    });
+
+    const libro = XLSX.read(buffer, { type: "buffer" });
+    expect(libro.SheetNames).toEqual(["Comparativo", "Detalle de cotizaciones", "Requerimiento original"]);
+  });
+
+  it("incluye 'no especificado' en lugar de cero cuando falta el ISV", () => {
+    const buffer = generarExcelComparativo({
+      solicitud,
+      comparativa,
+      cotizaciones: [
+        cot("c1", "CostaPrint", { neto: 100, total: 100, desglosado: false }),
+        cot("c2", "PlayaPromo", { neto: 90, total: 90, desglosado: false }),
+      ],
+    });
+    const libro = XLSX.read(buffer, { type: "buffer" });
+    const hoja = XLSX.utils.sheet_to_json(libro.Sheets["Comparativo"], { header: 1 }) as unknown[][];
+    // Buscar la fila de ISV: debe decir "no especificado" (nunca 0).
+    const filaIsv = hoja.find((f) => String(f[0]).includes("ISV"));
+    expect(filaIsv).toBeDefined();
+    expect(filaIsv!.slice(1).every((v) => String(v).toLowerCase().includes("no especificado"))).toBe(true);
+  });
+});

@@ -112,16 +112,39 @@ Analizá las cotizaciones y devolvé JSON ESTRICTO con exactamente estas claves:
 - "cotizacionSugeridaId": el proveedorNombre o id de la cotización sugerida, o null si no hay
 - "advertenciaGeneral": string o null
 
-La sugerencia es solo una sugerencia: no decidas el ganador de forma terminal, indicá advertencias si el criterio no es solo precio.`,
+La sugerencia es solo una sugerencia: no decidas el ganador de forma terminal, indicá advertencias si el criterio no es solo precio. Considerá también plazos de entrega, forma de pago, garantía y vigencia de la oferta de cada proveedor, no únicamente el valor total.`,
 };
 
-export const prompts = { CLASIFICAR, ASSESSMENT, EXTRAER_COTIZACION, COMPARATIVA } as const;
+export const VALIDAR_FISCAL: z.infer<typeof FuncionPromptSchema> = {
+  systemPrompt: `Eres un agente de validación fiscal del Portal de Compras BIA (Honduras).
+Tu tarea es verificar la coherencia aritmética del Impuesto Sobre Ventas (ISV) en una cotización.
 
-export type FuncionLower = "clasificar" | "assessment" | "extraer" | "comparativa";
+Reglas estrictas:
+- Verificás la coherencia ÚNICAMENTE cuando existan los tres valores: valor neto, monto de impuesto y valor total. Si falta alguno, la coherencia es "no_verificable" — no la infieras.
+- El tratamiento declarado se determina por impuestos_desglosados: true → "incluye", false → "no_incluye", null → "no_declarado".
+- No emitas juicios de cumplimiento tributario. Solo marcás si los montos cuadran y si el coordinador debe pedir aclaración.
+
+${GUARDRAILS_COMUNES}
+REGLA 11: responde JSON estricto con las claves: tratamiento_declarado, coherencia_aritmetica, observacion (string o null), requiere_aclaracion (boolean).`,
+  userPromptTemplate: `Cotización a validar:
+valorNeto: {{valorNeto}}
+montoIsv: {{montoIsv}}
+montoOtrosImpuestos: {{montoOtrosImpuestos}}
+valorTotal: {{valorTotal}}
+impuestosDesglosados: {{impuestosDesglosados}}
+tasaISV configurada: {{tasaIsv}}
+
+Validá la coherencia aritmética del ISV de esta cotización y devolvé el JSON estricto.`,
+};
+
+export const prompts = { CLASIFICAR, ASSESSMENT, EXTRAER_COTIZACION, COMPARATIVA, VALIDAR_FISCAL } as const;
+
+export type FuncionLower = "clasificar" | "assessment" | "extraer" | "comparativa" | "validar_fiscal";
 
 export const FUNCIONES: Record<FuncionLower, keyof typeof prompts> = {
   clasificar: "CLASIFICAR",
   assessment: "ASSESSMENT",
   extraer: "EXTRAER_COTIZACION",
   comparativa: "COMPARATIVA",
+  validar_fiscal: "VALIDAR_FISCAL",
 };

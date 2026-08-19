@@ -94,8 +94,15 @@ export const ComparativaInputSchema = z.object({
     valorNeto: z.number().nullable(),
     moneda: z.string().nullable(),
     montoIsv: z.number().nullable(),
+    montoOtrosImpuestos: z.number().nullable().optional(),
     valorTotal: z.number().nullable(),
     plazoEntrega: z.string().nullable(),
+    formaPago: z.string().nullable().optional(),
+    vigenciaOferta: z.string().nullable().optional(),
+    garantia: z.string().nullable().optional(),
+    impuestosDesglosados: z.boolean().nullable().optional(),
+    observacionesFiscales: z.string().nullable().optional(),
+    proveedorIdentificacionFiscal: z.string().nullable().optional(),
     especificacionesOfertadas: z.record(z.string(), z.string()),
   })),
 });
@@ -129,6 +136,25 @@ export const ComparativaOutputSchema = z.object({
 
 export type ComparativaInput = z.infer<typeof ComparativaInputSchema>;
 export type ComparativaOutput = z.infer<typeof ComparativaOutputSchema>;
+
+export const ValidarFiscalInputSchema = z.object({
+  valorNeto: z.number().nullable(),
+  montoIsv: z.number().nullable(),
+  montoOtrosImpuestos: z.number().nullable().optional(),
+  valorTotal: z.number().nullable(),
+  impuestosDesglosados: z.boolean().nullable(),
+  tasaIsv: z.number().default(0.15),
+});
+
+export const ValidarFiscalOutputSchema = z.object({
+  tratamiento_declarado: z.enum(["incluye", "no_incluye", "no_declarado"]),
+  coherencia_aritmetica: z.enum(["correcta", "inconsistente", "no_verificable"]),
+  observacion: z.string().nullable(),
+  requiere_aclaracion: z.boolean(),
+});
+
+export type ValidarFiscalInput = z.infer<typeof ValidarFiscalInputSchema>;
+export type ValidarFiscalOutput = z.infer<typeof ValidarFiscalOutputSchema>;
 
 export const FuncionPromptSchema = z.object({
   systemPrompt: z.string(),

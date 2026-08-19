@@ -10,6 +10,8 @@ import {
   ExtraerCotizacionOutputSchema,
   ComparativaInputSchema,
   ComparativaOutputSchema,
+  ValidarFiscalInputSchema,
+  ValidarFiscalOutputSchema,
   type ClasificarInput,
   type ClasificarOutput,
   type AssessmentInput,
@@ -18,6 +20,8 @@ import {
   type ExtraerCotizacionOutput,
   type ComparativaInput,
   type ComparativaOutput,
+  type ValidarFiscalInput,
+  type ValidarFiscalOutput,
 } from "./schemas";
 
 function reemplazar(template: string, vars: Record<string, string>): string {
@@ -129,5 +133,24 @@ export async function comparativa(input: ComparativaInput): Promise<ComparativaO
       cotizaciones: JSON.stringify(i.cotizaciones),
     }),
     getTimeout("comparativa"),
+  );
+}
+
+export async function validarFiscal(input: ValidarFiscalInput): Promise<ValidarFiscalOutput | null> {
+  const parsed = ValidarFiscalInputSchema.parse(input);
+  const vars: Record<string, string> = {
+    valorNeto: parsed.valorNeto === null ? "null" : String(parsed.valorNeto),
+    montoIsv: parsed.montoIsv === null ? "null" : String(parsed.montoIsv),
+    montoOtrosImpuestos: parsed.montoOtrosImpuestos === null ? "null" : String(parsed.montoOtrosImpuestos),
+    valorTotal: parsed.valorTotal === null ? "null" : String(parsed.valorTotal),
+    impuestosDesglosados: parsed.impuestosDesglosados === null ? "null" : String(parsed.impuestosDesglosados),
+    tasaIsv: String(parsed.tasaIsv),
+  };
+  return ejecutarUna(
+    "validar_fiscal",
+    parsed,
+    ValidarFiscalOutputSchema,
+    () => vars,
+    getTimeout("validar_fiscal"),
   );
 }

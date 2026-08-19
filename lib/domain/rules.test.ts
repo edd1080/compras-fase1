@@ -62,6 +62,7 @@ describe("validación fiscal (RN-06 y detección de desglose)", () => {
     });
     expect(r.tratamiento).toBe("no_declarado");
     expect(r.observacion).toBeTruthy();
+    expect(r.requiere_aclaracion).toBe(true);
   });
 
   it("reporta inconsistencia si neto+impuesto != total", () => {
@@ -72,6 +73,29 @@ describe("validación fiscal (RN-06 y detección de desglose)", () => {
       impuestosDesglosados: true,
     });
     expect(r.coherencia).toBe("inconsistente");
+    expect(r.requiere_aclaracion).toBe(true);
+  });
+
+  it("no pide aclaración cuando los montos cuadran", () => {
+    const r = detectarTratamientoFiscal({
+      valorNeto: 100,
+      montoIsv: 15,
+      valorTotal: 115,
+      impuestosDesglosados: true,
+    });
+    expect(r.coherencia).toBe("correcta");
+    expect(r.requiere_aclaracion).toBe(false);
+  });
+
+  it("pide aclaración cuando no desglosa impuestos", () => {
+    const r = detectarTratamientoFiscal({
+      valorNeto: 100,
+      montoIsv: undefined,
+      valorTotal: 100,
+      impuestosDesglosados: false,
+    });
+    expect(r.tratamiento).toBe("no_incluye");
+    expect(r.requiere_aclaracion).toBe(true);
   });
 
   it("coherencia correcta si cuadran", () => {

@@ -284,6 +284,13 @@ export function CargaCotizaciones({ solicitudId, cotizaciones, onCotizacionCarga
                     </div>
                   ) : null}
 
+                  {c.observacionesFiscales ? (
+                    <div className="mt-3 flex items-start gap-2 text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mt-0.5 shrink-0"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                      <span className="text-sm"><span className="font-semibold">Revisión fiscal:</span> {c.observacionesFiscales}</span>
+                    </div>
+                  ) : null}
+
                   {faseSubida === c.id ? (
                     <div className="mt-3 inline-flex items-center gap-2 text-sm text-slate-500">
                       <svg className="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>

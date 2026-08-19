@@ -42,6 +42,32 @@ function filaSolicitud(f: Record<string, unknown>): Solicitud {
   };
 }
 
+function mapeoCotizacion(f: Record<string, unknown>): Cotizacion {
+  return {
+    id: String(f.id),
+    solicitudId: String(f.solicitud_id),
+    proveedorNombre: String(f.proveedor_nombre),
+    proveedorIdentificacionFiscal: (f.proveedor_identificacion_fiscal as string) ?? undefined,
+    proveedorContacto: (f.proveedor_contacto as string) ?? undefined,
+    formatoOriginal: f.formato_original as Cotizacion["formatoOriginal"],
+    valorNeto: f.valor_neto == null ? undefined : Number(f.valor_neto),
+    moneda: (f.moneda as string) ?? undefined,
+    impuestosDesglosados: f.impuestos_desglosados === null ? undefined : Boolean(f.impuestos_desglosados),
+    montoIsv: f.monto_isv == null ? undefined : Number(f.monto_isv),
+    montoOtrosImpuestos: f.monto_otros_impuestos == null ? undefined : Number(f.monto_otros_impuestos),
+    valorTotal: f.valor_total == null ? undefined : Number(f.valor_total),
+    plazoEntrega: (f.plazo_entrega as string) ?? undefined,
+    formaPago: (f.forma_pago as string) ?? undefined,
+    vigenciaOferta: (f.vigencia_oferta as string) ?? undefined,
+    garantia: (f.garantia as string) ?? undefined,
+    especificacionesOfertadas: f.especificaciones_ofertadas as Record<string, string>,
+    observacionesFiscales: (f.observaciones_fiscales as string) ?? undefined,
+    confianzaExtraccion: f.confianza_extraccion as Record<string, number>,
+    editadaManualmente: Boolean(f.editada_manualmente),
+    fechaCarga: String(f.fecha_carga),
+  };
+}
+
 export class PostgresRepositorio implements Repositorio {
   constructor(private readonly pg: Pool = obtenerPool()) {}
 
@@ -197,42 +223,34 @@ export class PostgresRepositorio implements Repositorio {
   async guardarCotizacion(cotizacion: Omit<Cotizacion, "id">): Promise<Cotizacion> {
     const res = await this.pg.query(
       `INSERT INTO cotizacion
-         (solicitud_id, proveedor_nombre, formato_original, valor_neto, moneda,
-          impuestos_desglosados, monto_isv, valor_total, plazo_entrega, especificaciones_ofertadas,
-          confianza_extraccion)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+         (solicitud_id, proveedor_nombre, proveedor_identificacion_fiscal, proveedor_contacto,
+          formato_original, valor_neto, moneda, impuestos_desglosados, monto_isv,
+          monto_otros_impuestos, valor_total, plazo_entrega, forma_pago, vigencia_oferta, garantia,
+          especificaciones_ofertadas, observaciones_fiscales, confianza_extraccion)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
        RETURNING *`,
       [
         cotizacion.solicitudId,
         cotizacion.proveedorNombre,
+        cotizacion.proveedorIdentificacionFiscal ?? null,
+        cotizacion.proveedorContacto ?? null,
         cotizacion.formatoOriginal,
         cotizacion.valorNeto ?? null,
         cotizacion.moneda ?? null,
         cotizacion.impuestosDesglosados ?? null,
         cotizacion.montoIsv ?? null,
+        cotizacion.montoOtrosImpuestos ?? null,
         cotizacion.valorTotal ?? null,
         cotizacion.plazoEntrega ?? null,
+        cotizacion.formaPago ?? null,
+        cotizacion.vigenciaOferta ?? null,
+        cotizacion.garantia ?? null,
         JSON.stringify(cotizacion.especificacionesOfertadas ?? {}),
+        cotizacion.observacionesFiscales ?? null,
         JSON.stringify(cotizacion.confianzaExtraccion ?? {}),
       ]
     );
-    const f = res.rows[0];
-    return {
-      id: String(f.id),
-      solicitudId: String(f.solicitud_id),
-      proveedorNombre: String(f.proveedor_nombre),
-      formatoOriginal: f.formato_original,
-      valorNeto: f.valor_neto == null ? undefined : Number(f.valor_neto),
-      moneda: f.moneda ?? undefined,
-      impuestosDesglosados: f.impuestos_desglosados ?? undefined,
-      montoIsv: f.monto_isv == null ? undefined : Number(f.monto_isv),
-      valorTotal: f.valor_total == null ? undefined : Number(f.valor_total),
-      plazoEntrega: f.plazo_entrega ?? undefined,
-      especificacionesOfertadas: f.especificaciones_ofertadas as Record<string, string>,
-      confianzaExtraccion: f.confianza_extraccion as Record<string, number>,
-      editadaManualmente: Boolean(f.editada_manualmente),
-      fechaCarga: String(f.fecha_carga),
-    };
+    return mapeoCotizacion(res.rows[0]);
   }
 
   async actualizarCotizacion(
@@ -245,14 +263,21 @@ export class PostgresRepositorio implements Repositorio {
 
     const m: Record<string, keyof typeof datos> = {
       proveedor_nombre: "proveedorNombre",
+      proveedor_identificacion_fiscal: "proveedorIdentificacionFiscal",
+      proveedor_contacto: "proveedorContacto",
       formato_original: "formatoOriginal",
       valor_neto: "valorNeto",
       moneda: "moneda",
       impuestos_desglosados: "impuestosDesglosados",
       monto_isv: "montoIsv",
+      monto_otros_impuestos: "montoOtrosImpuestos",
       valor_total: "valorTotal",
       plazo_entrega: "plazoEntrega",
+      forma_pago: "formaPago",
+      vigencia_oferta: "vigenciaOferta",
+      garantia: "garantia",
       especificaciones_ofertadas: "especificacionesOfertadas",
+      observaciones_fiscales: "observacionesFiscales",
       confianza_extraccion: "confianzaExtraccion",
       editada_manualmente: "editadaManualmente",
       fecha_carga: "fechaCarga",
@@ -282,22 +307,7 @@ export class PostgresRepositorio implements Repositorio {
       "SELECT * FROM cotizacion WHERE solicitud_id = $1 ORDER BY fecha_carga ASC",
       [solicitudId]
     );
-    return res.rows.map((f) => ({
-      id: String(f.id),
-      solicitudId: String(f.solicitud_id),
-      proveedorNombre: String(f.proveedor_nombre),
-      formatoOriginal: f.formato_original,
-      valorNeto: f.valor_neto == null ? undefined : Number(f.valor_neto),
-      moneda: f.moneda ?? undefined,
-      impuestosDesglosados: f.impuestos_desglosados ?? undefined,
-      montoIsv: f.monto_isv == null ? undefined : Number(f.monto_isv),
-      valorTotal: f.valor_total == null ? undefined : Number(f.valor_total),
-      plazoEntrega: f.plazo_entrega ?? undefined,
-      especificacionesOfertadas: f.especificaciones_ofertadas as Record<string, string>,
-      confianzaExtraccion: f.confianza_extraccion as Record<string, number>,
-      editadaManualmente: Boolean(f.editada_manualmente),
-      fechaCarga: String(f.fecha_carga),
-    }));
+    return res.rows.map(mapeoCotizacion);
   }
 
   async eliminarCotizacion(id: string): Promise<void> {
@@ -324,6 +334,13 @@ export class PostgresRepositorio implements Repositorio {
       ]
     );
     return comparativa;
+  }
+
+  async actualizarRutaExcel(solicitudId: string, ruta: string): Promise<void> {
+    await this.pg.query(
+      "UPDATE comparativa SET ruta_excel = $2 WHERE solicitud_id = $1",
+      [solicitudId, ruta]
+    );
   }
 
   async registrarDecision(
@@ -376,6 +393,36 @@ export class PostgresRepositorio implements Repositorio {
       validacion: f.validacion ?? undefined,
       activo: Boolean(f.activo),
     }));
+  }
+
+  async guardarCampoCatalogo(campo: Omit<CampoCatalogo, "validacion" | "activo"> & { validacion?: CampoCatalogo["validacion"]; activo?: boolean }): Promise<void> {
+    await this.pg.query(
+      `INSERT INTO campo_catalogo (campo_key, label, ayuda, tipo_dato, catalogo_opciones, obligatorio, origen, seccion_pdf, orden, validacion, activo)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+       ON CONFLICT (campo_key) DO UPDATE SET
+         label = EXCLUDED.label, ayuda = EXCLUDED.ayuda, tipo_dato = EXCLUDED.tipo_dato,
+         catalogo_opciones = EXCLUDED.catalogo_opciones, obligatorio = EXCLUDED.obligatorio,
+         origen = EXCLUDED.origen, seccion_pdf = EXCLUDED.seccion_pdf, orden = EXCLUDED.orden,
+         validacion = EXCLUDED.validacion, activo = EXCLUDED.activo`,
+      [
+        campo.campoKey,
+        campo.label,
+        campo.ayuda ?? null,
+        campo.tipoDato,
+        campo.catalogoOpciones ?? null,
+        campo.obligatorio,
+        campo.origen,
+        campo.seccionPdf ?? null,
+        campo.orden,
+        JSON.stringify(campo.validacion ?? {}),
+        campo.activo ?? true,
+      ]
+    );
+  }
+
+  async actualizarCampoCatalogo(campoKey: string, datos: Partial<Pick<CampoCatalogo, "activo">>): Promise<void> {
+    if (datos.activo === undefined) return;
+    await this.pg.query("UPDATE campo_catalogo SET activo = $2 WHERE campo_key = $1", [campoKey, datos.activo]);
   }
 
   async persistirDocumento(input: {

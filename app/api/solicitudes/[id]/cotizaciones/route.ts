@@ -65,16 +65,25 @@ export async function POST(
         if (extraida) {
           await repo.actualizarCotizacion(cotizacion.id, {
             proveedorNombre: extraida.proveedorNombre ?? cotizacion.proveedorNombre,
+            proveedorIdentificacionFiscal: extraida.proveedorIdentificacionFiscal ?? undefined,
+            proveedorContacto: extraida.proveedorContacto ?? undefined,
             valorNeto: extraida.valorNeto ?? undefined,
             moneda: extraida.moneda ?? undefined,
             impuestosDesglosados: extraida.impuestosDesglosados ?? undefined,
             montoIsv: extraida.montoIsv ?? undefined,
+            montoOtrosImpuestos: extraida.montoOtrosImpuestos ?? undefined,
             valorTotal: extraida.valorTotal ?? undefined,
             plazoEntrega: extraida.plazoEntrega ?? undefined,
+            formaPago: extraida.formaPago ?? undefined,
+            vigenciaOferta: extraida.vigenciaOferta ?? undefined,
+            garantia: extraida.garantia ?? undefined,
             especificacionesOfertadas: extraida.especificacionesOfertadas,
+            observacionesFiscales: extraida.observacionesFiscales ?? undefined,
             confianzaExtraccion: extraida.confianzaPorCampo,
             fechaCarga: new Date().toISOString(),
           });
+          // Validación fiscal tras extraer (asíncrona, no bloqueante).
+          void validarCotizacion(cotizacion.id, extraida).catch(() => undefined);
         }
       } catch {
         // Si la extracción IA falla, se guarda con los datos originales (no bloqueante).
@@ -93,4 +102,64 @@ export async function POST(
     }
     return NextResponse.json({ error: "Error al guardar la cotización" }, { status: 500 });
   }
+}
+
+type DatosExtraidos = {
+  valorNeto?: number | null;
+  montoIsv?: number | null;
+  montoOtrosImpuestos?: number | null;
+  valorTotal?: number | null;
+  impuestosDesglosados?: boolean | null;
+  observacionesFiscales?: string | null;
+};
+
+// Validación fiscal: determinística primero, luego IA si está disponible. Nunca bloquea.
+async function validarCotizacion(cotizacionId: string, extraida: DatosExtraidos): Promise<void> {
+  const { detectarTratamientoFiscal } = await import("@/lib/domain/rules");
+  const det = detectarTratamientoFiscal({
+    valorNeto: extraida.valorNeto ?? undefined,
+    montoIsv: extraida.montoIsv ?? undefined,
+    montoOtrosImpuestos: extraida.montoOtrosImpuestos ?? undefined,
+    valorTotal: extraida.valorTotal ?? undefined,
+    impuestosDesglosados: extraida.impuestosDesglosados ?? undefined,
+  });
+
+  // Intento con IA (si hay clave), con la determinística como observación base.
+  let observacion = det.observacion ?? extraida.observacionesFiscales;
+  let requiereAclaracion = det.requiere_aclaracion;
+  try {
+    const { validarFiscal } = await import("@/lib/ai/orchestrator");
+    const ia = await validarFiscal({
+      valorNeto: extraida.valorNeto ?? null,
+      montoIsv: extraida.montoIsv ?? null,
+      montoOtrosImpuestos: extraida.montoOtrosImpuestos ?? null,
+      valorTotal: extraida.valorTotal ?? null,
+      impuestosDesglosados: extraida.impuestosDesglosados ?? null,
+      tasaIsv: 0.15,
+    });
+    if (ia) {
+      // Preferir la coherencia de la IA, pero nunca inventar: si dice no_verificable usamos la determinística.
+      if (ia.coherencia_aritmetica !== "no_verificable" || det.coherencia === "no_verificable") {
+        observacion = ia.observacion ?? observacion;
+        requiereAclaracion = ia.requiere_aclaracion;
+        if (det.coherencia !== "no_verificable" && ia.coherencia_aritmetica === "no_verificable") {
+          observacion = det.observacion ?? observacion;
+          requiereAclaracion = det.requiere_aclaracion;
+        }
+      }
+    }
+  } catch {
+    // Sin clave o error de IA → queda la determinística.
+  }
+
+  const notaFinal = requiereAclaracion
+    ? observacion
+      ? `${observacion} Requiere aclaración con el proveedor antes de comparar.`
+      : "Requiere aclaración con el proveedor antes de comparar (impuestos no verificados)."
+    : observacion;
+
+  await repo.actualizarCotizacion(cotizacionId, {
+    observacionesFiscales: notaFinal ?? undefined,
+    fechaCarga: new Date().toISOString(),
+  });
 }

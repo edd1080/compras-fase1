@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { clasificar, assessment, extraerCotizacion, comparativa } from "./orchestrator";
+import { clasificar, assessment, extraerCotizacion, comparativa, validarFiscal } from "./orchestrator";
 
 function mockOpenRouterResponde(contenido: unknown, _status = 200) {
   return vi.fn(async () => {
@@ -133,5 +133,24 @@ describe("Orquestador IA", () => {
   it("devuelve null sin excepción cuando la clave no está", async () => {
     delete process.env.OPENROUTER_API_KEY;
     await expect(clasificar({ titulo: "x", descripcion: "", categoria: "" })).resolves.toBeNull();
+  });
+
+  it("validarFiscal devuelve la coherencia tipada con JSON válido", async () => {
+    vi.stubGlobal("fetch", mockOpenRouterResponde({
+      tratamiento_declarado: "incluye",
+      coherencia_aritmetica: "correcta",
+      observacion: null,
+      requiere_aclaracion: false,
+    }));
+    const res = await validarFiscal({
+      valorNeto: 100,
+      montoIsv: 15,
+      valorTotal: 115,
+      impuestosDesglosados: true,
+      tasaIsv: 0.15,
+    });
+    expect(res?.tratamiento_declarado).toBe("incluye");
+    expect(res?.coherencia_aritmetica).toBe("correcta");
+    expect(res?.requiere_aclaracion).toBe(false);
   });
 });

@@ -100,7 +100,7 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
                 />
               ) : etapa === 8 ? (
                 comparativaData ? (
-                  <ComparativaView comparativa={comparativaData} cotizaciones={cotizaciones} onContinuar={() => setEtapa(9)} />
+                  <ComparativaView solicitudId={solicitud.id} comparativa={comparativaData} cotizaciones={cotizaciones} onContinuar={() => setEtapa(9)} />
                 ) : (
                   <p className="text-sm text-slate-500 flex items-center gap-2">
                     {generandoComparativa ? (
