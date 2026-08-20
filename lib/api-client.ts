@@ -9,6 +9,7 @@ import type {
   Solicitud,
 } from "@/lib/domain/types";
 import type { MetricasDashboard as Metricas } from "@/lib/domain/metrics";
+import type { FiltrosMetricas } from "@/lib/db/repositorio";
 import type { ClasificarOutput } from "@/lib/ai/schemas";
 import type { ResultadoAssessment } from "@/lib/domain/assessment";
 
@@ -223,7 +224,14 @@ export const api = {
     }).then((r) => json<Decision>(r));
   },
 
-  metricas(): Promise<Metricas> {
-    return fetch("/api/metricas").then((r) => json<Metricas>(r));
+  metricas(filtros?: FiltrosMetricas): Promise<Metricas> {
+    const params = new URLSearchParams();
+    if (filtros?.rango) params.set("rango", filtros.rango);
+    if (filtros?.desde) params.set("desde", filtros.desde);
+    if (filtros?.hasta) params.set("hasta", filtros.hasta);
+    if (filtros?.coordinador) params.set("coordinador", filtros.coordinador);
+    if (filtros?.categoria) params.set("categoria", filtros.categoria);
+    const qs = params.toString();
+    return fetch(`/api/metricas${qs ? `?${qs}` : ""}`).then((r) => json<Metricas>(r));
   },
 };

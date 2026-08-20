@@ -28,9 +28,15 @@ export default function AdminDashboardPage() {
   const [cargando, setCargando] = useState(true);
   const [procesos, setProcesos] = useState<Solicitud[]>([]);
 
+  const desdem = rango === "all" ? undefined : rango === "hoy" ? "dia" : rango;
+
   useEffect(() => {
+    setCargando(true);
     api
-      .metricas()
+      .metricas({
+        rango: desdem,
+        coordinador: coordinador === "all" ? undefined : coordinador,
+      })
       .then((m) => setMetricas(m))
       .catch(() => setMetricas(METRICAS_VACIAS))
       .finally(() => setCargando(false));
@@ -45,7 +51,12 @@ export default function AdminDashboardPage() {
   const distribucion = Object.entries(metricas.distribucionPorTipo);
   const distribucionTotal = Math.max(1, distribucion.reduce((a, [, v]) => a + v, 0));
 
+  const diasAtras = rango === "hoy" ? 1 : rango === "semana" ? 7 : rango === "mes" ? 30 : -1;
+  const minIso = diasAtras > 0 ? new Date(Date.now() - diasAtras * 86400000).toISOString() : null;
+  const exportUrl = `/api/metricas/excel?rango=${rango === "all" ? "todo" : rango === "hoy" ? "dia" : rango}${coordinador !== "all" ? `&coordinador=${coordinador}` : ""}`;
+
   const procesosFiltrados = procesos.filter((s) => {
+    if (rango !== "all" && minIso && s.fechaCreacion < minIso) return false;
     if (coordinador !== "all" && s.coordinadorId !== coordinador) return false;
     if (busqueda.trim() === "") return true;
     const q = busqueda.toLowerCase();
@@ -59,10 +70,10 @@ export default function AdminDashboardPage() {
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <StatCard label="Conversión (Aceptación)" value="84%" trend="+2.1%" tone="emerald" />
-            <StatCard label="Tiempo Promedio" value="4.2" unit="días" trend="−0.3d" />
-            <StatCard label="Procesos Activos" value="38" sub="en curso" tone="sky" />
-            <StatCard label="Sin decisión > 5 días" value="7" sub="alertas" tone="rose" danger />
+            <StatCard label="Conversión (Aceptación)" value={metricas.tasaConversion === null ? "—" : `${metricas.tasaConversion.toFixed(0)}%`} tone="emerald" />
+            <StatCard label="Tiempo Promedio" value={metricas.tiempoCicloPromedioDias === null ? "—" : metricas.tiempoCicloPromedioDias.toFixed(1)} unit="días" />
+            <StatCard label="Procesos Activos" value={String(metricas.solicitudesActivas)} sub="en curso" tone="sky" />
+            <StatCard label="Sin decisión > 5 días" value={String(metricas.solicitudesSinDecision)} sub="alertas" tone="rose" danger />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -108,7 +119,7 @@ export default function AdminDashboardPage() {
                 <option value="all">Todos los coordinadores</option>
                 {usuariosFixture.filter((u) => u.rol === "coordinador").map((u) => <option key={u.id} value={u.id}>{u.nombre}</option>)}
               </select>
-              <button className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 hover:text-sky-600 transition-colors flex items-center gap-1.5 bg-white/70 px-4 py-2 rounded-xl border border-white shadow-sm">Exportar</button>
+              <a href={exportUrl} className="text-[11px] font-semibold uppercase tracking-wider text-sky-600 hover:text-sky-800 transition-colors flex items-center gap-1.5 bg-white/70 px-4 py-2 rounded-xl border border-white shadow-sm">Exportar</a>
             </div>
           </div>
 
