@@ -40,7 +40,7 @@ export default function AdminDashboardPage() {
       .catch(() => setMetricas(METRICAS_VACIAS))
       .finally(() => setCargando(false));
     api.listarSolicitudesTodas().then(setProcesos).catch(() => setProcesos([]));
-  }, [rango, coordinador]);
+  }, [rango, coordinador, desdem]);
 
   const nombreCoord = (id: string) => usuariosFixture.find((u) => u.id === id)?.nombre.split(" ")[0] ?? id;
 
