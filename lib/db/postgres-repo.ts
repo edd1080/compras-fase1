@@ -593,7 +593,7 @@ export class PostgresRepositorio implements Repositorio {
     for (const r of volRes.rows) volumenPorCoordinador[String(r.c)] = Number(r.k);
 
     const tipoRes = await this.pg.query(
-      `SELECT COALESCE(tipo, 'SIN_TIPO') AS t, count(*) AS k FROM solicitud${where} GROUP BY t`,
+      `SELECT COALESCE(tipo::text, 'SIN_TIPO') AS t, count(*) AS k FROM solicitud${where} GROUP BY t`,
       vals
     );
     const distribucionPorTipo: Record<string, number> = {};
