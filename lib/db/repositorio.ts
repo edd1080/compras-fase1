@@ -7,6 +7,7 @@ import type {
   Cotizacion,
   Decision,
   DocumentoGenerado,
+  LinkPublico,
   RespuestaCampo,
   Solicitud,
   Usuario,
@@ -57,6 +58,14 @@ export interface Repositorio {
   registrarDecision(
     decision: Omit<Decision, "id" | "fechaDecision">
   ): Promise<Decision>;
+
+  obtenerComparativaPorId(id: string): Promise<Comparativa | null>;
+
+  crearLinkPublico(comparativaId: string, token: string, fechaExpiracion?: string): Promise<LinkPublico>;
+
+  obtenerLinkPorToken(token: string): Promise<LinkPublico | null>;
+
+  registrarAccesoLink(token: string): Promise<void>;
 
   persistirDocumento(input: {
     solicitudId: string;

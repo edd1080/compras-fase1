@@ -9,6 +9,7 @@ import type {
   Cotizacion,
   Decision,
   DocumentoGenerado,
+  LinkPublico,
   RespuestaCampo,
   Solicitud,
   Usuario,
@@ -369,6 +370,65 @@ export class PostgresRepositorio implements Repositorio {
       ningunaOpcion: Boolean(f.ninguna_opcion),
       comentario: f.comentario ?? undefined,
     };
+  }
+
+  async obtenerComparativaPorId(id: string): Promise<Comparativa | null> {
+    const res = await this.pg.query(
+      "SELECT * FROM comparativa WHERE id = $1",
+      [id]
+    );
+    if (!res.rows[0]) return null;
+    const f = res.rows[0];
+    return {
+      id: String(f.id),
+      solicitudId: String(f.solicitud_id),
+      prosContras: (f.pros_contras as Record<string, { pros: string[]; contras: string[] }>) ?? {},
+      discrepanciasDetectadas: f.discrepancias_detectadas ?? [],
+      sugerenciaIA: f.sugerencia_ia ?? undefined,
+      cotizacionSugeridaId: f.cotizacion_sugerida_id ?? undefined,
+      recomendacionComprador: f.recomendacion_comprador ?? undefined,
+      fechaRecomendacion: f.fecha_recomendacion ?? undefined,
+      fechaGeneracion: String(f.fecha_generacion),
+    };
+  }
+
+  async crearLinkPublico(comparativaId: string, token: string, fechaExpiracion?: string): Promise<LinkPublico> {
+    const res = await this.pg.query(
+      `INSERT INTO link_publico (comparativa_id, token, fecha_expiracion)
+       VALUES ($1, $2, $3)
+       RETURNING id, comparativa_id, token, fecha_expiracion, veces_accedido, revocado`,
+      [comparativaId, token, fechaExpiracion ?? null]
+    );
+    const f = res.rows[0];
+    return {
+      id: String(f.id),
+      comparativaId: String(f.comparativa_id),
+      token: String(f.token),
+      fechaExpiracion: f.fecha_expiracion ? String(f.fecha_expiracion) : undefined,
+      vecesAccedido: Number(f.veces_accedido),
+      revocado: Boolean(f.revocado),
+    };
+  }
+
+  async obtenerLinkPorToken(token: string): Promise<LinkPublico | null> {
+    const res = await this.pg.query("SELECT * FROM link_publico WHERE token = $1", [token]);
+    const f = res.rows[0];
+    if (!f) return null;
+    return {
+      id: String(f.id),
+      comparativaId: String(f.comparativa_id),
+      token: String(f.token),
+      fechaExpiracion: f.fecha_expiracion ? String(f.fecha_expiracion) : undefined,
+      vecesAccedido: Number(f.veces_accedido),
+      revocado: Boolean(f.revocado),
+    };
+  }
+
+  async registrarAccesoLink(token: string): Promise<void> {
+    await this.pg.query(
+      "UPDATE link_publico SET veces_accedido = veces_accedido + 1, ultimo_acceso = now() WHERE token = $1",
+      [token]
+    );
   }
 
   async leerConfig(clave: string): Promise<unknown> {

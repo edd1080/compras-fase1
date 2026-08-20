@@ -6,16 +6,49 @@ import type { Cotizacion, ProsContras } from "@/lib/domain/types";
 import { formato } from "@/lib/domain/comparativa";
 
 type VistaPublicaProps = {
+  token: string;
+  solicitudId: string;
   cotizaciones: Cotizacion[];
   prosContras: Record<string, ProsContras>;
   recomendacion?: string;
   advertenciaGeneral?: string | null;
 };
 
-export function VistaPublica({ cotizaciones, prosContras, recomendacion, advertenciaGeneral }: VistaPublicaProps) {
+export function VistaPublica({ token, solicitudId, cotizaciones, prosContras, recomendacion, advertenciaGeneral }: VistaPublicaProps) {
   const [elegida, setElegida] = useState<string | null>(null); // id del proveedor
   const [modal, setModal] = useState<{ id: string; nombre: string } | null>(null);
   const [ningunaSirve, setNingunaSirve] = useState(false);
+  const [mensaje, setMensaje] = useState<{ tipo: "ok" | "error"; texto: string } | null>(null);
+  const [enviando, setEnviando] = useState(false);
+
+  async function enviarDecision(payload: { cotizacionId?: string; ningunaOpcion?: boolean; comentario?: string }) {
+    setEnviando(true);
+    setMensaje(null);
+    try {
+      const res = await fetch(`/api/comparativas/${token}/decision`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ solicitudId, ...payload }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error ?? "No se pudo registrar la decisión");
+      }
+      const d = await res.json();
+      setMensaje({
+        tipo: "ok",
+        texto: d.ningunaOpcion
+          ? "Se notificó a Compras. La solicitud vuelve a revisión."
+          : "Tu decisión fue registrada. Compras recibirá la notificación.",
+      });
+      return true;
+    } catch (e) {
+      setMensaje({ tipo: "error", texto: e instanceof Error ? e.message : "Error al enviar" });
+      return false;
+    } finally {
+      setEnviando(false);
+    }
+  }
 
   return (
     <main className="min-h-screen flex items-start justify-center p-4 md:p-8 relative overflow-hidden">
@@ -111,13 +144,24 @@ export function VistaPublica({ cotizaciones, prosContras, recomendacion, adverte
 
           <button
             type="button"
-            disabled={elegida !== null || ningunaSirve}
-            onClick={() => setNingunaSirve(true)}
+            disabled={elegida !== null || ningunaSirve || enviando}
+            onClick={async () => {
+              const ok = await enviarDecision({ ningunaOpcion: true, comentario: undefined });
+              if (ok) {
+                setNingunaSirve(true);
+              }
+            }}
             className="mt-4 w-full bg-white text-slate-700 text-xs px-6 py-3 rounded-full font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 border border-slate-200 shadow-sm"
           >
-            {ningunaSirve ? "Se notificó a Compras — la solicitud vuelve a cotización" : "Ninguna me sirve, necesito hablar con Compras"}
+            {enviando ? "Enviando…" : ningunaSirve ? "Se notificó a Compras — la solicitud vuelve a revisión" : "Ninguna me sirve, necesito hablar con Compras"}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-slate-500"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg>
           </button>
+
+          {mensaje ? (
+            <div className={"mt-4 rounded-xl px-4 py-3 text-sm " + (mensaje.tipo === "ok" ? "bg-emerald-50 text-emerald-800 border border-emerald-200" : "bg-rose-50 text-rose-800 border border-rose-200")}>
+              {mensaje.texto}
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -137,13 +181,17 @@ export function VistaPublica({ cotizaciones, prosContras, recomendacion, adverte
               <button type="button" onClick={() => setModal(null)} className="flex-1 bg-white text-slate-700 text-xs px-4 py-3 rounded-full font-medium border border-slate-200 hover:bg-slate-50 transition-all">Cancelar</button>
               <button
                 type="button"
-                onClick={() => {
-                  setElegida(modal.id);
-                  setModal(null);
+                disabled={enviando}
+                onClick={async () => {
+                  const ok = await enviarDecision({ cotizacionId: modal.id });
+                  if (ok) {
+                    setElegida(modal.id);
+                    setModal(null);
+                  }
                 }}
-                className="flex-1 bg-slate-900 text-white text-xs px-4 py-3 rounded-full font-medium hover:bg-slate-800 transition-all"
+                className="flex-1 bg-slate-900 text-white text-xs px-4 py-3 rounded-full font-medium hover:bg-slate-800 disabled:opacity-60 transition-all"
               >
-                Confirmar
+                {enviando ? "Enviando…" : "Confirmar"}
               </button>
             </div>
           </div>
