@@ -31,7 +31,6 @@ export default function AdminDashboardPage() {
   const desdem = rango === "all" ? undefined : rango === "hoy" ? "dia" : rango;
 
   useEffect(() => {
-    setCargando(true);
     api
       .metricas({
         rango: desdem,
