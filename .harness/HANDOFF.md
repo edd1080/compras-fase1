@@ -1,28 +1,20 @@
 # Active Handoff
 
-**Feature 006-IA-Integracion — CERRADA (G5/G6)**
+**Feature 008-Sprint4-Dashboard-Alertas — CERRADA (G5/G6)**
 
 ## Estado
-- Feature 006 cerrada con evidencia completa (`specs/006-ia-integracion/verification.md`).
-- Batería final: 68 unit tests ✅ · 21 e2e ✅ (workers=1) · typecheck ✅ · lint ✅ · build ✅.
-- Todos los gaps del cierre resueltos: lint (0 errores), T008 (test de hook de clasificación), T015 (confianza por campo + alerta "revisión manual" <0.5), tasks.md marcado 19/19, verification.md creado.
+- Feature 008 cerrada con evidencia completa (`specs/008-sprint4-dashboard-alertas/verification.md`).
+- Batería final: 80 unit tests ✅ (18 files, 6 skipped requieren DB) · 22 e2e ✅ (workers=1) · typecheck ✅ · lint ✅ · build ✅.
+- QA adversarial (skill `validate`) cerró 4 críticos: RN-01 (recomendación persistida), envío atómico (link antes de transicionar), token criptográfico, y fuga de seguridad en API interna (protegida por rol con nuevo `lib/api-guard.ts`).
+- Fix latente de zona horaria en `filaSolicitud` (`gmt-0600` al re-parametrizar fechas).
+- Decisión humana tomada: se aplicó la opción A (proteger API interna por rol + ajustar e2e para autenticarse).
 
-## Decisiones registradas
-- Motor IA: OpenRouter → Gemini Flash Lite (default) / GPT-4o-mini (fallback). Rutas server `/api/ia/*` (la clave nunca va al navegador).
-- Schemas de salida IA en snake_case (doc 16) con campos tolerantes.
-- Creación manual de cotizaciones = fallback de disponibilidad (doc 17) + subida de archivo.
-- Migraciones 009 (catálogo) y 010 (usuarios auth) aplicadas.
+## Cambios clave de la 008
+- Decisión real por link: `crearLinkPublico`/`obtenerLinkPorToken` en repo; ruta GET/POST `/api/comparativas/[token]`; `VistaPublica` fuera de demo.
+- Envío de comparativa real: `Recomendacion`/`DetalleSolicitud` ahora persisten la recomendación y exponen el link/token real.
+- Dashboard KPIs reales + filtros (S2), motor de alertas + config operativa (S3), export Excel (S4).
+- Seguridad: `guardApi` en cotizaciones, comparativa/excel, listar todas; envío anónimo del solicitante sigue público.
 
-## Feature 007 (recomendada, NO iniciada)
-- Esqueleto en `specs/007-sprint3-ia-comparativa/spec.md` (Draft, G2 pendiente).
-- S1: Extracción robusta + validación fiscal (ISV) + alertas de revisión.
-- S2: Comparativa contextual + Excel descargable.
-- S3: Catálogo editable en admin.
-
-## Próxima acción exacta
-1. Decidir alcance del primer slice de la 007 (recomendación: S1 extracción/validación fiscal).
-2. Ejecutar intake/feature-selection del ADF para abrir la 007 formalmente (G2 → G3 → G4 → implementación).
-
-## Evidencia de cierre
-- `git log 1a5313a..HEAD` = commits `a60fe75`…`<cierre>` (feature 006).
-- `specs/006-ia-integracion/verification.md` (informe completo).
+## Próximos pasos
+- Seleccionar la próxima feature (Sprint 4/5 completo o piloto) vía `.harness/STATE.md`/`session-start`.
+- Commits pendientes de cierre: `.harness/STATE.md`, `specs/.../tasks.md`, `specs/.../verification.md` (ver git status; el commit final los agrupa). Excluir `qa/report-explorador.md` (artifact regenerado por e2e).
