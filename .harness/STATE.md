@@ -1,32 +1,29 @@
 ---
 schemaVersion: 1
-lifecycle: closed
-currentGate: G6
-activeFeature: 007-sprint3-ia-comparativa
+lifecycle: feature-specify
+currentGate: G2
+activeFeature: 008-sprint4-dashboard-alertas
 approvals:
   G1: true
-  G2: true
-  G3: true
-  G4: true
+  G2: false
+  G3: false
+  G4: false
 nextAction:
-  command: feature-selection
-  prompt: "007 cerrada (G5/G6). Siguiente feature: Sprint 4/5 del backlog — dashboard con métricas de conversión, alertas y administración final, o inicio del piloto (requiere plantillas oficiales de BIA)."
+  command: feature-specify
+  prompt: "Feature 008 abierta. Revisar y aprobar specs/008-sprint4-dashboard-alertas/spec.md (Gate G2)."
 ---
 
 # Project State
 
 ## Current objective
 
-Feature **007-sprint3-ia-comparativa** cerrada (G5 ✅, G6 ✅, 2026-08-18). S1 (persistencia completa + validación fiscal con `requiere_aclaracion`), S2 (comparativa contextual + Excel de 3 hojas descargable) y S3 (catálogo editable en admin). Verificación en `specs/007-sprint3-ia-comparativa/verification.md`.
+Abrir la feature **008-sprint4-dashboard-alertas** (dashboard con métricas de conversión y alertas, Sprint 4/5 del backlog). La auditoría confirmó que hoy el dashboard admin es mayormente mock (KPIs hardcodeados, filtros decorativos, sin motor de alertas, sin decisión real que cierre la solicitud). Spec draft en preparación.
 
 ## Approvals
 
-- G1 ✅ (proyecto global) · 000 ✅ · 001 ✅ · 002 ✅ · 003 ✅ · 004 ✅ · 005 ✅ · 006 ✅ · 007-sprint3-ia-comparativa ✅ (2026-08-18, G5/G6).
+- G1 ✅ (proyecto global) · 000 ✅ … 007 ✅ (G5/G6, 2026-08-18).
+- **008**: G2 pendiente.
 
-## Próxima feature (recomendada)
+## Hallazgo que ordena la 008
 
-**Sprint 4/5 del backlog (doc 17):** dashboard con métricas de conversión y tiempos reales, alertas configurables, y la administración final (más allá del catálogo). Alternativa: arrancar el piloto — requiere que BIA entregue plantillas oficiales y el criterio de clasificación (insumos aún no recibidos).
-
-## Blocker
-
-Ninguno técnico. El piloto (Sprint 5) está bloqueado por insumos de BIA (plantillas oficiales, criterio de clasificación, dominio), no por desarrollo.
+La tasa de conversión (métrica principal de Lady, "la cereza del pastel") no se puede medir hoy de forma real: la vista pública de decisión (`/comparativa/[token]`) es demo (token fijo, no llama `registrarDecision` ni transiciona a `CERRADA_CON_DECISION`). El dashboard pinta KPIs hardcodeados. La 008 debe primero hacer la decisión real y luego conectarla a las métricas, alertas y exportación.
