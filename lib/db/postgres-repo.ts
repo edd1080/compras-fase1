@@ -14,9 +14,11 @@ import type {
   Solicitud,
   Usuario,
 } from "@/lib/domain/types";
+import type { MetricasDashboard } from "@/lib/domain/metrics";
 import type {
   Repositorio,
   TransicionResultado,
+  FiltrosMetricas,
 } from "./repositorio";
 
 function filaSolicitud(f: Record<string, unknown>): Solicitud {
@@ -434,6 +436,73 @@ export class PostgresRepositorio implements Repositorio {
   async leerConfig(clave: string): Promise<unknown> {
     const res = await this.pg.query("SELECT valor FROM configuracion WHERE clave = $1", [clave]);
     return res.rows[0]?.valor ?? null;
+  }
+
+  async metricasDashboard(filtros?: FiltrosMetricas): Promise<MetricasDashboard> {
+    const cond: string[] = [];
+    const vals: unknown[] = [];
+    let i = 1;
+
+    const desde =
+      filtros?.desde ??
+      (filtros?.rango === "dia"
+        ? new Date(Date.now() - 86400000).toISOString().slice(0, 10)
+        : filtros?.rango === "semana"
+          ? new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10)
+          : filtros?.rango === "mes"
+            ? new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)
+            : undefined);
+
+    if (desde) { cond.push(`fecha_creacion >= $${i++}::date`); vals.push(desde); }
+    if (filtros?.hasta) { cond.push(`fecha_creacion <= $${i++}::date`); vals.push(filtros.hasta); }
+    if (filtros?.coordinador) { cond.push(`coordinador_id = $${i++}`); vals.push(filtros.coordinador); }
+    if (filtros?.categoria) { cond.push(`categoria = $${i++}`); vals.push(filtros.categoria); }
+
+    const where = cond.length ? ` WHERE ${cond.join(" AND ")}` : "";
+
+    const n = (sql: string) =>
+      this.pg.query(sql, vals).then((r) => Number(r.rows[0]?.n ?? 0));
+
+    const enviadas = await n(`SELECT count(*) AS n FROM solicitud${where} AND estado <> 'BORRADOR'`);
+    const cerradas = await n(`SELECT count(*) AS n FROM solicitud${where} AND estado = 'CERRADA_CON_DECISION'`);
+    const activas = await n(
+      `SELECT count(*) AS n FROM solicitud${where} AND estado NOT IN ('CERRADA_CON_DECISION','CERRADA_SIN_DECISION','CANCELADA','BORRADOR')`
+    );
+    const sinDecision = await n(
+      `SELECT count(*) AS n FROM solicitud${where} AND estado NOT IN ('CERRADA_CON_DECISION','CERRADA_SIN_DECISION','CANCELADA')
+       AND fecha_creacion < now() - interval '${Number(filtros?.umbralDias ?? 5)} days'`
+    );
+
+    const tCicloRes = await this.pg.query(
+      `SELECT AVG(fecha_cierre - fecha_envio) AS d FROM solicitud${where}
+       AND estado = 'CERRADA_CON_DECISION' AND fecha_envio IS NOT NULL AND fecha_cierre IS NOT NULL`,
+      vals
+    );
+    const tiempoCicloDias =
+      tCicloRes.rows[0]?.d == null ? null : Number(tCicloRes.rows[0].d) * 24;
+
+    const volRes = await this.pg.query(
+      `SELECT coordinador_id AS c, count(*) AS k FROM solicitud${where} AND coordinador_id IS NOT NULL GROUP BY coordinador_id`,
+      vals
+    );
+    const volumenPorCoordinador: Record<string, number> = {};
+    for (const r of volRes.rows) volumenPorCoordinador[String(r.c)] = Number(r.k);
+
+    const tipoRes = await this.pg.query(
+      `SELECT COALESCE(tipo, 'SIN_TIPO') AS t, count(*) AS k FROM solicitud${where} GROUP BY t`,
+      vals
+    );
+    const distribucionPorTipo: Record<string, number> = {};
+    for (const r of tipoRes.rows) distribucionPorTipo[String(r.t)] = Number(r.k);
+
+    return {
+      tasaConversion: enviadas === 0 ? null : (cerradas / enviadas) * 100,
+      tiempoCicloPromedioDias: tiempoCicloDias,
+      solicitudesActivas: activas,
+      solicitudesSinDecision: sinDecision,
+      volumenPorCoordinador,
+      distribucionPorTipo,
+    };
   }
 
   async listarCampoCatalogo(incluirInactivos = false): Promise<CampoCatalogo[]> {

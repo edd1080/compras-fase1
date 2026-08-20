@@ -12,6 +12,7 @@ import type {
   Solicitud,
   Usuario,
 } from "@/lib/domain/types";
+import type { MetricasDashboard } from "@/lib/domain/metrics";
 
 export type TransicionResultado = {
   solicitud: Solicitud;
@@ -67,6 +68,8 @@ export interface Repositorio {
 
   registrarAccesoLink(token: string): Promise<void>;
 
+  metricasDashboard(filtros?: FiltrosMetricas): Promise<MetricasDashboard>;
+
   persistirDocumento(input: {
     solicitudId: string;
     tipo: string;
@@ -86,3 +89,12 @@ export interface Repositorio {
 
   leerConfig(clave: string): Promise<unknown>;
 }
+
+export type FiltrosMetricas = {
+  rango?: "dia" | "semana" | "mes" | "todo";
+  desde?: string;
+  hasta?: string;
+  coordinador?: string;
+  categoria?: string;
+  umbralDias?: number;
+};
