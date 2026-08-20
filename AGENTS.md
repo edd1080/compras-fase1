@@ -47,4 +47,12 @@ A successful validation is evidence, not human approval.
 - Record verification evidence before declaring work complete.
 
 Load detailed procedures from `.agents/skills/` only when relevant to the current lifecycle and task.
+
+## Validación adversarial obligatoria
+
+- Después de CADA bloque de trabajo con código nuevo (un slice, una tarea sustancial, o un commit con lógica), invoca la skill **`validate`** (QA adversarial).
+- La skill revisa el bloque con escepticismo duro contra los invariantes del proyecto: determinismo, guardrails de IA, RN-01 (decisión humana), auth/roles/link público, datos reales vs mock, edge cases, fallos silenciosos, integridad de la máquina de estados.
+- Si `validate` reporta críticos: corregir ANTES de continuar, con test nuevo si aplica, y volver a correr QA. Medios: corregir o documentar la decisión. No continuar el bloque hasta el OK de QA.
+- Antes de cerrar cualquier feature (G5/G6) y al terminar la implementación de una feature completa, `validate` se ejecuta SIEMPRE y su resultado se referencia en el `verification.md`.
+- La skill `validate` es complemento de `verify-work` (evidencia vs DoD) y `code-review` (dos ejes); no la reemplaza.
 <!-- ADF:END -->
