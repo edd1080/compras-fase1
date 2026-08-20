@@ -50,6 +50,13 @@ export default function AdminDashboardPage() {
   const distribucion = Object.entries(metricas.distribucionPorTipo);
   const distribucionTotal = Math.max(1, distribucion.reduce((a, [, v]) => a + v, 0));
 
+  const [alertasInfo, setAlertasInfo] = useState<string | null>(null);
+  function ejecutarAlertas() {
+    fetch("/api/admin/alertas/ejecutar", { method: "POST" })
+      .then((r) => r.json())
+      .then((d) => setAlertasInfo(d.alertas ? `alertas: ${d.alertas.length}` : "sin alertas"))
+      .catch(() => setAlertasInfo("error"));
+  }
   const diasAtras = rango === "hoy" ? 1 : rango === "semana" ? 7 : rango === "mes" ? 30 : -1;
   const minIso = diasAtras > 0 ? new Date(Date.now() - diasAtras * 86400000).toISOString() : null;
   const exportUrl = `/api/metricas/excel?rango=${rango === "all" ? "todo" : rango === "hoy" ? "dia" : rango}${coordinador !== "all" ? `&coordinador=${coordinador}` : ""}`;
@@ -119,6 +126,9 @@ export default function AdminDashboardPage() {
                 {usuariosFixture.filter((u) => u.rol === "coordinador").map((u) => <option key={u.id} value={u.id}>{u.nombre}</option>)}
               </select>
               <a href={exportUrl} className="text-[11px] font-semibold uppercase tracking-wider text-sky-600 hover:text-sky-800 transition-colors flex items-center gap-1.5 bg-white/70 px-4 py-2 rounded-xl border border-white shadow-sm">Exportar</a>
+              <button type="button" onClick={ejecutarAlertas} className="text-[11px] font-semibold uppercase tracking-wider text-rose-600 hover:text-rose-800 transition-colors flex items-center gap-1.5 bg-white/70 px-4 py-2 rounded-xl border border-white shadow-sm">
+                {alertasInfo ?? "Ejecutar alertas"}
+              </button>
             </div>
           </div>
 

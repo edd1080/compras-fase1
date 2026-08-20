@@ -438,6 +438,14 @@ export class PostgresRepositorio implements Repositorio {
     return res.rows[0]?.valor ?? null;
   }
 
+  async guardarConfig(clave: string, valor: unknown): Promise<void> {
+    await this.pg.query(
+      `INSERT INTO configuracion (clave, valor) VALUES ($1, $2)
+       ON CONFLICT (clave) DO UPDATE SET valor = EXCLUDED.valor`,
+      [clave, JSON.stringify(valor)]
+    );
+  }
+
   async metricasDashboard(filtros?: FiltrosMetricas): Promise<MetricasDashboard> {
     const cond: string[] = [];
     const vals: unknown[] = [];

@@ -88,6 +88,8 @@ export interface Repositorio {
   }): Promise<CorreoEnviado>;
 
   leerConfig(clave: string): Promise<unknown>;
+
+  guardarConfig(clave: string, valor: unknown): Promise<void>;
 }
 
 export type FiltrosMetricas = {
