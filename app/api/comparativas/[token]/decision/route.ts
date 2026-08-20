@@ -47,20 +47,13 @@ export async function POST(
       }
     }
 
-    await repo.registrarDecision({
+    await repo.registrarDecisionYCerrar({
       comparativaId: comparativa.id,
+      solicitudId: comparativa.solicitudId,
       cotizacionSeleccionadaId: body.ningunaOpcion ? undefined : body.cotizacionId,
       decididoPorEmail: body.decididoPorEmail ?? solicitud.solicitanteEmail,
       ningunaOpcion: body.ningunaOpcion,
       comentario: body.comentario,
-    });
-
-    await repo.transicionarEstado({
-      solicitudId: solicitud.id,
-      hacia: body.ningunaOpcion ? "CERRADA_SIN_DECISION" : "CERRADA_CON_DECISION",
-      actorTipo: "solicitante",
-      actorIdentificador: body.decididoPorEmail ?? solicitud.solicitanteEmail,
-      nota: body.ningunaOpcion ? "Ninguna opción seleccionada por el solicitante" : "Decisión tomada por el solicitante",
     });
 
     return NextResponse.json({ ok: true, estadoFinal: body.ningunaOpcion ? "CERRADA_SIN_DECISION" : "CERRADA_CON_DECISION" });

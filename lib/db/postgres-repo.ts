@@ -164,6 +164,67 @@ export class PostgresRepositorio implements Repositorio {
     }
   }
 
+  async registrarDecisionYCerrar(input: {
+    comparativaId: string;
+    solicitudId: string;
+    cotizacionSeleccionadaId?: string;
+    decididoPorEmail: string;
+    ningunaOpcion: boolean;
+    comentario?: string;
+  }): Promise<void> {
+    const client = await this.pg.connect();
+    try {
+      await client.query("BEGIN");
+      const sel = await client.query(
+        "SELECT * FROM solicitud WHERE id = $1 FOR UPDATE",
+        [input.solicitudId]
+      );
+      if (!sel.rows[0]) throw new Error("Solicitud no encontrada");
+      const actual = filaSolicitud(sel.rows[0]);
+      if (actual.estado !== "ENVIADA_A_SOLICITANTE") {
+        throw new Error("La solicitud no está en espera de decisión");
+      }
+
+      await client.query(
+        `INSERT INTO decision (comparativa_id, cotizacion_seleccionada_id, decidido_por_email, ninguna_opcion, comentario)
+         VALUES ($1,$2,$3,$4,$5)`,
+        [
+          input.comparativaId,
+          input.ningunaOpcion ? null : input.cotizacionSeleccionadaId ?? null,
+          input.decididoPorEmail,
+          input.ningunaOpcion,
+          input.comentario ?? null,
+        ]
+      );
+
+      const hacia = input.ningunaOpcion ? "CERRADA_SIN_DECISION" : "CERRADA_CON_DECISION";
+      await client.query(
+        `UPDATE solicitud SET estado = $2, fecha_cierre = now()
+         WHERE id = $1`,
+        [input.solicitudId, hacia]
+      );
+      await client.query(
+        `INSERT INTO evento_trazabilidad
+           (solicitud_id, tipo_evento, estado_anterior, estado_nuevo, actor_tipo, actor_identificador, nota)
+         VALUES ($1,'decision',$2,$3,'solicitante',$4,$5)`,
+        [
+          input.solicitudId,
+          actual.estado,
+          hacia,
+          input.decididoPorEmail,
+          input.ningunaOpcion ? "Ninguna opción seleccionada" : "Decisión por enlace público",
+        ]
+      );
+
+      await client.query("COMMIT");
+    } catch (e) {
+      await client.query("ROLLBACK");
+      throw e;
+    } finally {
+      client.release();
+    }
+  }
+
   async listarCoordinadores(): Promise<Usuario[]> {
     const res = await this.pg.query(
       "SELECT id, nombre, email, rol, categorias_asignadas, activo FROM usuario WHERE rol = 'coordinador' AND activo = true"
@@ -466,7 +527,7 @@ export class PostgresRepositorio implements Repositorio {
     if (filtros?.coordinador) { cond.push(`coordinador_id = $${i++}`); vals.push(filtros.coordinador); }
     if (filtros?.categoria) { cond.push(`categoria = $${i++}`); vals.push(filtros.categoria); }
 
-    const where = cond.length ? ` WHERE ${cond.join(" AND ")}` : "";
+    const where = cond.length ? ` WHERE ${cond.join(" AND ")}` : " WHERE true";
 
     const n = (sql: string) =>
       this.pg.query(sql, vals).then((r) => Number(r.rows[0]?.n ?? 0));
@@ -482,12 +543,13 @@ export class PostgresRepositorio implements Repositorio {
     );
 
     const tCicloRes = await this.pg.query(
-      `SELECT AVG(fecha_cierre - fecha_envio) AS d FROM solicitud${where}
+      `SELECT EXTRACT(EPOCH FROM AVG(fecha_cierre - fecha_envio)) / 86400.0 AS d
+       FROM solicitud${where}
        AND estado = 'CERRADA_CON_DECISION' AND fecha_envio IS NOT NULL AND fecha_cierre IS NOT NULL`,
       vals
     );
     const tiempoCicloDias =
-      tCicloRes.rows[0]?.d == null ? null : Number(tCicloRes.rows[0].d) * 24;
+      tCicloRes.rows[0]?.d == null ? null : Number(tCicloRes.rows[0].d);
 
     const volRes = await this.pg.query(
       `SELECT coordinador_id AS c, count(*) AS k FROM solicitud${where} AND coordinador_id IS NOT NULL GROUP BY coordinador_id`,

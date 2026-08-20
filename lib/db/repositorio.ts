@@ -60,6 +60,15 @@ export interface Repositorio {
     decision: Omit<Decision, "id" | "fechaDecision">
   ): Promise<Decision>;
 
+  registrarDecisionYCerrar(input: {
+    comparativaId: string;
+    solicitudId: string;
+    cotizacionSeleccionadaId?: string;
+    decididoPorEmail: string;
+    ningunaOpcion: boolean;
+    comentario?: string;
+  }): Promise<void>;
+
   obtenerComparativaPorId(id: string): Promise<Comparativa | null>;
 
   crearLinkPublico(comparativaId: string, token: string, fechaExpiracion?: string): Promise<LinkPublico>;

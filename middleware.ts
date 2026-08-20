@@ -47,6 +47,14 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
+  // API de administración y métricas: exclusivo de rol admin (403 para fetch, no redirect).
+  if (pathname.startsWith("/api/admin") || pathname.startsWith("/api/metricas")) {
+    const userRol = user?.app_metadata?.rol as string | undefined;
+    if (!user || userRol !== "admin") {
+      return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+    }
+  }
+
   // Si está en una ruta pública protegida por rol, resolverla.
   for (const [prefix, rol] of Object.entries(PROTEGIDAS)) {
     if (pathname.startsWith(prefix)) {

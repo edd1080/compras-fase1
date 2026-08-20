@@ -210,17 +210,26 @@ export const api = {
     );
   },
 
+  // Decisión por enlace público: se envía al POST /api/comparativas/[token]/decision
+  // (la ruta antigua /[id]/decision quedó obsoleta por colisión de rutas dinámicas).
   registrarDecision(payload: {
-    comparativaId: string;
+    token: string;
+    solicitudId: string;
     cotizacionSeleccionadaId?: string;
     decididoPorEmail: string;
     ningunaOpcion: boolean;
     comentario?: string;
   }): Promise<Decision> {
-    return fetch(`/api/comparativas/${payload.comparativaId}/decision`, {
+    return fetch(`/api/comparativas/${encodeURIComponent(payload.token)}/decision`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        solicitudId: payload.solicitudId,
+        cotizacionId: payload.cotizacionSeleccionadaId,
+        decididoPorEmail: payload.decididoPorEmail,
+        ningunaOpcion: payload.ningunaOpcion,
+        comentario: payload.comentario,
+      }),
     }).then((r) => json<Decision>(r));
   },
 

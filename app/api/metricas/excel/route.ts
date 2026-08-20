@@ -17,8 +17,14 @@ export async function GET(request: Request) {
     };
 
     const metricas = await repo.metricasDashboard(filtros);
+    const desde =
+      (filtros?.rango === "dia" ? new Date(Date.now() - 86400000).toISOString()
+        : filtros?.rango === "semana" ? new Date(Date.now() - 7 * 86400000).toISOString()
+          : filtros?.rango === "mes" ? new Date(Date.now() - 30 * 86400000).toISOString() : null);
+
     const procesos = (await repo.listarTodas()).filter((s) => {
       if (filtros.coordinador && s.coordinadorId !== filtros.coordinador) return false;
+      if (desde && s.fechaCreacion < desde) return false;
       return true;
     });
 
