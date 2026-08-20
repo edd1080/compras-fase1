@@ -10,13 +10,16 @@ type RecomendacionProps = {
   prosContras: Record<string, ProsContras>;
   sugerenciaIA?: string;
   cotizacionSugeridaId?: string;
-  onEnviar: (recomendacion: string) => void;
+  enlace?: { token: string; url: string } | null;
+  onEnviar: (recomendacion: string) => Promise<boolean>; // real: PATCH a ENVIADA_A_SOLICITANTE, retorna si se envió
 };
 
-export function Recomendacion({ cotizaciones, prosContras, sugerenciaIA, cotizacionSugeridaId, onEnviar }: RecomendacionProps) {
+export function Recomendacion({ cotizaciones, prosContras, sugerenciaIA, cotizacionSugeridaId, enlace, onEnviar }: RecomendacionProps) {
   const [recomendacion, setRecomendacion] = useState("");
   const [enviado, setEnviado] = useState(false);
   const [copiado, setCopiado] = useState(false);
+  const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
   const sugerida = cotizaciones.find((c) => c.id === cotizacionSugeridaId);
   const bloqueado = bloqueoB3Activo(recomendacion);
 
@@ -33,8 +36,8 @@ export function Recomendacion({ cotizaciones, prosContras, sugerenciaIA, cotizac
             <div className="bg-slate-50 rounded-2xl border border-slate-200 p-4">
               <div className="text-xs font-semibold text-slate-900">Enlace público (token)</div>
               <div className="mt-2 flex items-center gap-2">
-                <input readOnly defaultValue="https://bia.com/solicitud/t/9F2K-1A0C" className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-[11px] font-medium text-slate-700" />
-                <button onClick={() => { navigator.clipboard?.writeText("https://bia.com/solicitud/t/9F2K-1A0C"); setCopiado(true); }} className="text-[11px] font-semibold uppercase tracking-wider text-slate-700 hover:text-slate-900 bg-white px-3 py-2 rounded-xl border border-slate-200">{copiado ? "Copiado" : "Copiar"}</button>
+                <input readOnly defaultValue={enlace?.url ?? "Generando enlace…"} className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-[11px] font-medium text-slate-700" />
+                <button onClick={() => { if (enlace) { navigator.clipboard?.writeText(enlace.url); setCopiado(true); } }} className="text-[11px] font-semibold uppercase tracking-wider text-slate-700 hover:text-slate-900 bg-white px-3 py-2 rounded-xl border border-slate-200">{copiado ? "Copiado" : "Copiar"}</button>
               </div>
               <div className="text-[10px] text-slate-500 mt-2">Se incluye en el correo al solicitante.</div>
             </div>
@@ -117,12 +120,28 @@ export function Recomendacion({ cotizaciones, prosContras, sugerenciaIA, cotizac
           </div>
         ) : null}
         <div className="mt-4 flex items-center justify-end gap-2">
-          <button type="button" disabled={bloqueado} onClick={() => { onEnviar(recomendacion); setEnviado(true); }} className="bg-sky-500 text-white text-xs px-7 py-3 rounded-full font-medium hover:bg-sky-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-lg shadow-sky-500/20">
-            Enviar comparativa al solicitante
+          <button
+            type="button"
+            disabled={bloqueado || enviando}
+            onClick={async () => {
+              setErrorEnvio(null);
+              setEnviando(true);
+              const ok = await onEnviar(recomendacion);
+              setEnviando(false);
+              if (ok) setEnviado(true);
+              else setErrorEnvio("No se pudo enviar. Revisá la conexión e intentá de nuevo.");
+            }}
+            className="bg-sky-500 text-white text-xs px-7 py-3 rounded-full font-medium hover:bg-sky-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-lg shadow-sky-500/20"
+          >
+            {enviando ? "Enviando…" : "Enviar comparativa al solicitante"}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m22 2-7 20-4-9-9-4Z"/></svg>
           </button>
         </div>
-        <div className="mt-2 text-[10px] text-slate-500">Bloqueo duro B3: se valida también en el servidor.</div>
+        {errorEnvio ? (
+          <div className="mt-2 rounded-xl px-3 py-2 text-[11px] text-rose-700 bg-rose-50 border border-rose-200">{errorEnvio}</div>
+        ) : (
+          <div className="mt-2 text-[10px] text-slate-500">Bloqueo duro B3: se valida también en el servidor.</div>
+        )}
       </div>
     </div>
   );

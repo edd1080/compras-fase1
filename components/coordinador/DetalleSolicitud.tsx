@@ -15,6 +15,26 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
   const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>([]);
   const [cargando, setCargando] = useState(true);
   const [comparativaData, setComparativaData] = useState<Comparativa | undefined>(undefined);
+  const [enlaceEnviado, setEnlaceEnviado] = useState<{ token: string; url: string } | null>(null);
+  const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
+
+  async function enviarComparativa(recomendacion: string): Promise<boolean> {
+    if (!comparativaData) return false;
+    setErrorEnvio(null);
+    try {
+      const res = await api.transicionar({
+        solicitudId: solicitud.id,
+        hacia: "ENVIADA_A_SOLICITANTE",
+        actorTipo: "coordinador",
+        nota: recomendacion,
+      });
+      if (res.enlace) setEnlaceEnviado(res.enlace);
+      return true;
+    } catch (e) {
+      setErrorEnvio(e instanceof Error ? e.message : "No se pudo enviar");
+      return false;
+    }
+  }
 
   useEffect(() => {
     api
@@ -84,6 +104,9 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
         <div className="lg:col-span-8">
           <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
             <div className="p-6 md:p-8">
+              {errorEnvio ? (
+                <div className="mb-4 rounded-xl px-4 py-3 text-sm text-rose-700 bg-rose-50 border border-rose-200">{errorEnvio}</div>
+              ) : null}
               {cargando ? (
                 <p className="text-sm text-slate-500">Cargando cotizaciones…</p>
               ) : etapa === 7 ? (
@@ -114,7 +137,14 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
                   </p>
                 )
               ) : (
-                <Recomendacion cotizaciones={cotizaciones} prosContras={comparativaData?.prosContras ?? {}} sugerenciaIA={comparativaData?.sugerenciaIA} cotizacionSugeridaId={comparativaData?.cotizacionSugeridaId} onEnviar={() => undefined} />
+                <Recomendacion 
+                  cotizaciones={cotizaciones} 
+                  prosContras={comparativaData?.prosContras ?? {}} 
+                  sugerenciaIA={comparativaData?.sugerenciaIA} 
+                  cotizacionSugeridaId={comparativaData?.cotizacionSugeridaId} 
+                  enlace={enlaceEnviado} 
+                  onEnviar={enviarComparativa} 
+                />
               )}
             </div>
           </div>

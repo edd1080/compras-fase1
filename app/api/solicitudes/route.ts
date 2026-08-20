@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { PostgresRepositorio } from "@/lib/db/postgres-repo";
+import { guardApi } from "@/lib/api-guard";
 
 const repo = new PostgresRepositorio();
 
@@ -42,9 +43,13 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const coordinadorId = searchParams.get("coordinadorId");
+  // El listado de solicitudes es interno: todos exige admin, por coordinador exige
+  // coordinador/admin. La creación (POST) y mis-solicitudes quedan públicos.
+  const auth = await guardApi(coordinadorId === "all" ? ["admin"] : ["coordinador", "admin"]);
+  if (auth.negada) return auth.negada;
   try {
-    const { searchParams } = new URL(request.url);
-    const coordinadorId = searchParams.get("coordinadorId");
     if (coordinadorId === "all") {
       const todas = await repo.listarTodas();
       return NextResponse.json(todas);

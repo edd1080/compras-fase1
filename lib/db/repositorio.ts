@@ -56,6 +56,8 @@ export interface Repositorio {
 
   guardarComparativa(solicitudId: string, comparativa: Comparativa): Promise<Comparativa>;
 
+  guardarRecomendacionComprador(solicitudId: string, recomendacion: string): Promise<void>;
+
   registrarDecision(
     decision: Omit<Decision, "id" | "fechaDecision">
   ): Promise<Decision>;
@@ -70,6 +72,8 @@ export interface Repositorio {
   }): Promise<void>;
 
   obtenerComparativaPorId(id: string): Promise<Comparativa | null>;
+
+  obtenerComparativaPorSolicitudId(solicitudId: string): Promise<Comparativa | null>;
 
   crearLinkPublico(comparativaId: string, token: string, fechaExpiracion?: string): Promise<LinkPublico>;
 

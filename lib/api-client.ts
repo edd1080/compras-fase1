@@ -50,7 +50,7 @@ export const api = {
     nota?: string;
     respuestas?: Record<string, string>;
     coordenadorNombre?: string;
-  }): Promise<{ solicitud: Solicitud; eventoId: string; pipeline?: unknown }> {
+  }): Promise<{ solicitud: Solicitud; eventoId: string; pipeline?: unknown; enlace?: { token: string; url: string } }> {
     return fetch(`/api/solicitudes/${payload.solicitudId}/estado`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

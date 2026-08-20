@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { PostgresRepositorio } from "@/lib/db/postgres-repo";
+import { guardApi } from "@/lib/api-guard";
 
 const repo = new PostgresRepositorio();
 
@@ -8,6 +9,8 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await guardApi(["coordinador", "admin"]);
+  if (auth.negada) return auth.negada;
   try {
     const { id } = await params;
     const cotizaciones = await repo.listarCotizaciones(id);
@@ -35,6 +38,8 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await guardApi(["coordinador", "admin"]);
+  if (auth.negada) return auth.negada;
   try {
     const { id } = await params;
     const body = schema.parse(await request.json());

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { PostgresRepositorio } from "@/lib/db/postgres-repo";
 import { generarComparativaConIA } from "@/lib/domain/comparativa";
+import { guardApi } from "@/lib/api-guard";
 
 const repo = new PostgresRepositorio();
 
@@ -8,6 +9,8 @@ export async function POST(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await guardApi(["coordinador", "admin"]);
+  if (auth.negada) return auth.negada;
   try {
     const { id } = await params;
     const solicitud = await repo.obtenerSolicitud(id);
@@ -33,8 +36,17 @@ export async function POST(
       now: new Date().toISOString(),
     });
     const guardada = await repo.guardarComparativa(id, comparativa);
-    // Transición a COMPARATIVA_LISTA
-    if (solicitud.estado === "EN_COTIZACION") {
+    // Transición a COMPARATIVA_LISTA: si el coordinador aún no había tomado la solicitud
+    // (viene de ENVIADA_A_COMPRAS), primero pasar por EN_COTIZACION para respetar la máquina.
+    if (solicitud.estado === "ENVIADA_A_COMPRAS") {
+      await repo.transicionarEstado({
+        solicitudId: id,
+        hacia: "EN_COTIZACION",
+        actorTipo: "coordinador",
+        nota: "Coordinador comenzó a trabajar la solicitud",
+      });
+    }
+    if (solicitud.estado === "EN_COTIZACION" || solicitud.estado === "ENVIADA_A_COMPRAS") {
       await repo.transicionarEstado({
         solicitudId: id,
         hacia: "COMPARATIVA_LISTA",

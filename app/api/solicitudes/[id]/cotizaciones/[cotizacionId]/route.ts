@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { PostgresRepositorio } from "@/lib/db/postgres-repo";
+import { guardApi } from "@/lib/api-guard";
 
 const repo = new PostgresRepositorio();
 
@@ -20,6 +21,8 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string; cotizacionId: string }> }
 ) {
+  const auth = await guardApi(["coordinador", "admin"]);
+  if (auth.negada) return auth.negada;
   try {
     const { cotizacionId } = await params;
     const body = updateSchema.parse(await request.json());
@@ -46,6 +49,8 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string; cotizacionId: string }> }
 ) {
+  const auth = await guardApi(["coordinador", "admin"]);
+  if (auth.negada) return auth.negada;
   try {
     const { cotizacionId } = await params;
     await repo.eliminarCotizacion(cotizacionId);

@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { PostgresRepositorio } from "@/lib/db/postgres-repo";
 import { esTransicionValida } from "@/lib/domain/state-machine";
 import { pipelineEnvioACompras } from "@/lib/pdf/pipeline";
+import { guardApi } from "@/lib/api-guard";
 
 const repo = new PostgresRepositorio();
 
@@ -23,6 +25,12 @@ const schema = z.object({
   respuestas: z.record(z.string(), z.string()).optional(),
 });
 
+function generarTokenEnlace(): string {
+  // 3 grupos de 4 caracteres hexadecimales criptográficos (12 bytes de entropía).
+  const g = () => randomBytes(2).toString("hex").toUpperCase();
+  return `${g()}-${g()}-${g()}`;
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -30,6 +38,16 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = schema.parse(await request.json());
+
+    // Autorización por rol real (no por actorTipo del cliente):
+    // el único tránsito público es el envío del solicitante (BORRADOR → ENVIADA_A_COMPRAS
+    // con actorTipo "solicitante" desde una solicitud propia). Todo lo demás exige sesión
+    // de coordinador o admin.
+    const enviaSolicitante = body.hacia === "ENVIADA_A_COMPRAS" && body.actorTipo === "solicitante";
+    if (!enviaSolicitante) {
+      const auth = await guardApi(["coordinador", "admin"]);
+      if (auth.negada) return auth.negada;
+    }
 
     const solicitud = await repo.obtenerSolicitud(id);
     if (!solicitud) {
@@ -62,6 +80,34 @@ export async function PATCH(
       }
     }
 
+    // Al enviar la comparativa al solicitante: validar que exista comparativa, persistir
+    // la recomendación (RN-01) y generar el link público real con expiración desde config.
+    // El link se crea ANTES de transicionar para que un fallo no deje la solicitud en
+    // ENVIADA_A_SOLICITANTE sin enlace. Si la transición fallara (race extremo), el link
+    // quedaría huérfano pero es inofensivo: sin estado ENVIADA_A_SOLICITANTE el POST de
+    // decisión devuelve 409 y la expiración lo invalida. No se revoca explícitamente.
+    let enlace: { token: string; url: string } | undefined;
+    if (body.hacia === "ENVIADA_A_SOLICITANTE") {
+      const comparativa = await repo.obtenerComparativaPorSolicitudId(id);
+      if (!comparativa) {
+        return NextResponse.json(
+          { error: "No hay comparativa generada para enviar al solicitante" },
+          { status: 409 }
+        );
+      }
+      if (body.nota?.trim()) {
+        await repo.guardarRecomendacionComprador(id, body.nota.trim());
+      }
+      const diasRaw = Number(await repo.leerConfig("expiracion_link_dias"));
+      const dias = Number.isFinite(diasRaw) && diasRaw > 0 ? diasRaw : 90;
+      const link = await repo.crearLinkPublico(
+        comparativa.id,
+        generarTokenEnlace(),
+        new Date(Date.now() + dias * 86400000).toISOString()
+      );
+      enlace = { token: link.token, url: `/comparativa/${link.token}` };
+    }
+
     const res = await repo.transicionarEstado({
       solicitudId: id,
       hacia: body.hacia,
@@ -70,7 +116,7 @@ export async function PATCH(
       nota: body.nota,
     });
 
-    return NextResponse.json({ ...res, pipeline });
+    return NextResponse.json({ ...res, pipeline, enlace });
   } catch (e) {
     if (e instanceof z.ZodError) {
       return NextResponse.json({ error: "Datos inválidos", detalles: e.issues }, { status: 400 });

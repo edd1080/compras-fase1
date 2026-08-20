@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { PostgresRepositorio } from "@/lib/db/postgres-repo";
 import { generarExcelComparativo } from "@/lib/excel/comparativo";
+import { guardApi } from "@/lib/api-guard";
 
 const repo = new PostgresRepositorio();
 
@@ -9,6 +10,8 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await guardApi(["coordinador", "admin"]);
+  if (auth.negada) return auth.negada;
   try {
     const { id } = await params;
     const solicitud = await repo.obtenerSolicitud(id);

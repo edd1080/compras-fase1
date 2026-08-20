@@ -21,6 +21,11 @@ import type {
   FiltrosMetricas,
 } from "./repositorio";
 
+function aISO(v: unknown): string | undefined {
+  if (v == null) return undefined;
+  return v instanceof Date ? v.toISOString() : String(v);
+}
+
 function filaSolicitud(f: Record<string, unknown>): Solicitud {
   return {
     id: String(f.id),
@@ -36,9 +41,9 @@ function filaSolicitud(f: Record<string, unknown>): Solicitud {
     areaSolicitante: (f.area_solicitante as string) ?? undefined,
     coordinadorId: (f.coordinador_id as string) ?? undefined,
     fechaRequerida: f.fecha_requerida ? String(f.fecha_requerida) : undefined,
-    fechaCreacion: String(f.fecha_creacion),
-    fechaEnvio: f.fecha_envio ? String(f.fecha_envio) : undefined,
-    fechaCierre: f.fecha_cierre ? String(f.fecha_cierre) : undefined,
+    fechaCreacion: aISO(f.fecha_creacion) ?? "",
+    fechaEnvio: aISO(f.fecha_envio),
+    fechaCierre: aISO(f.fecha_cierre),
     clasificacionConfianza: f.clasificacion_confianza != null ? Number(f.clasificacion_confianza) : undefined,
     clasificacionCorregida: Boolean(f.clasificacion_corregida),
     notificacionFallida: Boolean(f.notificacion_fallida),
@@ -407,6 +412,15 @@ export class PostgresRepositorio implements Repositorio {
     );
   }
 
+  async guardarRecomendacionComprador(solicitudId: string, recomendacion: string): Promise<void> {
+    await this.pg.query(
+      `UPDATE comparativa
+       SET recomendacion_comprador = $2, fecha_recomendacion = now()
+       WHERE solicitud_id = $1`,
+      [solicitudId, recomendacion]
+    );
+  }
+
   async registrarDecision(
     decision: Parameters<Repositorio["registrarDecision"]>[0]
   ): Promise<Decision> {
@@ -439,6 +453,26 @@ export class PostgresRepositorio implements Repositorio {
     const res = await this.pg.query(
       "SELECT * FROM comparativa WHERE id = $1",
       [id]
+    );
+    if (!res.rows[0]) return null;
+    const f = res.rows[0];
+    return {
+      id: String(f.id),
+      solicitudId: String(f.solicitud_id),
+      prosContras: (f.pros_contras as Record<string, { pros: string[]; contras: string[] }>) ?? {},
+      discrepanciasDetectadas: f.discrepancias_detectadas ?? [],
+      sugerenciaIA: f.sugerencia_ia ?? undefined,
+      cotizacionSugeridaId: f.cotizacion_sugerida_id ?? undefined,
+      recomendacionComprador: f.recomendacion_comprador ?? undefined,
+      fechaRecomendacion: f.fecha_recomendacion ?? undefined,
+      fechaGeneracion: String(f.fecha_generacion),
+    };
+  }
+
+  async obtenerComparativaPorSolicitudId(solicitudId: string): Promise<Comparativa | null> {
+    const res = await this.pg.query(
+      "SELECT * FROM comparativa WHERE solicitud_id = $1",
+      [solicitudId]
     );
     if (!res.rows[0]) return null;
     const f = res.rows[0];
