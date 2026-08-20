@@ -25,16 +25,18 @@ export default function ComparativaPublicaPage() {
     if (!token) return;
     if (token === "demo-2026") {
       const cmp = comparativaFixture("s014");
-      if (!cmp) { setError("Demo no disponible"); setCargando(false); return; }
+      if (!cmp) { setTimeout(() => { setError("Demo no disponible"); setCargando(false); }, 0); return; }
       const coord = usuariosFixture[0];
-      setDatos({
-        solicitudId: "s1",
-        cotizaciones: cotizacionesFixture.s014 ?? [],
-        prosContras: cmp.prosContras,
-        recomendacion: cmp.recomendacionComprador ? `Recomendación de ${coord?.nombre ?? "Compras"}` : undefined,
-        advertenciaGeneral: cmp.analysis?.advertenciaGeneral ?? null,
-      });
-      setCargando(false);
+      setTimeout(() => {
+        setDatos({
+          solicitudId: "s1",
+          cotizaciones: cotizacionesFixture.s014 ?? [],
+          prosContras: cmp.prosContras,
+          recomendacion: cmp.recomendacionComprador ? `Recomendación de ${coord?.nombre ?? "Compras"}` : undefined,
+          advertenciaGeneral: cmp.analysis?.advertenciaGeneral ?? null,
+        });
+        setCargando(false);
+      }, 0);
       return;
     }
     fetch(`/api/comparativas/${encodeURIComponent(token)}`)
