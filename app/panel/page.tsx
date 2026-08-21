@@ -9,6 +9,7 @@ import { useSesion } from "@/lib/sesion-context";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { api } from "@/lib/api-client";
 import type { Solicitud } from "@/lib/domain/types";
+import { nombreCategoria } from "@/lib/domain/categorias";
 
 type Filtro = "todos" | "activa" | "esperando_cot" | "esperando_dec" | "cerrada";
 
@@ -205,7 +206,7 @@ export default function PanelPage() {
                           <div className="text-[11px] text-slate-500">Entrega requerida: {s.fechaRequerida ?? "—"}</div>
                         </td>
                         <td className="px-5 py-4">
-                          <span className="text-[11px] font-medium text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full">{s.categoria ?? "—"}</span>
+                          <span className="text-[11px] font-medium text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full">{nombreCategoria(s.categoria)}</span>
                         </td>
                         <td className="px-5 py-4">
                           <Badge tone={toneDe(s.estado)} label={estadoLegible(s.estado)} />

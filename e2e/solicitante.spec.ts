@@ -45,7 +45,7 @@ test.describe("Flujo solicitante", () => {
     await expect(page.getByText("¿Qué necesitás?")).toBeVisible();
     await page.getByLabel("Título de la solicitud").fill("Sombrillas brandeadas");
     await page.locator('input[type="date"]').fill("2026-09-30");
-    await page.locator("select").selectOption({ label: "Empaque y branding" });
+    await page.locator("select").selectOption({ label: "Mercadeo y publicidad" });
     await page.getByRole("button", { name: "Continuar" }).click();
 
     // P3 — clasificación (la IA puede sugerir un tipo, o no si la confianza es baja)

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { AmbientBackground } from "@/components/ui-ext/AmbientBackground";
 import { useSolicitudWizard, type WizardState } from "@/hooks/useSolicitudWizard";
+import { CATEGORIAS, nombreCategoria } from "@/lib/domain/categorias";
 
 const PASOS_SIDEBAR = [
   { id: 1, label: "Captura Inicial" },
@@ -215,12 +216,9 @@ function PasoCaptura({
             <label className="block text-xs font-medium text-slate-700 mb-1.5">Tipo de necesidad</label>
             <select value={estado.tipoNecesidad} onChange={(e) => set("tipoNecesidad", e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:bg-white transition-all cursor-pointer">
               <option value="" disabled>Seleccioná una opción</option>
-              <option>Empaque y branding</option>
-              <option>Materia prima</option>
-              <option>Servicios logísticos</option>
-              <option>Administrativo</option>
-              <option>Proyecto o CAPEX</option>
-              <option>Otro</option>
+              {CATEGORIAS.map((c) => (
+                <option key={c.clave} value={c.clave}>{c.etiqueta}</option>
+              ))}
             </select>
           </div>
           <div>
@@ -548,7 +546,7 @@ function PasoDocumento({
             </div>
             <div>
               <span className="block text-[10px] text-slate-400 uppercase tracking-wider mb-1 font-semibold">Tipo de necesidad</span>
-              <span className="text-xs font-medium text-slate-900">{estado.tipoNecesidad || "—"}</span>
+              <span className="text-xs font-medium text-slate-900">{nombreCategoria(estado.tipoNecesidad)}</span>
             </div>
             <div>
               <span className="block text-[10px] text-slate-400 uppercase tracking-wider mb-1 font-semibold">Fecha requerida</span>

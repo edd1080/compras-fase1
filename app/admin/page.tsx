@@ -8,6 +8,7 @@ import { api } from "@/lib/api-client";
 import type { MetricasDashboard } from "@/lib/domain/metrics";
 import { usuariosFixture } from "@/lib/fixtures";
 import type { Solicitud } from "@/lib/domain/types";
+import { nombreCategoria } from "@/lib/domain/categorias";
 
 type Rango = "all" | "hoy" | "semana" | "mes";
 
@@ -157,7 +158,7 @@ export default function AdminDashboardPage() {
                     <tr key={s.id} className="hover:bg-slate-50/60 transition-colors">
                       <td className="px-5 py-4">
                         <span className="font-mono font-semibold text-slate-900">{s.numeroReferencia ?? "—"}</span>
-                        <div className="text-[10px] text-slate-500 mt-0.5">{s.categoria ?? "—"}</div>
+                        <div className="text-[10px] text-slate-500 mt-0.5">{nombreCategoria(s.categoria)}</div>
                       </td>
                       <td className="px-5 py-4">
                         <div className="font-medium text-slate-900">{s.solicitanteNombre}</div>

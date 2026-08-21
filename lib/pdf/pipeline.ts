@@ -31,7 +31,12 @@ export async function pipelineEnvioACompras(opts: {
       coordinadoresPorCategoria[cat] = c.id;
     }
   }
-  const respaldoId = coordinadores[0]?.id ?? "";
+  // Respaldo: el coordinador de mayor cobertura (catch-all). Evita que categorías
+  // sin clave canónica caigan a un coordinador arbitrario (antes: el primero por nombre).
+  const respaldoId =
+    [...coordinadores].sort(
+      (a, b) => (b.categoriasAsignadas?.length ?? 0) - (a.categoriasAsignadas?.length ?? 0)
+    )[0]?.id ?? "";
   const coordinadorId = asignarCoordinadorPorCategoria({
     categoria: solicitud.categoria,
     coordinadoresPorCategoria,

@@ -7,6 +7,7 @@ import { AmbientBackground } from "@/components/ui-ext/AmbientBackground";
 import { Badge, type BadgeTone } from "@/components/Badge";
 import { api, type SalidaCorta } from "@/lib/api-client";
 import type { Cotizacion, Solicitud } from "@/lib/domain/types";
+import { nombreCategoria } from "@/lib/domain/categorias";
 
 export default function MisSolicitudesPage() {
   return (
@@ -184,7 +185,7 @@ function MisSolicitudesInner() {
                       <DetalleCampo label="Área" valor={detalle.solicitud.areaSolicitante} />
                       <DetalleCampo label="Tipo" valor={detalle.solicitud.tipo ?? "—"} />
                       <DetalleCampo label="Subtipo" valor={detalle.solicitud.subtipo ?? "—"} />
-                      <DetalleCampo label="Categoría" valor={detalle.solicitud.categoria ?? "—"} />
+                      <DetalleCampo label="Categoría" valor={nombreCategoria(detalle.solicitud.categoria)} />
                       <DetalleCampo label="Fecha requerida" valor={detalle.solicitud.fechaRequerida ?? "—"} />
                     </div>
                     {detalle.solicitud.descripcion ? (

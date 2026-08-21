@@ -39,6 +39,7 @@
 - **Crítico corregido**: token débil (`Math.random`.padEnd) → `randomBytes` criptográfico (12 bytes de entropía).
 - **Crítico corregido (preexistente escalado, opción A)**: API interna `/api/solicitudes/*` sin auth → nuevo `lib/api-guard.ts` con `guardApi` exige rol coordinador/admin en cotizaciones, comparativa/excel, listar todas, y `PATCH /estado` salvo el envío anónimo del solicitante. Verificado por curl: endpoints internos → 401 sin sesión; envío del solicitante → 200.
 - **Fix latente**: normalización ISO de fechas en `filaSolicitud` (time zone `gmt-0600` rompía re-parametrizar `fecha_envio`/`fecha_cierre`).
+- **Bug real hallado en recorrido visual (Playwright) y corregido**: `/api/metricas` devolvía 500 en el dashboard admin — `metricasDashboard` usaba `COALESCE(tipo, 'SIN_TIPO')` sobre el enum `tipo_solicitud`; PostgreSQL rechaza `SIN_TIPO` como valor de enum → falla la agregación de distribución por tipo. Corregido a `COALESCE(tipo::text, 'SIN_TIPO')`. Verificado: `/api/metricas?rango=todo` → 200 con datos reales (conversión 11.6%, 54 activas, 21 sin decisión); dashboard renderiza KPIs vivos 12%/54/21 sin errores de consola. Commit `5443f3a`.
 
 ## Batería de roles y edge cases
 
