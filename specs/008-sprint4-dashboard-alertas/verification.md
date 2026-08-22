@@ -49,6 +49,27 @@
 - **Vista pública**: token real decide y cierra; `ninguna sirve` notifica; token inválido neutro (e2e 3/3).
 - **Explorador visual**: 10/10 rutas sin errores de consola/HTTP.
 
+## Ronda post-cierre — QA manual por rol (2026-08-20/21)
+
+Recorrido manual completo del rol coordinador + mejoras de interfaz solicitadas por el cliente. Cambios **sin commit** al cierre de esta ronda (ver HANDOFF).
+
+### Mejoras de interfaz (pedido directo del cliente)
+- Panel coordinador: cards de métricas con ícono y color por estado (activa azul, cotizaciones naranja, decisión índigo, cerradas verde), padding ampliado, layout más ancho (max-w-1500).
+- Búsqueda con botón "X" para limpiar.
+- Encabezado "Solicitudes" más evidente; "Listo" reemplazado por contador de resultados.
+- Filas clicables (click en cualquier parte abre la solicitud) — verificado navegación.
+- Referencia siempre visible: fallback `SOL-XXXXXXXX` derivado del id cuando no hay número generado (deuda: generación real pendiente).
+- Solicitante sin guion largo; "Entrega requerida" solo con fecha, si no "Entrega por definir".
+- Categoría con color por clave (paleta estable); estado con colores coherentes a métricas (CERRADA_* verde, CANCELADA rojo); tabs coloreados por estado ("Todos" negro).
+
+### Correcciones funcionales
+- **Solicitudes terminales en solo lectura**: banda verde con la decisión ("eligió [proveedor]" / "ninguna opción") + fecha de cierre; ocultas acciones de agregar/editar/generar. Nuevo repo method `obtenerDecisionPorSolicitud`.
+- **Clasificación IA persistida**: wizard envía tipo/subtipo/fechaRequerida → INSERT con cast a enums. Verificado en DB (RFQ/servicio/fecha). Arregla sidebar vacío y distribución "SIN_TIPO" a futuro.
+- Guiones "—" sustituidos por información útil ("Por definir", "Área por definir"); badge CERRADA_SIN_DECISION corregido a verde.
+
+### Validación de la ronda
+typecheck ✓ · eslint ✓ · 80 unit ✓ · e2e solicitante+coordinador 5/5 ✓ · verificación visual Playwright (banda cierre sin acciones, tabs por color computado, X de búsqueda limpia, fila navega, referencia SOL- visible en 65 filas). Un fallo transitorio de 12 e2e fue causa ambiental (binario Chromium sin descargar tras actualización de Playwright), resuelto con `npx playwright install chromium` y re-ejecución 12/12 ✓.
+
 ## Inventario de escuelas
 
 - verification.md (este), tasks.md → 8/8 checkboxes completados, STATE.md → G6.

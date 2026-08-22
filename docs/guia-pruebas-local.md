@@ -1,6 +1,6 @@
 # Guía de pruebas local — Portal de Compras BIA
 
-Fecha: 2026-08-15 — valida la feature 006 (integración IA) y los 3 roles.
+Fecha: 2026-08-21 — valida el producto completo (000–008 cerradas) y los 3 roles. Incluye ronda post-cierre de UI/UX.
 
 ## Pre-requisitos de una sola vez
 
@@ -18,21 +18,24 @@ uv pip install --python .venv-md/bin/python "markitdown[pdf]"
 
 # 4. Usuarios en Supabase Auth (coordinador + admin)
 node scripts/seed-auth.mjs
+
+# 5. Navegador para pruebas e2e (si falla con "Executable doesn't exist")
+npx playwright install chromium
 ```
 
 ## Levantar el app en local
 
 ```bash
-npm run dev   # http://localhost:3000
+PORT=3001 npm run dev   # http://localhost:3001 (recomendado; el 3000 suele estar ocupado)
 ```
 
-> Si otro proceso ocupa el puerto, usá `npx next dev -p 3001`.
+> Para dejarlo vivo en segundo plano: `nohup env PORT=3001 npm run dev > /tmp/compras-bia-3001.log 2>&1 &`
 > La IA requiere `OPENROUTER_API_KEY` en `.env.local` (server-only, nunca expuesta al navegador).
 
 ## Pruebas automáticas (rápidas)
 
 ```bash
-npm run typecheck && npm run lint && npm run test   # unit: 65 tests
+npm run typecheck && npm run lint && npm run test   # unit: 80 tests + 6 con DB
 npm run build
 npx playwright install chromium                     # la primera vez
 npx playwright test                                  # e2e completo (los 3 roles)
@@ -42,7 +45,7 @@ npx playwright test                                  # e2e completo (los 3 roles
 
 ## Prueba manual — Rol SOLICITANTE
 
-1. Abrí `http://localhost:3000`
+1. Abrí `http://localhost:3001`
 2. **P1**: correo `maria.reyes@bia.hn`, nombre, área → Continuar
 3. **P2**: título "5000 camisetas estampadas con el logo", categoría "Mercadeo y publicidad", fecha → Continuar
 4. **P3 Clasificación IA** (verificar):
@@ -57,19 +60,25 @@ npx playwright test                                  # e2e completo (los 3 roles
 
 ## Prueba de rol COORDINADOR
 
-1. Entrar `http://localhost:3000/login/coordinador`
+1. Entrar `http://localhost:3001/login/coordinador`
    `coordinador@biafoods.co` / `Coordinador2026!`
-2. Panel → abrir una solicitud en "Esperando cotizaciones"
-3. **07 · Carga cotizaciones (IA)**: atribuir archivo real (PDF/DOCX o imagen):
+2. Panel (rediseñado 2026-08): cards de métricas con ícono/color, tabs coloreados por estado,
+   búsqueda con "X" para limpiar, filas clicables (click en cualquier parte abre la solicitud),
+   referencia legible por fila (`SOL-XXXXXXXX` si aún no tiene número generado).
+3. Abrir una solicitud en "Esperando cotizaciones"
+4. **07 · Carga cotizaciones (IA)**: atribuir archivo real (PDF/DOCX o imagen):
    - Se ve "Convirtiendo a texto…" → "Extrayendo datos con IA…" → "Cargado"
    - Verificá el estado "cotización cargada" y los datos extraídos en la DB
-4. 2 cotizaciones → "Generar comparativa"
-5. **08 · Comparativa (IA)**: verificar que la sugerencia dice "Generada por el sistema: ..." (razonada, NO solo el precio más barato) y que hay pros/contras por proveedor + discrepancias si difieren
-6. **09 · Recomendación**: escribir criterio (B3) → Enviar compareativa al solicitante
+5. 2 cotizaciones → "Generar comparativa"
+6. **08 · Comparativa (IA)**: verificar que la sugerencia dice "Generada por el sistema: ..." (razonada, NO solo el precio más barato) y que hay pros/contras por proveedor + discrepancias si difieren
+7. **09 · Recomendación**: escribir criterio (B3) → Enviar comparativa al solicitante
+   - Verás el enlace público real (token) para copiar.
+8. **Solicitud cerrada**: abrí una CERRADA_*/CANCELADA — debe mostrar banda verde con la decisión
+   ("eligió [proveedor]" o "ninguna opción") y estar en solo lectura (sin agregar/editar/generar).
 
 ## Prueba — rol ADMIN
 
-1. Entrar `http://localhost:3000/login/admin`
+1. Entrar `http://localhost:3001/login/admin`
    `admin@biafoods.co` / `AdminBIA2026!`
 2. Dashboard con métricas, tablas, trazabilidad del proceso
 3. Páginas: procesos, coordinadores, configuración, ajustes

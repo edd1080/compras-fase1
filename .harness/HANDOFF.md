@@ -1,20 +1,33 @@
 # Active Handoff
 
-**Feature 008-Sprint4-Dashboard-Alertas — CERRADA (G5/G6)**
+**Portal de Compras BIA — 008 cerrada (G6) + ronda post-cierre QA/UX (SIN COMMIT)**
+
+Fecha: 2026-08-21 · Branch `main` @ f7c438f + working tree con cambios sin commitear.
 
 ## Estado
-- Feature 008 cerrada con evidencia completa (`specs/008-sprint4-dashboard-alertas/verification.md`).
-- Batería final: 80 unit tests ✅ (18 files, 6 skipped requieren DB) · 22 e2e ✅ (workers=1) · typecheck ✅ · lint ✅ · build ✅.
-- QA adversarial (skill `validate`) cerró 4 críticos: RN-01 (recomendación persistida), envío atómico (link antes de transicionar), token criptográfico, y fuga de seguridad en API interna (protegida por rol con nuevo `lib/api-guard.ts`).
-- Fix latente de zona horaria en `filaSolicitud` (`gmt-0600` al re-parametrizar fechas).
-- Decisión humana tomada: se aplicó la opción A (proteger API interna por rol + ajustar e2e para autenticarse).
+- 9 etapas cerradas y verificadas (000–008). 008 cerró G6 el 2026-08-20 (`specs/008-sprint4-dashboard-alertas/verification.md`).
+- Batería al día: typecheck ✓ · eslint ✓ · 80 unit ✓ · e2e 22/22 ✓ · recorrido visual de los 3 roles ✓.
+- Ronda post-cierre manual por rol (2026-08-20/21) produjo mejoras UI/UX y fixes funcionales **aún no commiteados**.
 
-## Cambios clave de la 008
-- Decisión real por link: `crearLinkPublico`/`obtenerLinkPorToken` en repo; ruta GET/POST `/api/comparativas/[token]`; `VistaPublica` fuera de demo.
-- Envío de comparativa real: `Recomendacion`/`DetalleSolicitud` ahora persisten la recomendación y exponen el link/token real.
-- Dashboard KPIs reales + filtros (S2), motor de alertas + config operativa (S3), export Excel (S4).
-- Seguridad: `guardApi` en cotizaciones, comparativa/excel, listar todas; envío anónimo del solicitante sigue público.
+## Cambios SIN commit en el working tree (commitear primero)
+1. **Rediseño panel coordinador** (`app/panel/page.tsx`, `components/Badge.tsx`): cards métricas con ícono+color por estado (activa azul, cot naranja, decisión índigo, cerrada verde), búsqueda con X para limpiar, filas clicables, referencia fallback `SOL-XXXXXXXX`, categoría/estado con color, tabs coloreados por estado (Todos negro), layout max-w-1500.
+2. **Cierre de flujo terminal** (`app/panel/solicitud/[id]/page.tsx`, `components/coordinador/DetalleSolicitud.tsx`, `CargaCotizaciones.tsx`): solicitudes CERRADA_*/CANCELADA muestran banda verde con la decisión ("eligió X" / "ninguna opción") + fecha, quedan solo lectura (sin agregar/editar/generar). Nuevo repo method `obtenerDecisionPorSolicitud`. Badge CERRADA_SIN_DECISION → verde. Guiones "—" reemplazados ("Por definir", "Área por definir").
+3. **Persistencia clasificación IA** (`hooks/useSolicitudWizard.ts`, `lib/api-client.ts`, `app/api/solicitudes/route.ts`, `lib/db/postgres-repo.ts` + interfaz): wizard envía tipo/subtipo/fechaRequerida; INSERT los guarda con cast a enums. Arregla sidebar vacío y métricas "SIN_TIPO" a futuro.
 
-## Próximos pasos
-- Seleccionar la próxima feature (Sprint 4/5 completo o piloto) vía `.harness/STATE.md`/`session-start`.
-- Commits pendientes de cierre: `.harness/STATE.md`, `specs/.../tasks.md`, `specs/.../verification.md` (ver git status; el commit final los agrupa). Excluir `qa/report-explorador.md` (artifact regenerado por e2e).
+Excluidos del commit: `qa/report-explorador.md` (artefacto), capturas `.playwright-mcp/`, `p2-*.png`, `panel-coordinador-rediseñado.png`.
+
+## Bugs corregidos en esta ronda (ya commiteados)
+- Respaldo de asignación = coordinador de mayor cobertura (antes caía al primer coordinador ficticio) — `f7c438f`.
+- Wizard guarda claves canónicas de categoría + backfill DB "Empaque y branding"→mercadeo_publicidad — `f7c438f`.
+- 500 /api/metricas por enum (COALESCE(tipo::text)) — `5443f3a`.
+
+## Pendientes / próximos pasos
+1. **Commitear la ronda post-cierre** (punto anterior).
+2. **Generación real de numero_referencia** (`{{TIPO}}-{{ANIO}}-{{SECUENCIA}}`): hoy el panel usa fallback derivado del id; el tipo ya se persiste así que es viable implementar en backend.
+3. **Sprint 4 residual**: H4.2 versionado de plantillas/campos · H4.3 CRUD coordinadores + regla asignación configurable · H4.5 seguridad por fila (RLS, URL firmadas).
+4. **H4.1 menor**: distribución por subtipo, tiempo por etapa, rango personalizado en UI admin.
+5. **Nube + piloto**: migración Supabase Cloud (decisión del cliente) e insumos oficiales (plantillas/dominio) para el piloto ≥10 compras.
+
+## Operativa local
+- App dev: `PORT=3001 npm run dev` (usar nohup; procesos background mueren fácil). DB: postgres local `bia`. Login coordinador `coordinador@biafoods.co / Coordinador2026!`; admin `admin@biafoods.co / AdminBIA2026!`.
+- Coordinadores seed ficticios (Coordinador 1–4) siguen en DB; la cuenta real es "Coordinador BIA" (0a1).
