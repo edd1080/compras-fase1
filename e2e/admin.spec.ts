@@ -35,7 +35,8 @@ test.describe("Panel admin", () => {
 
     await page.goto("/admin/coordinadores");
     await expect(page.getByText("Equipo de Coordinadores")).toBeVisible();
-    await expect(page.getByText("Carla Ortega")).toBeVisible();
+    // Datos reales de la DB: el coordinador seed debe aparecer (ya no hay mock "Carla Ortega").
+    await expect(page.getByText("Coordinador BIA").first()).toBeVisible();
 
     await page.goto("/admin/configuracion");
     await expect(page.getByText("Ajustes Generales")).toBeVisible();

@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { PostgresRepositorio } from "@/lib/db/postgres-repo";
 import { generarExcelDashboard } from "@/lib/excel/dashboard";
 import type { FiltrosMetricas } from "@/lib/db/repositorio";
-import { usuariosFixture } from "@/lib/fixtures";
 
 const repo = new PostgresRepositorio();
 
@@ -28,8 +27,9 @@ export async function GET(request: Request) {
       return true;
     });
 
+    const coordinadores = await repo.listarCoordinadores();
     const nombreCoord = (id?: string) =>
-      (id && usuariosFixture.find((u) => u.id === id)?.nombre.split(" ")[0]) ?? id ?? "—";
+      (id && coordinadores.find((u) => u.id === id)?.nombre.split(" ")[0]) ?? "Sin asignar";
 
     const buffer = generarExcelDashboard({ metricas, procesos, nombreCoordinador: nombreCoord });
     return new NextResponse(new Uint8Array(buffer) as unknown as BodyInit, {

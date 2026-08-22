@@ -9,6 +9,7 @@ import type {
   Cotizacion,
   Decision,
   DocumentoGenerado,
+  EventoTrazabilidad,
   LinkPublico,
   RespuestaCampo,
   Solicitud,
@@ -119,6 +120,36 @@ export class PostgresRepositorio implements Repositorio {
     }
   }
 
+  // Genera el número de referencia dentro de la transacción del cambio de estado.
+  // Formato desde configuracion.formato_numero_referencia: {{TIPO}}-{{ANIO}}-{{SECUENCIA}}.
+  private async generarNumeroReferenciaTx(
+    client: { query: (sql: string, vals?: unknown[]) => Promise<{ rows: Record<string, unknown>[] }> },
+    tipo: string | undefined
+  ): Promise<string> {
+    const cfg = await client.query(
+      "SELECT valor FROM configuracion WHERE clave = 'formato_numero_referencia'"
+    );
+    const formatoRaw = cfg.rows[0]?.valor;
+    const formato = typeof formatoRaw === "string"
+      ? formatoRaw
+      : String(formatoRaw ?? "{{TIPO}}-{{ANIO}}-{{SECUENCIA}}");
+
+    const prefijoTipo = (tipo ?? "SOL").toUpperCase();
+    const anio = new Date().getFullYear();
+    const patron = `^${prefijoTipo}-${anio}-(\\d+)$`;
+    const seq = await client.query(
+      `SELECT COALESCE(MAX((regexp_match(numero_referencia, $1))[1]::int), 0) + 1 AS siguiente
+       FROM solicitud WHERE numero_referencia ~ $1`,
+      [patron]
+    );
+    const secuencia = Number(seq.rows[0]?.siguiente ?? 1);
+
+    return formato
+      .replace("{{TIPO}}", prefijoTipo)
+      .replace("{{ANIO}}", String(anio))
+      .replace("{{SECUENCIA}}", String(secuencia).padStart(4, "0"));
+  }
+
   async transicionarEstado(
     input: Parameters<Repositorio["transicionarEstado"]>[0]
   ): Promise<TransicionResultado> {
@@ -141,14 +172,21 @@ export class PostgresRepositorio implements Repositorio {
         : actual.fechaEnvio;
       const fechaCierre = esTerminal ? new Date().toISOString() : actual.fechaCierre;
 
+      // Número de referencia real: se genera una vez, al primer envío a Compras.
+      let numeroReferencia = actual.numeroReferencia ?? null;
+      if (input.hacia === "ENVIADA_A_COMPRAS" && !numeroReferencia) {
+        numeroReferencia = await this.generarNumeroReferenciaTx(client, actual.tipo);
+      }
+
       const upd = await client.query(
         `UPDATE solicitud
          SET estado = $2,
              fecha_envio = COALESCE($3, fecha_envio),
-             fecha_cierre = COALESCE($4, fecha_cierre)
+             fecha_cierre = COALESCE($4, fecha_cierre),
+             numero_referencia = COALESCE($5, numero_referencia)
          WHERE id = $1
          RETURNING *`,
-        [input.solicitudId, input.hacia, fechaEnv, fechaCierre]
+        [input.solicitudId, input.hacia, fechaEnv, fechaCierre, numeroReferencia]
       );
       const evento = await client.query(
         `INSERT INTO evento_trazabilidad
@@ -475,6 +513,26 @@ export class PostgresRepositorio implements Repositorio {
       ningunaOpcion: Boolean(f.ninguna_opcion),
       comentario: f.comentario ?? undefined,
     };
+  }
+
+  async listarEventos(solicitudId: string): Promise<EventoTrazabilidad[]> {
+    const res = await this.pg.query(
+      `SELECT * FROM evento_trazabilidad
+       WHERE solicitud_id = $1
+       ORDER BY timestamp ASC`,
+      [solicitudId]
+    );
+    return res.rows.map((f) => ({
+      id: String(f.id),
+      solicitudId: String(f.solicitud_id),
+      tipoEvento: f.tipo_evento,
+      estadoAnterior: f.estado_anterior ?? undefined,
+      estadoNuevo: f.estado_nuevo ?? undefined,
+      actorTipo: f.actor_tipo ?? "sistema",
+      actorIdentificador: f.actor_identificador ?? undefined,
+      nota: f.nota ?? undefined,
+      timestamp: new Date(f.timestamp).toISOString(),
+    }));
   }
 
   async obtenerComparativaPorId(id: string): Promise<Comparativa | null> {

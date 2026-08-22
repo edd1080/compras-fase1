@@ -6,11 +6,12 @@ import { AdminShell } from "@/components/ui-ext/AdminShell";
 import { Badge, type BadgeTone } from "@/components/Badge";
 import { api } from "@/lib/api-client";
 import type { MetricasDashboard } from "@/lib/domain/metrics";
-import { usuariosFixture } from "@/lib/fixtures";
 import type { Solicitud } from "@/lib/domain/types";
 import { nombreCategoria } from "@/lib/domain/categorias";
 
 type Rango = "all" | "hoy" | "semana" | "mes";
+
+type CoordinadorLite = { id: string; nombre: string; email: string };
 
 const METRICAS_VACIAS: MetricasDashboard = {
   tasaConversion: null,
@@ -26,8 +27,10 @@ export default function AdminDashboardPage() {
   const [coordinador, setCoordinador] = useState("all");
   const [busqueda, setBusqueda] = useState("");
   const [metricas, setMetricas] = useState<MetricasDashboard>(METRICAS_VACIAS);
+  const [coordinadores, setCoordinadores] = useState<CoordinadorLite[]>([]);
   const [cargando, setCargando] = useState(true);
   const [procesos, setProcesos] = useState<Solicitud[]>([]);
+  const [minIso, setMinIso] = useState<string | null>(null);
 
   const desdem = rango === "all" ? undefined : rango === "hoy" ? "dia" : rango;
 
@@ -40,12 +43,23 @@ export default function AdminDashboardPage() {
       .then((m) => setMetricas(m))
       .catch(() => setMetricas(METRICAS_VACIAS))
       .finally(() => setCargando(false));
-    api.listarSolicitudesTodas().then(setProcesos).catch(() => setProcesos([]));
+    api.listarSolicitudesTodas()
+      .then(setProcesos)
+      .catch(() => setProcesos([]))
+      .finally(() => {
+        const atras = rango === "hoy" ? 1 : rango === "semana" ? 7 : rango === "mes" ? 30 : -1;
+        setMinIso(atras > 0 ? new Date(Date.now() - atras * 86400000).toISOString() : null);
+      });
+    fetch("/api/admin/coordinadores")
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setCoordinadores)
+      .catch(() => setCoordinadores([]));
   }, [rango, coordinador, desdem]);
 
-  const nombreCoord = (id: string) => usuariosFixture.find((u) => u.id === id)?.nombre.split(" ")[0] ?? id;
+  const nombreCoord = (id: string) =>
+    coordinadores.find((c) => c.id === id)?.nombre ?? "Sin asignar";
 
-  const barrasVolumen = Object.entries(metricas.volumenPorCoordinador).map(([id, v]) => ({ label: nombreCoord(id), value: v }));
+  const barrasVolumen = Object.entries(metricas.volumenPorCoordinador).map(([id, v]) => ({ id, label: nombreCoord(id), value: v }));
   const maxVolumen = Math.max(1, ...barrasVolumen.map((b) => b.value));
 
   const distribucion = Object.entries(metricas.distribucionPorTipo);
@@ -58,8 +72,6 @@ export default function AdminDashboardPage() {
       .then((d) => setAlertasInfo(d.alertas ? `alertas: ${d.alertas.length}` : "sin alertas"))
       .catch(() => setAlertasInfo("error"));
   }
-  const diasAtras = rango === "hoy" ? 1 : rango === "semana" ? 7 : rango === "mes" ? 30 : -1;
-  const minIso = diasAtras > 0 ? new Date(Date.now() - diasAtras * 86400000).toISOString() : null;
   const exportUrl = `/api/metricas/excel?rango=${rango === "all" ? "todo" : rango === "hoy" ? "dia" : rango}${coordinador !== "all" ? `&coordinador=${coordinador}` : ""}`;
 
   const procesosFiltrados = procesos.filter((s) => {
@@ -88,7 +100,7 @@ export default function AdminDashboardPage() {
               <div className="text-xs font-semibold text-slate-700 mb-4">Volumen por Coordinador</div>
               <div className="flex-1 flex items-end gap-6 px-4 pb-2">
                 {barrasVolumen.length ? barrasVolumen.map((b, i) => (
-                  <div key={b.label} className="flex-1 bg-slate-50 rounded-t-lg relative flex items-end justify-center h-full">
+                  <div key={b.id} className="flex-1 bg-slate-50 rounded-t-lg relative flex items-end justify-center h-full">
                     <div className={"w-full rounded-t-lg transition-all " + (i % 2 === 1 ? "bg-sky-400 shadow-[0_-2px_10px_rgba(56,189,248,0.2)]" : "bg-sky-200")} style={{ height: `${(b.value / maxVolumen) * 100}%` }} />
                     <span className="absolute -bottom-6 text-[10px] text-slate-500 whitespace-nowrap">{b.label}</span>
                   </div>
@@ -101,11 +113,11 @@ export default function AdminDashboardPage() {
                 {distribucion.length ? distribucion.map(([tipo, v]) => (
                   <div key={tipo}>
                     <div className="flex justify-between text-[11px] mb-1">
-                      <span>{tipo}</span>
+                      <span>{tipoLegible(tipo)}</span>
                       <span className="font-semibold text-slate-900">{Math.round((v / distribucionTotal) * 100)}%</span>
                     </div>
                     <div className="w-full h-2 rounded-full bg-slate-100">
-                      <div className={"h-2 rounded-full " + (tipo === "RFQ" ? "bg-emerald-400" : tipo === "RFI" ? "bg-sky-400" : "bg-sky-200")} style={{ width: `${(v / distribucionTotal) * 100}%` }} />
+                      <div className={"h-2 rounded-full " + (tipo === "RFQ" ? "bg-emerald-400" : tipo === "RFI" ? "bg-sky-400" : tipo === "RFP" ? "bg-indigo-400" : "bg-slate-300")} style={{ width: `${(v / distribucionTotal) * 100}%` }} />
                     </div>
                   </div>
                 )) : <p className="text-[11px] text-slate-400 self-center">Sin datos</p>}
@@ -124,7 +136,7 @@ export default function AdminDashboardPage() {
             <div className="flex items-center gap-2">
               <select value={coordinador} onChange={(e) => setCoordinador(e.target.value)} className="bg-white/70 border border-white rounded-xl px-4 py-2 text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-sky-500 shadow-sm">
                 <option value="all">Todos los coordinadores</option>
-                {usuariosFixture.filter((u) => u.rol === "coordinador").map((u) => <option key={u.id} value={u.id}>{u.nombre}</option>)}
+                {coordinadores.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
               </select>
               <a href={exportUrl} className="text-[11px] font-semibold uppercase tracking-wider text-sky-600 hover:text-sky-800 transition-colors flex items-center gap-1.5 bg-white/70 px-4 py-2 rounded-xl border border-white shadow-sm">Exportar</a>
               <button type="button" onClick={ejecutarAlertas} className="text-[11px] font-semibold uppercase tracking-wider text-rose-600 hover:text-rose-800 transition-colors flex items-center gap-1.5 bg-white/70 px-4 py-2 rounded-xl border border-white shadow-sm">
@@ -201,8 +213,12 @@ function StatCard({ label, value, unit, trend, sub, tone, danger }: { label: str
   );
 }
 
-function estadoLegible(e: string): string {
-  const m: Record<string, string> = {
+function tipoLegible(t: string): string {
+  const m: Record<string, string> = { RFI: "RFI · Información", RFQ: "RFQ · Cotización", RFP: "RFP · Propuesta", SIN_TIPO: "Sin clasificar" };
+  return m[t] ?? t;
+}
+
+function estadoLegible(e: string): string {  const m: Record<string, string> = {
     ENVIADA_A_COMPRAS: "Activa",
     EN_COTIZACION: "Esperando cotizaciones",
     COMPARATIVA_LISTA: "Comparativa lista",

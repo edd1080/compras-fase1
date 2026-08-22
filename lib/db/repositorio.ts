@@ -7,6 +7,7 @@ import type {
   Cotizacion,
   Decision,
   DocumentoGenerado,
+  EventoTrazabilidad,
   LinkPublico,
   RespuestaCampo,
   Solicitud,
@@ -64,6 +65,8 @@ export interface Repositorio {
 
   // Última decisión registrada para la comparativa de una solicitud (null si no hay).
   obtenerDecisionPorSolicitud(solicitudId: string): Promise<Decision | null>;
+  // Eventos de trazabilidad de una solicitud, del más antiguo al más reciente.
+  listarEventos(solicitudId: string): Promise<EventoTrazabilidad[]>;
 
   registrarDecisionYCerrar(input: {
     comparativaId: string;
