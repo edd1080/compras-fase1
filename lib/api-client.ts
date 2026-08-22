@@ -34,6 +34,9 @@ export const api = {
     areaSolicitante?: string;
     descripcion?: string;
     categoria?: string;
+    tipo?: "RFI" | "RFQ" | "RFP";
+    subtipo?: "producto" | "servicio" | "mixto";
+    fechaRequerida?: string;
   }): Promise<Solicitud> {
     return fetch("/api/solicitudes", {
       method: "POST",

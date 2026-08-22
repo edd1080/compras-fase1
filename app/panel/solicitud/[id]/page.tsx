@@ -3,6 +3,7 @@ import { DetalleSolicitud } from "@/components/coordinador/DetalleSolicitud";
 import { PostgresRepositorio } from "@/lib/db/postgres-repo";
 import { Badge, type BadgeTone } from "@/components/Badge";
 import { AmbientBackground } from "@/components/ui-ext/AmbientBackground";
+import type { Decision } from "@/lib/domain/types";
 
 const repo = new PostgresRepositorio();
 
@@ -14,6 +15,12 @@ export default async function SolicitudDetallePage({
   const { id } = await params;
   const solicitud = await repo.obtenerSolicitud(id);
   if (!solicitud) notFound();
+  const decision = await repo.obtenerDecisionPorSolicitud(id);
+  // Nombre del proveedor elegido (para mostrar la decisión en lenguaje usuario).
+  const proveedorElegido =
+    decision && !decision.ningunaOpcion && decision.cotizacionSeleccionadaId
+      ? (await repo.listarCotizaciones(id)).find((c) => c.id === decision.cotizacionSeleccionadaId)?.proveedorNombre
+      : undefined;
 
   return (
     <main className="min-h-screen flex items-start justify-center p-4 md:p-8 relative overflow-hidden">
@@ -33,16 +40,26 @@ export default async function SolicitudDetallePage({
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
                   <span className="inline-flex items-center gap-1.5">{solicitud.solicitanteNombre}</span>
                   <span className="text-slate-300">•</span>
-                  <span className="inline-flex items-center gap-1.5">{solicitud.areaSolicitante ?? "—"}</span>
-                  <span className="text-slate-300">•</span>
-                  <span className="inline-flex items-center gap-1.5">Requerida: {solicitud.fechaRequerida ?? "—"}</span>
+                  <span className="inline-flex items-center gap-1.5">{solicitud.areaSolicitante ?? "Área por definir"}</span>
+                  {solicitud.fechaRequerida ? (
+                    <>
+                      <span className="text-slate-300">•</span>
+                      <span className="inline-flex items-center gap-1.5">Entrega requerida: {solicitud.fechaRequerida}</span>
+                    </>
+                  ) : null}
+                  {solicitud.fechaCierre ? (
+                    <>
+                      <span className="text-slate-300">•</span>
+                      <span className="inline-flex items-center gap-1.5">Cerrada: {new Date(solicitud.fechaCierre).toLocaleDateString("es-HN")}</span>
+                    </>
+                  ) : null}
                 </div>
               </div>
             </div>
           </div>
         </div>
         <div className="px-6 md:px-10 pb-10">
-          <DetalleSolicitud solicitud={solicitud} />
+          <DetalleSolicitud solicitud={solicitud} decision={decision ?? undefined} proveedorElegido={proveedorElegido} />
         </div>
       </div>
     </main>
@@ -65,7 +82,7 @@ function estadoLegible(e: string): string {
 function toneDe(e: string): BadgeTone {
   if (e === "EN_COTIZACION" || e === "COMPARATIVA_LISTA") return "cotizaciones";
   if (e === "ENVIADA_A_SOLICITANTE") return "decision";
-  if (e === "CERRADA_CON_DECISION") return "cerrada";
-  if (e === "CERRADA_SIN_DECISION" || e === "CANCELADA") return "error";
+  if (e === "CERRADA_CON_DECISION" || e === "CERRADA_SIN_DECISION") return "cerrada";
+  if (e === "CANCELADA") return "error";
   return "activa";
 }

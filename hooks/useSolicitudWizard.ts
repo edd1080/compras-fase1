@@ -176,6 +176,11 @@ export function useSolicitudWizard(nuevo = false) {
         areaSolicitante: estado.area,
         descripcion: estado.descripcion,
         categoria: estado.tipoNecesidad,
+        // Persistir la clasificación (antes se perdía: el sidebar y las métricas
+        // de distribución por tipo quedaban vacíos).
+        tipo: estado.clasificacion,
+        subtipo: estado.subtipo,
+        fechaRequerida: estado.fechaRequerida,
       });
       await api.transicionar({
         solicitudId: creada.id,

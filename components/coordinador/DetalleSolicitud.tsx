@@ -6,11 +6,21 @@ import { CargaCotizaciones } from "./CargaCotizaciones";
 import { ComparativaView } from "./Comparativa";
 import { Recomendacion } from "./Recomendacion";
 import { api } from "@/lib/api-client";
-import type { Cotizacion, Comparativa, Solicitud } from "@/lib/domain/types";
+import { nombreCategoria } from "@/lib/domain/categorias";
+import type { Cotizacion, Comparativa, Decision, Solicitud } from "@/lib/domain/types";
 
 type Etapa = 7 | 8 | 9;
 
-export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
+const ESTADOS_TERMINALES = ["CERRADA_CON_DECISION", "CERRADA_SIN_DECISION", "CANCELADA"];
+
+type DetalleSolicitudProps = {
+  solicitud: Solicitud;
+  decision?: Decision;
+  proveedorElegido?: string;
+};
+
+export function DetalleSolicitud({ solicitud, decision, proveedorElegido }: DetalleSolicitudProps) {
+  const terminal = ESTADOS_TERMINALES.includes(solicitud.estado);
   const [etapa, setEtapa] = useState<Etapa>(7);
   const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -54,7 +64,7 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
   // Genera la comparativa con IA en el SERVIDOR (route /api/solicitudes/[id]/comparativa),
   // que hace la llamada a OpenRouter con la clave y cae a fallback determinístico si falla.
   useEffect(() => {
-    if (!tieneComparativa || comparativaData || etapa === 7) return;
+    if (terminal || !tieneComparativa || comparativaData || etapa === 7) return;
     let activo = true;
     api
       .generarComparativa(solicitud.id)
@@ -65,7 +75,7 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
     return () => {
       activo = false;
     };
-  }, [tieneComparativa, comparativaData, solicitud.id, etapa]);
+  }, [tieneComparativa, comparativaData, solicitud.id, etapa, terminal]);
 
   const tabs: { n: Etapa; label: string }[] = [
     { n: 7, label: "07 · Cotizaciones" },
@@ -75,6 +85,31 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
 
   return (
     <div className="pt-2">
+      {/* Banda de solicitud cerrada: muestra la decisión y congela el flujo */}
+      {terminal ? (
+        <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50/60 px-5 py-4 flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+          </div>
+          <div className="min-w-0">
+            <div className="text-sm font-semibold text-emerald-900">
+              {solicitud.estado === "CANCELADA"
+                ? "Solicitud cancelada"
+                : decision?.ningunaOpcion
+                  ? "Cerrada sin decisión — el solicitante no eligió ninguna opción"
+                  : solicitud.estado === "CERRADA_SIN_DECISION"
+                    ? "Cerrada sin decisión"
+                    : "Solicitud cerrada con decisión"}
+            </div>
+            <div className="text-xs text-emerald-800 mt-0.5">
+              {decision && !decision.ningunaOpcion
+                ? <>El solicitante eligió <span className="font-semibold">{proveedorElegido ?? "una opción"}</span>{solicitud.fechaCierre ? <> · {new Date(solicitud.fechaCierre).toLocaleDateString("es-HN")}</> : null}.</>
+                : "El ciclo terminó; no hay acciones pendientes para Compras."}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {/* Barra superior con Volver bien posicionado */}
       <div className="flex items-center justify-between mb-6">
         <Link href="/panel" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900 px-4 py-2.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white transition-all">
@@ -113,6 +148,7 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
                 <CargaCotizaciones
                   solicitudId={solicitud.id}
                   cotizaciones={cotizaciones}
+                  soloLectura={terminal}
                   onCotizacionCargada={() =>
                     api
                       .listarCotizaciones(solicitud.id)
@@ -177,16 +213,20 @@ export function DetalleSolicitud({ solicitud }: { solicitud: Solicitud }) {
             </div>
             <div className="space-y-4 text-sm">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <span className="text-slate-500">Tipo</span>
-                <span className="font-semibold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-lg">{solicitud.tipo ?? "—"}</span>
+                <span className="text-slate-500">Categoría</span>
+                <span className="font-semibold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-lg text-right">{nombreCategoria(solicitud.categoria)}</span>
               </div>
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <span className="text-slate-500">Subtipo</span>
-                <span className="font-semibold text-slate-900 text-right">{solicitud.subtipo ?? "—"}</span>
+                <span className="font-semibold text-slate-900 text-right">{solicitud.subtipo ? (solicitud.subtipo === "producto" ? "Producto" : "Servicio") : "Por definir"}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-slate-500">Fecha requerida</span>
-                <span className="font-semibold text-amber-700 bg-amber-50 border border-amber-100 px-2.5 py-1 rounded-lg">{solicitud.fechaRequerida ?? "—"}</span>
+                {solicitud.fechaRequerida ? (
+                  <span className="font-semibold text-amber-700 bg-amber-50 border border-amber-100 px-2.5 py-1 rounded-lg">{solicitud.fechaRequerida}</span>
+                ) : (
+                  <span className="text-slate-400 font-medium">Por definir</span>
+                )}
               </div>
             </div>
           </div>

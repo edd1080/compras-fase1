@@ -12,6 +12,9 @@ const crearSchema = z.object({
   areaSolicitante: z.string().optional(),
   descripcion: z.string().optional(),
   categoria: z.string().optional(),
+  tipo: z.enum(["RFI", "RFQ", "RFP"]).optional(),
+  subtipo: z.enum(["producto", "servicio", "mixto"]).optional(),
+  fechaRequerida: z.string().optional(),
 });
 
 export async function POST(request: Request) {
@@ -24,11 +27,14 @@ export async function POST(request: Request) {
         solicitanteNombre: body.solicitanteNombre,
         estado: "BORRADOR",
       },
-      {
-        areaSolicitante: body.areaSolicitante,
-        descripcion: body.descripcion,
-        categoria: body.categoria,
-      }
+{
+      areaSolicitante: body.areaSolicitante,
+      descripcion: body.descripcion,
+      categoria: body.categoria,
+      tipo: body.tipo,
+      subtipo: body.subtipo,
+      fechaRequerida: body.fechaRequerida,
+    }
     );
     return NextResponse.json(solicitud, { status: 201 });
   } catch (e) {

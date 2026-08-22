@@ -25,7 +25,7 @@ export interface Repositorio {
       Solicitud,
       "titulo" | "solicitanteEmail" | "solicitanteNombre" | "estado"
     >,
-    opciones?: { areaSolicitante?: string; descripcion?: string; tipo?: string; subtipo?: string; categoria?: string }
+    opciones?: { areaSolicitante?: string; descripcion?: string; tipo?: string; subtipo?: string; categoria?: string; fechaRequerida?: string }
   ): Promise<Solicitud>;
 
   guardarRespuestas(solicitudId: string, respuestas: RespuestaCampo[]): Promise<void>;
@@ -61,6 +61,9 @@ export interface Repositorio {
   registrarDecision(
     decision: Omit<Decision, "id" | "fechaDecision">
   ): Promise<Decision>;
+
+  // Última decisión registrada para la comparativa de una solicitud (null si no hay).
+  obtenerDecisionPorSolicitud(solicitudId: string): Promise<Decision | null>;
 
   registrarDecisionYCerrar(input: {
     comparativaId: string;

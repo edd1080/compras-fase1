@@ -85,8 +85,9 @@ export class PostgresRepositorio implements Repositorio {
   ): Promise<Solicitud> {
     const res = await this.pg.query(
       `INSERT INTO solicitud (titulo, solicitante_email, solicitante_nombre, estado,
-         area_solicitante, descripcion, categoria)
-       VALUES ($1,$2,$3,$4,$5,$6,$7)
+         area_solicitante, descripcion, categoria, tipo, subtipo, fecha_requerida)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,
+         $8::tipo_solicitud, $9::subtipo_solicitud, NULLIF($10,'')::date)
        RETURNING *`,
       [
         datos.titulo,
@@ -96,6 +97,11 @@ export class PostgresRepositorio implements Repositorio {
         opciones?.areaSolicitante ?? null,
         opciones?.descripcion ?? null,
         opciones?.categoria ?? null,
+        // La clasificación IA del wizard llega como tipo/subtipo; si no hay, quedan NULL
+        // (el enum de Postgres rechazaría un valor vacío o inválido).
+        opciones?.tipo && ["RFI", "RFQ", "RFP"].includes(opciones.tipo) ? opciones.tipo : null,
+        opciones?.subtipo && ["producto", "servicio", "mixto"].includes(opciones.subtipo) ? opciones.subtipo : null,
+        opciones?.fechaRequerida ?? null,
       ]
     );
     return filaSolicitud(res.rows[0]);
@@ -438,6 +444,28 @@ export class PostgresRepositorio implements Repositorio {
       ]
     );
     const f = res.rows[0];
+    return {
+      id: String(f.id),
+      comparativaId: String(f.comparativa_id),
+      cotizacionSeleccionadaId: f.cotizacion_seleccionada_id ?? undefined,
+      decididoPorEmail: String(f.decidido_por_email),
+      fechaDecision: String(f.fecha_decision),
+      ningunaOpcion: Boolean(f.ninguna_opcion),
+      comentario: f.comentario ?? undefined,
+    };
+  }
+
+    async obtenerDecisionPorSolicitud(solicitudId: string): Promise<Decision | null> {
+    const res = await this.pg.query(
+      `SELECT d.* FROM decision d
+       JOIN comparativa c ON c.id = d.comparativa_id
+       WHERE c.solicitud_id = $1
+       ORDER BY d.fecha_decision DESC
+       LIMIT 1`,
+      [solicitudId]
+    );
+    const f = res.rows[0];
+    if (!f) return null;
     return {
       id: String(f.id),
       comparativaId: String(f.comparativa_id),

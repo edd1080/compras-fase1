@@ -19,10 +19,10 @@ type BadgeProps = {
 
 const toneClasses: Record<BadgeTone, string> = {
   nueva: "bg-sky-500/10 text-sky-600 border border-sky-500/20 uppercase tracking-wider text-[9px] font-bold",
-  activa: "bg-slate-100 text-slate-700",
+  activa: "bg-sky-100 text-sky-700",
   cotizaciones: "bg-amber-100 text-amber-700",
   decision: "bg-indigo-100 text-indigo-700",
-  cerrada: "bg-green-100 text-green-700",
+  cerrada: "bg-emerald-100 text-emerald-700",
   neutral: "bg-slate-100 text-slate-600 px-2.5 py-1",
   success: "bg-sky-500/10 text-sky-600 border border-sky-500/20 uppercase tracking-wider text-[9px] font-bold",
   warning: "bg-amber-100 text-amber-700",
