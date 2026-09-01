@@ -5,6 +5,8 @@ import { Badge, type BadgeTone } from "@/components/Badge";
 import { PostgresRepositorio } from "@/lib/db/postgres-repo";
 import { nombreCategoria } from "@/lib/domain/categorias";
 
+export const dynamic = "force-dynamic";
+
 const repo = new PostgresRepositorio();
 
 export default async function AdminSolicitudDetallePage({

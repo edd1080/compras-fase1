@@ -2,6 +2,8 @@ import Link from "next/link";
 import { AdminShell } from "@/components/ui-ext/AdminShell";
 import { PostgresRepositorio } from "@/lib/db/postgres-repo";
 
+export const dynamic = "force-dynamic";
+
 const repo = new PostgresRepositorio();
 
 const ESTADOS_TERMINALES = new Set(["CERRADA_CON_DECISION", "CERRADA_SIN_DECISION", "CANCELADA"]);
