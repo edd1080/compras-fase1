@@ -12,6 +12,7 @@ import type {
   RespuestaCampo,
   Solicitud,
   Usuario,
+  CampoCatalogo,
 } from "@/lib/domain/types";
 import type { MetricasDashboard } from "@/lib/domain/metrics";
 
@@ -107,6 +108,8 @@ export interface Repositorio {
   }): Promise<CorreoEnviado>;
 
   leerConfig(clave: string): Promise<unknown>;
+
+  listarCamposDePlantilla(tipo: "RFI" | "RFQ" | "RFP", subtipo?: string, categoria?: string): Promise<CampoCatalogo[]>;
 
   guardarConfig(clave: string, valor: unknown): Promise<void>;
 }

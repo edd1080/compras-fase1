@@ -34,6 +34,7 @@ export type WizardState = {
   archivoLogo: string;
   assessmentListo: boolean;
   assessmentPreguntas: { campoKey: string; pregunta: string; ejemplo?: string }[];
+  camposPlantilla?: { campoKey: string; label: string; tipoDato: string; ayuda?: string; obligatorio: boolean; seccionPdf?: string }[];
   assessmentRespuestas: Record<string, { valor: string; noSe: boolean }>;
   solicitudId: string | null;
 };
@@ -58,6 +59,7 @@ function estadoInicial(nuevo: boolean): WizardState {
     archivoLogo: "",
     assessmentListo: false,
     assessmentPreguntas: [],
+    camposPlantilla: [],
     assessmentRespuestas: {},
     solicitudId: null,
   };
@@ -152,6 +154,7 @@ export function useSolicitudWizard(nuevo = false) {
             pregunta: p.pregunta,
             ejemplo: p.ejemplo_respuesta || undefined,
           })),
+          camposPlantilla: res.camposPlantilla ?? [],
           assessmentListo: res.sin_preguntas_pendientes,
         }));
       } else {

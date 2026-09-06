@@ -68,4 +68,17 @@ describe("assessment_requerimiento", () => {
     const keys = r.preguntas.map((p) => p.campoKey);
     expect(keys.every((k) => catalogo.some((c) => c.campoKey === k))).toBe(true);
   });
+
+  it("prioriza los campos de plantilla del tipo (H4.2)", async () => {
+    const plantilla: CampoCatalogo[] = catalogo.map((c, i) => ({ ...c, orden: 100 + i }));
+    const r = await assessment_requerimiento({
+      camposCapturados: [],
+      camposDisponiblesCatalogo: plantilla,
+      tipo: "RFQ",
+      subtipo: "servicio",
+    });
+    const keys = r.preguntas.map((p) => p.campoKey);
+    // Los campos de plantilla (assessment) lideran el orden de preguntas.
+    expect(keys).toContain("dimensiones");
+  });
 });

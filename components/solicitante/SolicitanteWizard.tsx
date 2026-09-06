@@ -434,6 +434,52 @@ function PasoDetalles({
           </span>
         </button>
       ) : null}
+      {estado.camposPlantilla && estado.camposPlantilla.length > 0 ? (
+        <div className="mb-6 space-y-4 border-t border-slate-100 pt-6">
+          <div className="flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-emerald-500"><path d="M4 5l3 4L19 7"/><circle cx="6.5" cy="18.5" r="1.5"/></svg>
+            <span className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+              Información comercial ({estado.camposPlantilla.length})
+            </span>
+          </div>
+          {estado.camposPlantilla.map((cp) => {
+            const respuesta = estado.assessmentRespuestas[cp.campoKey];
+            const completada = respuesta?.noSe === true || (respuesta?.valor ?? "").trim().length > 0;
+            return (
+              <div key={cp.campoKey} className={"rounded-2xl border p-5 transition-all " + (completada ? "bg-green-50/50 border-green-200" : "bg-amber-50/40 border-amber-200")}>
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <p className={"font-semibold text-slate-900 text-[15px] " + (respuesta?.noSe ? "text-slate-400" : "")}>
+                    {cp.label}
+                    {cp.obligatorio ? <span className="text-amber-600"> *</span> : null}
+                  </p>
+                  <span className={"shrink-0 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full " + (completada ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700")}>
+                    {completada ? "Listo" : "Pendiente"}
+                  </span>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <input
+                    type="text"
+                    value={respuesta?.valor ?? ""}
+                    onChange={(e) => set("assessmentRespuestas", { ...estado.assessmentRespuestas, [cp.campoKey]: { valor: e.target.value, noSe: false } })}
+                    placeholder={cp.ayuda || cp.label}
+                    disabled={respuesta?.noSe === true}
+                    className={"w-full bg-white border rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-1 transition-all " + (respuesta?.noSe === true ? "opacity-50 border-slate-200" : "border-slate-200 focus:border-sky-500 focus:ring-sky-500")}
+                  />
+                  <label className={"shrink-0 inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border text-xs font-semibold cursor-pointer transition-all select-none " + (respuesta?.noSe === true ? "bg-green-100 border-green-300 text-green-800" : "bg-white/70 border-slate-200 text-slate-600 hover:border-slate-300")}>
+                    <input
+                      type="checkbox"
+                      checked={respuesta?.noSe === true}
+                      onChange={(e) => set("assessmentRespuestas", { ...estado.assessmentRespuestas, [cp.campoKey]: { valor: "", noSe: e.target.checked } })}
+                      className="w-4 h-4 rounded accent-green-600"
+                    />
+                    No lo sé
+                  </label>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
       {estado.assessmentPreguntas.length > 0 ? (
         <div className="mb-6 space-y-4 border-t border-slate-100 pt-6">
           <div className="flex items-center gap-2">

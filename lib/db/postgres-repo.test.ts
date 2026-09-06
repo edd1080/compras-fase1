@@ -65,4 +65,16 @@ describeDb("PostgresRepositorio", () => {
     const tasa = await repo.leerConfig("tasa_isv");
     expect(tasa).not.toBeNull();
   });
+
+  it("lista campos de la plantilla RFQ servicio y RFQ obra y RFP", async () => {
+    const rfqServ = await repo.listarCamposDePlantilla("RFQ", "servicio");
+    const rfqObra = await repo.listarCamposDePlantilla("RFQ", "mixto");
+    const rfp = await repo.listarCamposDePlantilla("RFP", "mixto");
+    expect(rfqServ.length).toBeGreaterThan(0);
+    const claves = rfqServ.map((c) => c.campoKey);
+    expect(claves).toContain("precio_maximo");
+    expect(claves).toContain("credito_dias");
+    expect(rfqObra.length).toBeGreaterThan(0);
+    expect(rfp.length).toBeGreaterThan(0);
+  });
 });

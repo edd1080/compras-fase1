@@ -714,6 +714,38 @@ export class PostgresRepositorio implements Repositorio {
     }));
   }
 
+  listarCamposDePlantilla(
+    tipo: "RFI" | "RFQ" | "RFP",
+    subtipo?: string,
+    categoria?: string
+  ): Promise<CampoCatalogo[]> {
+    return this.pg.query(
+      `SELECT cc.*
+         FROM plantilla p
+         JOIN plantilla_campo pc ON pc.plantilla_id = p.id
+         JOIN campo_catalogo cc ON cc.id = pc.campo_id
+        WHERE p.activa = true
+          AND p.tipo = $1
+          AND ($2::text IS NULL OR p.subtipo::text = $2)
+          AND ($3::text IS NULL OR p.categoria::text = $3 OR p.categoria IS NULL)
+        ORDER BY pc.orden, cc.orden`
+    , [tipo, subtipo, categoria]).then((res) =>
+      res.rows.map((f) => ({
+        campoKey: String(f.campo_key),
+        label: String(f.label),
+        ayuda: f.ayuda ?? undefined,
+        tipoDato: f.tipo_dato,
+        catalogoOpciones: f.catalogo_opciones ?? undefined,
+        obligatorio: Boolean(f.obligatorio),
+        origen: f.origen,
+        seccionPdf: f.seccion_pdf ?? undefined,
+        orden: Number(f.orden),
+        validacion: f.validacion ?? undefined,
+        activo: Boolean(f.activo),
+      }))
+    );
+  }
+
   async guardarCampoCatalogo(campo: Omit<CampoCatalogo, "validacion" | "activo"> & { validacion?: CampoCatalogo["validacion"]; activo?: boolean }): Promise<void> {
     await this.pg.query(
       `INSERT INTO campo_catalogo (campo_key, label, ayuda, tipo_dato, catalogo_opciones, obligatorio, origen, seccion_pdf, orden, validacion, activo)

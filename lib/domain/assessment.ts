@@ -17,6 +17,7 @@ export type ResultadoAssessment = {
   preguntas: PreguntaAssessment[];
   contexto_investigado: string;
   sin_preguntas_pendientes: boolean;
+  camposPlantilla?: CampoCatalogo[];
 };
 
 export type AssessmentInput = {

@@ -46,14 +46,30 @@ export async function POST(request: Request) {
       ? catalogoBody
       : await repo.listarCampoCatalogo();
 
+    // H4.2: si existe plantilla para (tipo, subtipo, categoría), usarla como base del
+    // assessment: se priorizan sus campos (comerciales de la plantilla) y se reordenan
+    // primeros; el resto del catálogo assessment queda de respaldo si la IA lo pide.
+    let catalogoFinal = catalogo;
+    let camposPlantilla: CampoCatalogo[] = [];
+    if (catalogoBody.length === 0) {
+      const camposPlantillaRaw = await repo.listarCamposDePlantilla(body.tipo, body.subtipo, body.categoria || undefined);
+      camposPlantilla = camposPlantillaRaw;
+      if (camposPlantillaRaw.length > 0) {
+        const enPlantilla = new Set(camposPlantillaRaw.map((c) => c.campoKey));
+        const resto = catalogo.filter((c) => !enPlantilla.has(c.campoKey));
+        catalogoFinal = [...camposPlantillaRaw, ...resto];
+      }
+    }
+
     const res = await assessment_requerimiento({
       tipo: body.tipo,
       subtipo: body.subtipo,
       camposCapturados: body.camposCapturados,
-      camposDisponiblesCatalogo: catalogo,
+      camposDisponiblesCatalogo: catalogoFinal,
       llevaBranding: body.llevaBranding,
       archivoLogo: body.archivoLogo,
     });
+    return NextResponse.json({ ...res, camposPlantilla });
     return NextResponse.json(res);
   } catch (e) {
     if (e instanceof z.ZodError) {
